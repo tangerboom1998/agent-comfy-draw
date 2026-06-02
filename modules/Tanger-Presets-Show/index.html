@@ -1,0 +1,4122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tanger Presets Show</title>
+
+    <script src="./data/characterList.js"></script>
+    <script src="./data/imageCountList.js"></script>
+
+    <link rel="stylesheet" href="./app.css">
+
+    <!-- 放大圖片的套件 -->
+    <script src="./vender/medium-zoom.min.js"></script>
+
+    <!-- 瀏覽器圖示 -->
+    <link rel="Shortcut Icon" type="image/x-icon" href="./imgs/favicon.ico" />
+
+    <!-- 手機圖示 -->
+    <link href="./imgs/icon-192.png" rel="apple-touch-icon" sizes="192x192">
+
+    <!-- Google 字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        /* 头部 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .header .title {
+            font-size: 20px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header .subtitle {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+
+        /* 主容器 */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 统计卡片 */
+        .stats-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .stat-icon {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .stat-card .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-card .stat-label {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        /* 搜索面板 */
+        .search-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-tab {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+            transition: all 0.3s ease;
+        }
+
+        .search-tab:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .search-tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .search-filters {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            color: #495057;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            padding: 10px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .filter-group input[type="text"] {
+            width: 250px;
+        }
+
+        /* 分类标签面板 */
+        .categories-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .categories-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .categories-header h3 {
+            font-size: 16px;
+            color: #333;
+        }
+
+        .categories-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .category-tab {
+            padding: 6px 14px;
+            background: #f8f9fa;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .category-tab:hover {
+            background: #e9ecef;
+        }
+
+        .category-tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .category-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            max-height: 150px;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+
+        .category-tag {
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-tag:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .category-tag.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* 图片网格 */
+        .images-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .image-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .image-card .image-wrapper {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            background: #212529;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .image-card .image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .image-card:hover .image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        /* 卡片预览图放大按钮 */
+        .image-wrapper .preview-zoom-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            z-index: 10;
+            opacity: 0;
+        }
+
+        .image-card:hover .preview-zoom-btn {
+            opacity: 1;
+        }
+
+        .image-wrapper .preview-zoom-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        .image-card .no-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+        }
+
+        .image-card .no-image .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+            opacity: 0.5;
+        }
+
+        .image-card .no-image .text {
+            font-size: 14px;
+            opacity: 0.7;
+        }
+
+        .image-card .badges {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .image-card .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+            backdrop-filter: blur(5px);
+        }
+
+        .image-card .badge.lora {
+            background: rgba(255, 107, 107, 0.9);
+            color: white;
+        }
+
+        .image-card .badge.source {
+            background: rgba(102, 126, 234, 0.9);
+            color: white;
+        }
+
+        .image-card .card-content {
+            padding: 16px 15px 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .image-card .char-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .image-card .char-series {
+            font-size: 12px;
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+
+        .image-card .tags-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .image-card .tag-chip {
+            padding: 3px 8px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            font-size: 10px;
+            color: #495057;
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .image-card .tag-desc {
+            font-size: 11px;
+            color: #6c757d;
+            line-height: 1.5;
+            margin: 6px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .image-card .tag-dgroup {
+            font-size: 11px;
+            color: #764ba2;
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .image-card .actions {
+            display: flex;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .image-card .action-btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .image-card .action-btn.copy-name {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .image-card .action-btn.copy-name:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .image-card .action-btn.copy-series {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .image-card .action-btn.copy-series:hover {
+            background: #764ba2;
+            color: white;
+        }
+
+        .image-card .action-btn.copy-prompt {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .image-card .action-btn.copy-prompt:hover {
+            background: #28a745;
+            color: white;
+        }
+
+        .image-card .action-btn.delete-btn {
+            flex: 0 0 36px;
+            background: #fff;
+            color: #dc3545;
+            font-size: 14px;
+            padding: 6px;
+            border: 1px solid #f5c6cb;
+        }
+
+        .image-card .action-btn.delete-btn:hover {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+
+        /* 新增按钮 */
+        .category-actions {
+            display: flex;
+            justify-content: center;
+            margin-top: 12px;
+        }
+
+        .tag-action-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 12px;
+            padding: 0 4px;
+        }
+
+        .add-tag-btn {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .add-tag-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 新增/编辑标签表单 */
+        .tag-form-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tag-form-overlay.show {
+            display: flex;
+        }
+
+        .tag-form {
+            background: white;
+            border-radius: 15px;
+            padding: 24px;
+            width: 90%;
+            max-width: 520px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .tag-form h3 {
+            margin-bottom: 16px;
+            color: #333;
+        }
+
+        .tag-form .form-group {
+            margin-bottom: 14px;
+        }
+
+        .tag-form .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 4px;
+        }
+
+        .tag-form .form-group input,
+        .tag-form .form-group textarea {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .tag-form .form-group textarea {
+            min-height: 60px;
+            resize: vertical;
+        }
+
+        .tag-form .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 18px;
+        }
+
+        .tag-form .form-actions button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tag-form .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tag-form .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .tag-form .btn-cancel {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .tag-form .btn-cancel:hover {
+            background: #dee2e6;
+        }
+
+        /* LoRA Toggle Switch */
+        .toggle-label {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 8px 0;
+            font-size: 14px;
+            font-weight: 500;
+            color: #495057;
+            user-select: none;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ced4da;
+            border-radius: 26px;
+            transition: 0.3s ease;
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            border-radius: 50%;
+            transition: 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .toggle-switch input:checked + .toggle-slider::before {
+            transform: translateX(22px);
+        }
+
+        /* 确认弹窗 */
+        .confirm-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 600;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .confirm-overlay.show {
+            display: flex;
+        }
+
+        .confirm-dialog {
+            background: white;
+            border-radius: 15px;
+            padding: 28px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .confirm-dialog .confirm-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        .confirm-dialog h3 {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .confirm-dialog .confirm-msg {
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 20px;
+            word-break: break-all;
+        }
+
+        .confirm-dialog .confirm-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .confirm-dialog .confirm-actions button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .confirm-dialog .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .confirm-dialog .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .confirm-dialog .btn-secondary {
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .confirm-dialog .btn-secondary:hover {
+            background: #dee2e6;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .page-btn {
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .page-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 详情面板 */
+        .detail-panel {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 450px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        .detail-panel.show {
+            display: block;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .detail-header h3 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .detail-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #6c757d;
+            padding: 5px;
+            line-height: 1;
+        }
+
+        .detail-close:hover {
+            color: #333;
+        }
+
+        .detail-content {
+            padding: 20px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+        }
+
+        .detail-section h4 {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .copy-section-btn {
+            padding: 4px 10px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 15px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #495057;
+        }
+
+        .copy-section-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .detail-info {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 10px;
+            font-size: 13px;
+        }
+
+        .detail-info .label {
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .detail-info .value {
+            color: #333;
+        }
+
+        .detail-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .detail-tag {
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #495057;
+        }
+
+        .detail-prompt {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .detail-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .detail-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .detail-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .detail-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .detail-btn.secondary {
+            background: #f8f9fa;
+            color: #495057;
+        }
+
+        .detail-btn.secondary:hover {
+            background: #e9ecef;
+        }
+
+        /* 补录表单 */
+        .补录-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .补录-form.show {
+            display: block;
+        }
+
+        .补录-form h4 {
+            margin: 0 0 15px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .补录-form .form-group {
+            margin-bottom: 15px;
+        }
+
+        .补录-form label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .补录-form input,
+        .补录-form textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .补录-form input:focus,
+        .补录-form textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .补录-form textarea {
+            height: 100px;
+            resize: vertical;
+        }
+
+        .补录-form .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 9999;
+            animation: toastIn 0.3s ease, toastOut 0.3s ease 1.7s;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
+        }
+
+        /* 页脚 */
+        .footer {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #6c757d;
+            line-height: 1.8;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 12px 15px;
+            }
+
+            .header .title {
+                font-size: 16px;
+            }
+
+            .main-container {
+                padding: 15px;
+            }
+
+            .stats-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-card .stat-value {
+                font-size: 22px;
+            }
+
+            .search-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .filter-group input[type="text"] {
+                width: 100%;
+            }
+
+            .images-grid {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 15px;
+            }
+
+            .detail-panel {
+                width: 100%;
+            }
+        }
+
+        /* 滚动条美化 */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* Pretags 文件选择器 */
+        .pretags-file-selector {
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 500;
+            background: white;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .pretags-file-selector:hover {
+            border-color: #667eea;
+        }
+
+        .pretags-file-selector:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* 设为默认按钮 */
+        .set-default-btn {
+            padding: 8px 16px;
+            margin-left: 8px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            color: #333;
+            border: 1px solid #e6c200;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .set-default-btn:hover {
+            background: linear-gradient(135deg, #ffed4e 0%, #ffd700 100%);
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .set-default-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(255, 215, 0, 0.2);
+        }
+
+        /* 语言切换按钮 */
+        .lang-switch {
+            display: inline-flex;
+            border: 2px solid #e9ecef;
+            border-radius: 20px;
+            overflow: hidden;
+            margin-left: 10px;
+        }
+        .lang-switch button {
+            padding: 6px 14px;
+            border: none;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6c757d;
+            transition: all 0.2s ease;
+        }
+        .lang-switch button.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .lang-switch button:hover:not(.active) {
+            background: #e9ecef;
+        }
+        /* Info Banner */
+        .info-banner {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .info-banner:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-banner .info-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .info-banner .info-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-banner .info-toggle {
+            font-size: 18px;
+            color: #6c757d;
+            transition: transform 0.3s ease;
+        }
+
+        .info-banner.expanded .info-toggle {
+            transform: rotate(180deg);
+        }
+
+        .info-banner .info-description {
+            font-size: 13px;
+            color: #6c757d;
+            margin-top: 8px;
+            line-height: 1.6;
+            display: none;
+        }
+
+        .info-banner.expanded .info-description {
+            display: block;
+        }
+
+        .info-banner .info-body {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .info-banner.expanded .info-body {
+            display: block;
+        }
+
+        .info-banner .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .info-banner .info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+        }
+
+        .info-banner .info-item .info-label {
+            color: #6c757d;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .info-banner .info-item .info-value {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .info-banner .model-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .info-banner .model-badge {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .info-banner .info-notes {
+            margin-top: 10px;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #495057;
+            line-height: 1.6;
+            border-left: 3px solid #667eea;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 头部 -->
+    <div class="header">
+        <div class="logo-section">
+            <img class="logo" src="./imgs/icon-192.png" alt="logo">
+            <div>
+                <div class="title">Tanger Presets Show</div>
+                <div class="subtitle" data-i18n="subtitle">AI 绘画角色预设展示平台</div>
+            </div>
+        </div>
+        <div class="btns">
+            <select id="pretagsFileSelector" class="pretags-file-selector" onchange="switchPretagsFile(this.value)">
+                <option value="" data-i18n="loadingFile">加载中...</option>
+            </select>
+            <button id="setDefaultBtn" class="set-default-btn" onclick="setDefaultPretagsFile()" data-i18n-title="setDefaultTitle" title="将当前选中的文件设为默认">⭐ <span data-i18n="setDefault">设为默认</span></button>
+            <div class="lang-switch">
+                <button id="langZh" class="active" onclick="switchLang('zh')">中文</button>
+                <button id="langEn" onclick="switchLang('en')">EN</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+
+        <!-- Info 横幅 -->
+        <div class="info-banner" id="infoBanner" style="display: none;" onclick="toggleInfoBanner()">
+            <div class="info-header">
+                <div class="info-title">
+                    <span id="infoName">📦 预设库信息</span>
+                </div>
+                <span class="info-toggle" id="infoToggle">▼</span>
+            </div>
+            <div class="info-description" id="infoDescription"></div>
+            <div class="info-body">
+                <div class="info-grid" id="infoGrid"></div>
+                <div class="model-badges" id="modelBadges"></div>
+                <div class="info-notes" id="infoNotes" style="display:none;"></div>
+            </div>
+        </div>
+
+        <!-- 统计卡片 -->
+        <div class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon">👤</div>
+                <div class="stat-value" id="totalCount">0</div>
+                <div class="stat-label" data-i18n="statTotalChars">角色总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-value" id="loraCount">0</div>
+                <div class="stat-label" data-i18n="statHasLora">有 LoRA</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">📁</div>
+                <div class="stat-value" id="seriesCount">0</div>
+                <div class="stat-label" data-i18n="statSeries">系列数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏷️</div>
+                <div class="stat-value" id="tagsCount">0</div>
+                <div class="stat-label" data-i18n="statTotalTags">标签总数</div>
+            </div>
+        </div>
+
+        <!-- 搜索面板 -->
+        <div class="search-panel">
+            <div class="search-tabs">
+                <button class="search-tab active" data-tab="character">👤 人物</button>
+                <button class="search-tab" data-tab="action">🏃 动作</button>
+                <button class="search-tab" data-tab="clothing">👗 服装</button>
+                <button class="search-tab" data-tab="shot">📷 镜头</button>
+                <button class="search-tab" data-tab="style">🎨 画风</button>
+                <button class="search-tab" data-tab="scene">🏞️ 场景</button>
+                <button class="search-tab" data-tab="other">📦 其他</button>
+            </div>
+
+            <div class="search-filters">
+                <div class="filter-group">
+                    <label data-i18n="search">🔍 搜索</label>
+                    <input type="text" id="searchInput" data-i18n-placeholder="searchPlaceholder" placeholder="角色名、系列名、标签...">
+                </div>
+
+                <div class="filter-group">
+                    <label data-i18n="series">📁 系列</label>
+                    <select id="seriesSelect">
+                        <option value="" data-i18n="allSeries">全部系列</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label data-i18n="sort">📊 排序</label>
+                    <select id="sortSelect">
+                        <option value="default">默认</option>
+                        <option value="name">按名称</option>
+                        <option value="series">按系列</option>
+                        <option value="lora">有 LoRA 优先</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label data-i18n="perPage">📄 每页</label>
+                    <select id="pageSizeSelect">
+                        <option value="30">30</option>
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分类标签面板 -->
+        <div class="categories-panel" id="categoriesPanel" style="display: none;">
+            <div class="categories-header">
+                <h3 data-i18n="browseByTags">🏷️ 按标签浏览</h3>
+                <div class="categories-tabs">
+                    <button class="category-tab active" data-category="action">动作</button>
+                    <button class="category-tab" data-category="clothing">服装</button>
+                    <button class="category-tab" data-category="shot">镜头</button>
+                    <button class="category-tab" data-category="style">画风</button>
+                    <button class="category-tab" data-category="scene">场景</button>
+                    <button class="category-tab" data-category="other">其他</button>
+                </div>
+            </div>
+            <div class="category-tags" id="categoryTags">
+                <!-- 动态填充 -->
+            </div>
+            <div class="category-actions" id="categoryActions" style="display: none;">
+                <button class="add-tag-btn" onclick="showAddTagForm()" data-i18n="addCard">➕ 新增卡片</button>
+            </div>
+        </div>
+
+        <!-- 标签操作栏 -->
+        <div class="tag-action-bar" id="tagActionBar" style="display: none;">
+            <button class="add-tag-btn" onclick="showAddTagForm()" data-i18n="addCard">➕ 新增卡片</button>
+        </div>
+
+        <!-- 图片网格 -->
+        <div class="images-grid" id="imagesGrid">
+            <div class="toast" data-i18n="loading">加载中...</div>
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination" id="pagination"></div>
+    </div>
+
+    <!-- 详情面板 -->
+    <div class="detail-panel" id="detailPanel">
+        <div class="detail-header">
+            <h3 id="detailTitle">角色详情</h3>
+            <button class="detail-close" id="detailClose">&times;</button>
+        </div>
+        <div class="detail-content" id="detailContent">
+            <!-- 动态内容 -->
+        </div>
+        <div class="补录-form" id="补录Form">
+            <h4 data-i18n="uploadPreview">📷 补录预览图</h4>
+            <input type="hidden" id="补录Cname" value="">
+            <input type="hidden" id="补录Source" value="">
+            <div class="form-group">
+                <label data-i18n="uploadFileLabel">上传图片文件</label>
+                <input type="file" id="补录ImageFile" accept="image/*" onchange="handle补录FileSelect(event)">
+            </div>
+            <div class="form-group">
+                <label data-i18n="orUrlLabel">或输入图片 URL</label>
+                <input type="text" id="补录ImageUrl" placeholder="https://example.com/image.jpg">
+            </div>
+            <div id="补录Preview" style="display:none; margin:8px 0; text-align:center;">
+                <img id="补录PreviewImg" style="max-width:200px; max-height:150px; border-radius:8px;">
+            </div>
+            <div class="form-actions">
+                <button class="detail-btn primary" id="补录Submit" data-i18n="submitUpload">提交补录</button>
+                <button class="detail-btn secondary" id="补录Cancel" data-i18n="cancel">取消</button>
+            </div>
+            <div id="补录Status" style="margin-top:8px; font-size:12px;"></div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <div class="footer">
+        All AI-generated images and character names displayed in this project remain the copyright of their original creators and companies.
+        <br>
+        This project is for technical demonstration and academic research purposes only, with no commercial use.
+    </div>
+
+    <script>
+        // 分类键名映射（英文键名 → 当前语言显示名）
+        const CATEGORY_DISPLAY_ZH = {
+            'character': '人物', 'action': '动作', 'clothing': '服装',
+            'shot': '镜头', 'style': '画风', 'scene': '场景', 'other': '其他'
+        };
+        const CATEGORY_DISPLAY_EN = {
+            'character': 'Character', 'action': 'Action', 'clothing': 'Clothing',
+            'shot': 'Shot', 'style': 'Style', 'scene': 'Scene', 'other': 'Other'
+        };
+        const CATEGORY_KEYS = Object.keys(CATEGORY_DISPLAY_ZH);
+        function getCategoryDisplay(key) {
+            return (_lang === 'en' ? CATEGORY_DISPLAY_EN : CATEGORY_DISPLAY_ZH)[key] || key;
+        }
+
+        // ═══════════════════════════════════════════
+        //  i18n 国际化系统
+        // ═══════════════════════════════════════════
+        let _lang = localStorage.getItem('tanger_lang') || 'zh';
+
+        const I18N = {
+            zh: {
+                subtitle: 'AI 绘画角色预设展示平台',
+                setDefault: '设为默认',
+                setDefaultTitle: '将当前选中的文件设为默认',
+                statTotalChars: '角色总数', statHasLora: '有 LoRA',
+                statSeries: '系列数量', statTotalTags: '标签总数',
+                loading: '加载中...',
+                search: '🔍 搜索', searchPlaceholder: '角色名、系列名、标签...',
+                series: '📁 系列', allSeries: '全部系列',
+                sort: '📊 排序', sortDefault: '默认', sortName: '按名称',
+                sortSeries: '按系列', sortLora: '有 LoRA 优先',
+                perPage: '📄 每页',
+                browseByTags: '🏷️ 按标签浏览',
+                addCard: '➕ 新增卡片', addCharacter: '➕ 新增角色',
+                noMatch: '没有找到匹配的角色',
+                dropToUpdatePreview: '拖放图片更新预览',
+                copyName: '复制名称', copyTag: '复制Tag',
+                copySeries: '复制系列', copyPrompt: '复制Prompt',
+                zoom: '放大查看', tagLabel: '标签', group: '分组:',
+                prevPage: '← 上一页', nextPage: '下一页 →',
+                editMode: '✏️ 编辑模式', viewMode: '👁️ 查看模式',
+                basicInfo: '📋 基本信息', charName: '角色名',
+                seriesLabel: '系列', engName: '英文名', none: '无',
+                copy: '📋 复制',
+                appearanceTags: '👤 外貌标签', clothingTags: '👗 服装标签',
+                fullPrompt: '📝 完整 Prompt', copyFullPrompt: '📋 复制完整 Prompt',
+                uploadPreview: '📷 补录预览图',
+                saveChanges: '💾 保存修改', cancel: '❌ 取消',
+                tagInfo: '🏷️ 标签信息', tagName: '标签名',
+                category: '分类', engTag: '英文Tag',
+                styleDesc: '画风描述', groupLabel: '分组',
+                fullTag: '📝 完整 Tag', updatePreview: '📷 更新预览图',
+                clickOrDrag: '点击或拖拽上传预览图',
+                supportFormats: '支持 JPG、PNG、WebP 格式',
+                orEnterUrl: '或输入图片URL：', upload: '📤 上传',
+                clear: '❌ 清除', copyTagBtn: '📋 复制 Tag',
+                savePreview: '💾 保存预览图', editInfo: '✏️ 编辑信息',
+                confirmDelete: '确认删除',
+                confirmDeleteMsg: '确定要删除此卡片吗？此操作不可撤销。',
+                confirmDeleteBtn: '确认删除',
+                switchFileLoading: '⏳ 切换数据文件中...',
+                switchedTo: '✅ 已切换到 ',
+                switchFailed: '❌ 切换失败: ',
+                selectFileFirst: '❌ 请先选择一个文件',
+                setDefaultOk: '✅ 已将 ', setDefaultOkSuffix: ' 设为默认文件',
+                setDefaultFailed: '❌ 设置失败: ',
+                deleted: '已删除「', deletedChar: '已删除角色「',
+                deleteFailed: '删除失败: ',
+                deletedLocal: '已从本地删除（后端不可用）',
+                confirmDeleteTag: '确定要删除「',
+                confirmDeleteTagSuffix: '」吗？此操作不可撤销。',
+                confirmDeleteChar: '确定要删除角色「',
+                editChar: '✏️ 编辑角色', editCard: '✏️ 编辑卡片',
+                charNameRequired: '角色名 *', tagNameRequired: '标签名 *',
+                engPromptName: '英文 Prompt 名', engTagLabel: '英文 Tag',
+                appearanceTagLabel: '外貌 Tag', clothingTagLabel: '服装 Tag',
+                styleDescLabel: '画风描述', dGroupLabel: 'd_group 分组ID',
+                loraFilename: 'LoRA 文件名', loraHash: 'LoRA Hash',
+                unetWeight: 'UNet 权重', clipWeight: 'CLIP 权重',
+                loraLink: 'LoRA 链接', seriesRequired: '系列 *',
+                enterCharName: '请输入角色名', enterTagName: '请输入标签名',
+                addFailedNoId: '新增失败：未返回ID',
+                addedChar: '已新增角色「', addFailed: '新增失败: ',
+                addFailedBackend: '新增失败（后端不可用）',
+                added: '已新增「', saved: '已保存修改',
+                saveFailed: '保存失败: ',
+                saveFailedBackend: '保存失败（后端不可用）',
+                noDataToSave: '没有数据可保存', saveOk: '保存成功！',
+                saveFailedWith: '保存失败：',
+                updatedLocal: '已更新本地数据（后端不可用）',
+                charInfoNotFound: '未找到角色信息',
+                uploadOrUrl: '请上传文件或输入图片URL',
+                saving: '⏳ 保存中...',
+                previewSaved: '✅ 预览图保存成功！',
+                saveFailedMsg: '❌ 保存失败：',
+                requestFailed: '❌ 请求失败：',
+                copied: '已复制到剪贴板',
+                selectImage: '请选择图片文件',
+                imageTooLarge: '图片大小不能超过 10MB',
+                enterImageUrl: '请输入图片URL',
+                noTagData: '没有标签数据',
+                uploadImageFirst: '请先上传图片',
+                previewSaveOk: '预览图保存成功！',
+                saveFailedResponse: '保存失败：',
+                cannotIdentifyCard: '无法识别卡片类型',
+                dropImageFile: '请拖放图片文件',
+                imageExceedLimit: '图片不能超过 10MB',
+                uploadingPreview: '⏳ 正在上传预览图...',
+                previewUpdated: '✅ 预览图已更新',
+                saveFailedShort: '❌ 保存失败: ',
+                requestFailedShort: '❌ 请求失败: ',
+                submitUpload: '提交补录',
+                uploadFileLabel: '上传图片文件',
+                orUrlLabel: '或输入图片 URL',
+                linkLabel: '链接', noFileName: '(无文件名)',
+                confirmAdd: '确认新增', saveChangesShort: '保存修改',
+                loraLabel: 'LoRA', loadingFile: '加载中...',
+                appearanceLabel: '外貌标签', clothingLabel: '服装标签',
+                phSeries: '例如：鸣潮', phTagName: '例如：高饱和平涂赛璐璐',
+                phAppearance: '例如：1girl, blue eyes, long hair, ...',
+                phClothing: '例如：clothes: xxx, ...',
+                phEngTag: '例如：artist:xxx, ...', phStyleDesc: '画风描述文本...',
+                phLoraFile: '例如：高饱和平涂赛璐璐', phLoraHash: '例如：D0AFD75FAF',
+            },
+            en: {
+                subtitle: 'AI Art Character Preset Gallery',
+                setDefault: 'Set Default',
+                setDefaultTitle: 'Set current file as default',
+                statTotalChars: 'Total Characters', statHasLora: 'Has LoRA',
+                statSeries: 'Series Count', statTotalTags: 'Total Tags',
+                loading: 'Loading...',
+                search: '🔍 Search', searchPlaceholder: 'Character, series, tags...',
+                series: '📁 Series', allSeries: 'All Series',
+                sort: '📊 Sort', sortDefault: 'Default', sortName: 'By Name',
+                sortSeries: 'By Series', sortLora: 'LoRA First',
+                perPage: '📄 Per Page',
+                browseByTags: '🏷️ Browse by Tags',
+                addCard: '➕ Add Card', addCharacter: '➕ Add Character',
+                noMatch: 'No matching characters found',
+                dropToUpdatePreview: 'Drop image to update preview',
+                copyName: 'Copy Name', copyTag: 'Copy Tag',
+                copySeries: 'Copy Series', copyPrompt: 'Copy Prompt',
+                zoom: 'Zoom', tagLabel: 'tag', group: 'Group:',
+                prevPage: '← Previous', nextPage: 'Next →',
+                editMode: '✏️ Edit Mode', viewMode: '👁️ View Mode',
+                basicInfo: '📋 Basic Info', charName: 'Character Name',
+                seriesLabel: 'Series', engName: 'English Name', none: 'None',
+                copy: '📋 Copy',
+                appearanceTags: '👤 Appearance Tags', clothingTags: '👗 Clothing Tags',
+                fullPrompt: '📝 Full Prompt', copyFullPrompt: '📋 Copy Full Prompt',
+                uploadPreview: '📷 Upload Preview',
+                saveChanges: '💾 Save Changes', cancel: '❌ Cancel',
+                tagInfo: '🏷️ Tag Info', tagName: 'Tag Name',
+                category: 'Category', engTag: 'English Tag',
+                styleDesc: 'Style Description', groupLabel: 'Group',
+                fullTag: '📝 Full Tag', updatePreview: '📷 Update Preview',
+                clickOrDrag: 'Click or drag to upload preview',
+                supportFormats: 'Supports JPG, PNG, WebP',
+                orEnterUrl: 'Or enter image URL:', upload: '📤 Upload',
+                clear: '❌ Clear', copyTagBtn: '📋 Copy Tag',
+                savePreview: '💾 Save Preview', editInfo: '✏️ Edit Info',
+                confirmDelete: 'Confirm Delete',
+                confirmDeleteMsg: 'Are you sure you want to delete this card? This action cannot be undone.',
+                confirmDeleteBtn: 'Confirm Delete',
+                switchFileLoading: '⏳ Switching data file...',
+                switchedTo: '✅ Switched to ',
+                switchFailed: '❌ Switch failed: ',
+                selectFileFirst: '❌ Please select a file first',
+                setDefaultOk: '✅ Set ', setDefaultOkSuffix: ' as default file',
+                setDefaultFailed: '❌ Setting failed: ',
+                deleted: 'Deleted「', deletedChar: 'Deleted character「',
+                deleteFailed: 'Delete failed: ',
+                deletedLocal: 'Deleted locally (backend unavailable)',
+                confirmDeleteTag: 'Are you sure you want to delete「',
+                confirmDeleteTagSuffix: '」? This action cannot be undone.',
+                confirmDeleteChar: 'Are you sure you want to delete character「',
+                editChar: '✏️ Edit Character', editCard: '✏️ Edit Card',
+                charNameRequired: 'Character Name *', tagNameRequired: 'Tag Name *',
+                engPromptName: 'English Prompt Name', engTagLabel: 'English Tag',
+                appearanceTagLabel: 'Appearance Tags', clothingTagLabel: 'Clothing Tags',
+                styleDescLabel: 'Style Description', dGroupLabel: 'd_group Group ID',
+                loraFilename: 'LoRA Filename', loraHash: 'LoRA Hash',
+                unetWeight: 'UNet Weight', clipWeight: 'CLIP Weight',
+                loraLink: 'LoRA Link', seriesRequired: 'Series *',
+                enterCharName: 'Please enter character name',
+                enterTagName: 'Please enter tag name',
+                addFailedNoId: 'Add failed: No ID returned',
+                addedChar: 'Added character「', addFailed: 'Add failed: ',
+                addFailedBackend: 'Add failed (backend unavailable)',
+                added: 'Added「', saved: 'Changes saved',
+                saveFailed: 'Save failed: ',
+                saveFailedBackend: 'Save failed (backend unavailable)',
+                noDataToSave: 'No data to save', saveOk: 'Saved successfully!',
+                saveFailedWith: 'Save failed: ',
+                updatedLocal: 'Local data updated (backend unavailable)',
+                charInfoNotFound: 'Character info not found',
+                uploadOrUrl: 'Please upload a file or enter image URL',
+                saving: '⏳ Saving...',
+                previewSaved: '✅ Preview saved successfully!',
+                saveFailedMsg: '❌ Save failed: ',
+                requestFailed: '❌ Request failed: ',
+                copied: 'Copied to clipboard',
+                selectImage: 'Please select an image file',
+                imageTooLarge: 'Image size cannot exceed 10MB',
+                enterImageUrl: 'Please enter image URL',
+                noTagData: 'No tag data',
+                uploadImageFirst: 'Please upload an image first',
+                previewSaveOk: 'Preview saved successfully!',
+                saveFailedResponse: 'Save failed: ',
+                cannotIdentifyCard: 'Cannot identify card type',
+                dropImageFile: 'Please drag and drop an image file',
+                imageExceedLimit: 'Image cannot exceed 10MB',
+                uploadingPreview: '⏳ Uploading preview...',
+                previewUpdated: '✅ Preview updated',
+                saveFailedShort: '❌ Save failed: ',
+                requestFailedShort: '❌ Request failed: ',
+                submitUpload: 'Submit',
+                uploadFileLabel: 'Upload Image File',
+                orUrlLabel: 'Or enter image URL',
+                linkLabel: 'Link', noFileName: '(no filename)',
+                confirmAdd: 'Confirm Add', saveChangesShort: 'Save Changes',
+                loraLabel: 'LoRA', loadingFile: 'Loading...',
+                appearanceLabel: 'Appearance Tags', clothingLabel: 'Clothing Tags',
+                phSeries: 'e.g. Wuthering Waves', phTagName: 'e.g. high-saturation cel-shading',
+                phAppearance: 'e.g. 1girl, blue eyes, long hair, ...',
+                phClothing: 'e.g. clothes: xxx, ...',
+                phEngTag: 'e.g. artist:xxx, ...', phStyleDesc: 'Style description...',
+                phLoraFile: 'e.g. high-saturation cel-shading', phLoraHash: 'e.g. D0AFD75FAF',
+            }
+        };
+
+        function t(key) { return (I18N[_lang] && I18N[_lang][key]) || (I18N.zh[key]) || key; }
+
+        function switchLang(lang) {
+            _lang = lang;
+            localStorage.setItem('tanger_lang', lang);
+            document.getElementById('langZh').classList.toggle('active', lang === 'zh');
+            document.getElementById('langEn').classList.toggle('active', lang === 'en');
+            document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+            applyI18n();
+        }
+
+        function applyI18n() {
+            // 1. data-i18n 静态元素
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (I18N[_lang] && I18N[_lang][key]) el.textContent = I18N[_lang][key];
+            });
+            // 2. data-i18n-placeholder
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (I18N[_lang] && I18N[_lang][key]) el.placeholder = I18N[_lang][key];
+            });
+            // 3. data-i18n-title
+            document.querySelectorAll('[data-i18n-title]').forEach(el => {
+                const key = el.getAttribute('data-i18n-title');
+                if (I18N[_lang] && I18N[_lang][key]) el.title = I18N[_lang][key];
+            });
+            // 4. 搜索 Tab 文字
+            document.querySelectorAll('.search-tab').forEach(btn => {
+                const tab = btn.dataset.tab;
+                const emoji = {'character':'👤','action':'🏃','clothing':'👗','shot':'📷','style':'🎨','scene':'🏞️','other':'📦'}[tab] || '';
+                btn.textContent = emoji + ' ' + getCategoryDisplay(tab);
+            });
+            // 5. 分类 Tab 文字
+            document.querySelectorAll('.category-tab').forEach(btn => {
+                btn.textContent = getCategoryDisplay(btn.dataset.category);
+            });
+            // 6. 排序选项
+            const sortSelect = document.getElementById('sortSelect');
+            if (sortSelect) {
+                const val = sortSelect.value;
+                sortSelect.innerHTML = `<option value="default">${t('sortDefault')}</option>` +
+                    `<option value="name">${t('sortName')}</option>` +
+                    `<option value="series">${t('sortSeries')}</option>` +
+                    `<option value="lora">${t('sortLora')}</option>`;
+                sortSelect.value = val;
+            }
+            // 7. 系列下拉框"全部系列"
+            const seriesSelect = document.getElementById('seriesSelect');
+            if (seriesSelect && seriesSelect.options[0] && seriesSelect.options[0].value === '') {
+                seriesSelect.options[0].textContent = t('allSeries');
+            }
+            // 8. 操作栏按钮
+            const addBtn = document.querySelector('#tagActionBar .add-tag-btn');
+            if (addBtn) addBtn.textContent = currentTab === 'character' ? t('addCharacter') : t('addCard');
+            const catAddBtn = document.querySelector('#categoryActions .add-tag-btn');
+            if (catAddBtn) catAddBtn.textContent = t('addCard');
+            // 9. 搜索标签
+            const searchLabel = document.querySelector('.filter-group label');
+            // 10. 重新渲染当前页面
+            filterAndDisplay();
+            // 11. 重新渲染已打开的详情面板
+            const detailPanel = document.getElementById('detailPanel');
+            if (detailPanel && detailPanel.classList.contains('show')) {
+                if (document.getElementById('tagViewMode') || document.getElementById('tagEditMode')) {
+                    const isEdit = document.getElementById('tagEditMode') && document.getElementById('tagEditMode').style.display !== 'none';
+                    showTagDetail(window.currentTagData, isEdit);
+                } else if (document.getElementById('viewMode') || document.getElementById('editMode')) {
+                    const isEdit = document.getElementById('editMode') && document.getElementById('editMode').style.display !== 'none';
+                    showDetail(window.currentEditData, isEdit);
+                }
+            }
+        }
+
+        // 全局变量
+        let pretagsData = null;
+        let currentTab = 'character';
+        let currentCategory = 'action';
+        let currentPage = 1;
+        let pageSize = 50;
+        let filteredCharacters = [];
+        let selectedTags = [];
+
+        // 图片映射表
+        let imageMap = {};
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 初始化语言
+            switchLang(_lang);
+            await loadPretagsFileList();
+            await loadPretagsData();
+            buildImageMap();
+            initUI();
+            filterAndDisplay();
+            // 初始化操作栏
+            document.getElementById('tagActionBar').style.display = 'flex';
+            document.querySelector('#tagActionBar .add-tag-btn').textContent = t('addCharacter');
+        });
+
+        // 加载 pretags 文件列表
+        async function loadPretagsFileList() {
+            try {
+                const response = await fetch('/api/list-pretags-files');
+                const result = await response.json();
+                
+                if (result.success && result.files) {
+                    const selector = document.getElementById('pretagsFileSelector');
+                    selector.innerHTML = '';
+                    
+                    result.files.forEach(file => {
+                        const option = document.createElement('option');
+                        option.value = file.filename;
+                        option.textContent = file.filename;
+                        if (file.filename === result.current) {
+                            option.selected = true;
+                        }
+                        selector.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.warn('无法加载文件列表:', error);
+            }
+        }
+
+        // 切换 pretags 文件
+        async function switchPretagsFile(filename) {
+            if (!filename) return;
+            
+            try {
+                showToast(t('switchFileLoading'));
+                
+                const response = await fetch('/api/switch-pretags-file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(t('switchedTo') + filename);
+                    // 重新加载数据
+                    await loadPretagsData();
+                    buildImageMap();
+                    initUI();
+                    filterAndDisplay();
+                } else {
+                    showToast(t('switchFailed') + (result.message || ''));
+                }
+            } catch (error) {
+                console.error('切换文件失败:', error);
+                showToast(t('switchFailed') + error.message);
+            }
+        }
+
+        // 设置默认 pretags 文件
+        async function setDefaultPretagsFile() {
+            const selector = document.getElementById('pretagsFileSelector');
+            const filename = selector.value;
+            
+            if (!filename) {
+                showToast(t('selectFileFirst'));
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/set-default-pretags-file', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showToast(t('setDefaultOk') + filename + t('setDefaultOkSuffix'));
+                } else {
+                    showToast(t('setDefaultFailed') + (result.message || ''));
+                }
+            } catch (error) {
+                console.error('设置默认文件失败:', error);
+                showToast(t('setDefaultFailed') + error.message);
+            }
+        }
+
+        // 加载 pretags 数据
+        async function loadPretagsData() {
+            try {
+                const response = await fetch('/api/get-pretags?_=' + Date.now());
+                const result = await response.json();
+                if (result.success) {
+                    // API 返回格式: { success: true, ...data }
+                    delete result.success;
+                    pretagsData = result;
+                } else {
+                    pretagsData = result;
+                }
+                console.log('Pretags data loaded:', pretagsData);
+                // 渲染 info 横幅
+                renderInfoBanner();
+            } catch (error) {
+                console.error('Failed to load pretags data:', error);
+                pretagsData = { characters: {}, series: {}, categories: {} };
+            }
+        }
+
+        // ── Info 横幅 ──
+
+        function renderInfoBanner() {
+            const info = pretagsData.info;
+            if (!info || Object.keys(info).length === 0) {
+                document.getElementById('infoBanner').style.display = 'none';
+                return;
+            }
+            document.getElementById('infoBanner').style.display = 'block';
+
+            // 标题
+            document.getElementById('infoName').textContent = '📦 ' + (info.name || '预设库信息');
+
+            // 简介
+            const desc = info.description || '';
+            document.getElementById('infoDescription').textContent = desc;
+
+            // 信息网格
+            const grid = document.getElementById('infoGrid');
+            const fields = [
+                { label: '版本', value: info.pretags_version || '-' },
+                { label: '角色总数', value: (info.total_characters || 0).toLocaleString() },
+                { label: '系列数量', value: (info.total_series || 0).toLocaleString() },
+                { label: '标签总数', value: (info.total_categories || 0).toLocaleString() },
+                { label: '更新时间', value: info.last_updated || '-' },
+            ];
+            grid.innerHTML = fields.map(f =>
+                `<div class="info-item"><span class="info-label">${f.label}:</span><span class="info-value">${f.value}</span></div>`
+            ).join('');
+
+            // 模型类型徽章
+            const badgesDiv = document.getElementById('modelBadges');
+            const modelTypes = info.model_types || [];
+            if (modelTypes.length > 0) {
+                badgesDiv.innerHTML = '<div class="info-item"><span class="info-label" style="margin-right:6px;">适用模型:</span></div>' +
+                    modelTypes.map(m => `<span class="model-badge">${m}</span>`).join('');
+                badgesDiv.style.display = 'flex';
+            } else {
+                badgesDiv.style.display = 'none';
+            }
+
+            // 备注
+            const notesDiv = document.getElementById('infoNotes');
+            if (info.model_notes) {
+                notesDiv.textContent = info.model_notes;
+                notesDiv.style.display = 'block';
+            } else {
+                notesDiv.style.display = 'none';
+            }
+        }
+
+        function toggleInfoBanner() {
+            const banner = document.getElementById('infoBanner');
+            banner.classList.toggle('expanded');
+        }
+
+        // 构建图片映射
+        function buildImageMap() {
+            if (typeof _characterList !== 'undefined') {
+                _characterList.forEach(item => {
+                    const parts = item.prompt.split(',').map(p => p.trim());
+                    const fullName = parts[0];
+                    const series = parts.length > 1 ? parts[1] : '';
+                    // 主key: 全名|系列
+                    const key = `${fullName}|${series}`;
+                    imageMap[key] = item.file;
+                    // 纯名key（去掉\\(series\\)部分）
+                    const bareName = fullName.replace(/\s*\\.*$/, '').trim();
+                    if (bareName && bareName !== fullName) {
+                        imageMap[`${bareName}|${series}`] = item.file;
+                        imageMap[`${bareName}`] = item.file;
+                    }
+                });
+            }
+        }
+
+        // 获取角色图片
+        function getCharacterImage(cname, source, nameVal) {
+            if (!nameVal) return null;
+            // 清洗：去末尾逗号、去\\(series\\)部分
+            const cleanName = String(nameVal).replace(/,\s*$/, '').trim();
+            const bareName = cleanName.replace(/\s*\\.*$/, '').trim();
+
+            const keys = [
+                `${cleanName}|${source}`,
+                `${bareName}|${source}`,
+                `${cleanName}|`,
+                `${bareName}|`,
+                `|${source}`,
+                `${bareName}`,
+                cleanName,
+            ];
+
+            for (const key of keys) {
+                if (imageMap[key]) {
+                    return `./data/character/${imageMap[key]}`;
+                }
+            }
+
+            for (const [key, file] of Object.entries(imageMap)) {
+                const [keyName] = key.split('|');
+                if (keyName && bareName && keyName.toLowerCase().includes(bareName.toLowerCase())) {
+                    return `./data/character/${file}`;
+                }
+            }
+
+            return null;
+        }
+
+        // 初始化界面
+        function initUI() {
+            // 填充系列下拉框
+            const seriesSelect = document.getElementById('seriesSelect');
+            const seriesList = Object.keys(pretagsData.series).sort((a, b) => {
+                return pretagsData.series[b].count - pretagsData.series[a].count;
+            });
+
+            seriesList.forEach(series => {
+                const option = document.createElement('option');
+                option.value = series;
+                option.textContent = `${series} (${pretagsData.series[series].count})`;
+                seriesSelect.appendChild(option);
+            });
+
+            // 绑定事件
+            bindEvents();
+
+            // 更新统计
+            updateStats();
+
+            // 初始化分类标签
+            updateCategoryTags();
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // Tab 切换
+            document.querySelectorAll('.search-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentTab = tab.dataset.tab;
+                    currentPage = 1;
+
+                    // 显示/隐藏分类面板和操作栏
+                    const isNonPersonTab = CATEGORY_KEYS.filter(k => k !== 'character').includes(currentTab);
+                    document.getElementById('categoriesPanel').style.display =
+                        currentTab === 'by-tags' ? 'block' : 'none';
+                    document.getElementById('tagActionBar').style.display =
+                        (isNonPersonTab || currentTab === 'character') ? 'flex' : 'none';
+
+                    // 更新操作栏按钮文字
+                    const addBtn = document.querySelector('#tagActionBar .add-tag-btn');
+                    if (addBtn) {
+                        addBtn.textContent = currentTab === 'character' ? t('addCharacter') : t('addCard');
+                    }
+
+                    filterAndDisplay();
+                });
+            });
+
+            // 分类 Tab 切换
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentCategory = tab.dataset.category;
+                    selectedTags = [];
+                    updateCategoryTags();
+                    filterAndDisplay();
+                });
+            });
+
+            // 搜索输入
+            document.getElementById('searchInput').addEventListener('input', debounce(() => {
+                currentPage = 1;
+                filterAndDisplay();
+            }, 300));
+
+            // 系列选择
+            document.getElementById('seriesSelect').addEventListener('change', () => {
+                currentPage = 1;
+                filterAndDisplay();
+            });
+
+            // 排序选择
+            document.getElementById('sortSelect').addEventListener('change', () => {
+                currentPage = 1;
+                filterAndDisplay();
+            });
+
+            // 每页数量
+            document.getElementById('pageSizeSelect').addEventListener('change', (e) => {
+                pageSize = parseInt(e.target.value);
+                currentPage = 1;
+                filterAndDisplay();
+            });
+
+            // 详情面板关闭
+            document.getElementById('detailClose').addEventListener('click', () => {
+                document.getElementById('detailPanel').classList.remove('show');
+            });
+
+            // 补录表单
+            document.getElementById('补录Cancel').addEventListener('click', () => {
+                document.getElementById('补录Form').classList.remove('show');
+            });
+
+            document.getElementById('补录Submit').addEventListener('click', handle补录);
+        }
+
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 更新分类标签
+        function updateCategoryTags() {
+            const container = document.getElementById('categoryTags');
+            const categoryData = pretagsData.categories[currentCategory] || {};
+
+            container.innerHTML = '';
+
+            Object.entries(categoryData).forEach(([name, data]) => {
+                const tag = document.createElement('span');
+                tag.className = `category-tag ${selectedTags.includes(name) ? 'selected' : ''}`;
+                tag.textContent = data.name;
+                tag.addEventListener('click', () => {
+                    if (selectedTags.includes(name)) {
+                        selectedTags = selectedTags.filter(t => t !== name);
+                    } else {
+                        selectedTags.push(name);
+                    }
+                    updateCategoryTags();
+                    filterAndDisplay();
+                });
+                container.appendChild(tag);
+            });
+        }
+
+        // 筛选和显示
+        function filterAndDisplay() {
+            if (!pretagsData) return;
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const selectedSeries = document.getElementById('seriesSelect').value;
+            const sortBy = document.getElementById('sortSelect').value;
+
+            // 根据当前 Tab 类型处理数据
+            if (currentTab === 'character') {
+                // 人物模式：显示角色数据（现在characters是id-key结构）
+                filteredCharacters = Object.entries(pretagsData.characters).map(([id, char]) => ({
+                    ...char,
+                    id: id  // 确保包含ID
+                })).filter(char => {
+                    // 系列筛选
+                    if (selectedSeries && char.source !== selectedSeries) return false;
+
+                    // 搜索筛选
+                    if (searchTerm) {
+                        const searchFields = [
+                            char.cname,
+                            char.source,
+                            char.name,
+                            char.appearance,
+                            char.clothing,
+                            ...char.tags
+                        ].join(' ').toLowerCase();
+
+                        if (!searchFields.includes(searchTerm)) return false;
+                    }
+
+                    return true;
+                });
+
+                // 排序
+                filteredCharacters.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'name':
+                            return a.cname.localeCompare(b.cname);
+                        case 'series':
+                            return a.source.localeCompare(b.source);
+                        case 'lora':
+                            if (a.has_lora && !b.has_lora) return -1;
+                            if (!a.has_lora && b.has_lora) return 1;
+                            return 0;
+                        default:
+                            return 0;
+                    }
+                });
+            } else {
+                // 标签模式：显示当前分类的标签（现在categories也是id-key结构）
+                const safeStr = (v) => (v == null ? '' : String(v));
+                const categoryData = pretagsData.categories[currentTab] || {};
+                filteredCharacters = Object.entries(categoryData).map(([id, data]) => ({
+                    id: id,  // 保存ID
+                    cname: safeStr(data.name) || id,
+                    source: currentTab,
+                    name: safeStr(data.tag),
+                    appearance: '',
+                    clothing: '',
+                    has_lora: data.has_lora,
+                    lora_file: safeStr(data.lora_file),
+                    lora_link: safeStr(data.lora_link),
+                    lora_hash: safeStr(data.lora_hash),
+                    unet_weight: data.unet_weight || 0,
+                    clip_weight: data.clip_weight || 0,
+                    description: safeStr(data.description),
+                    d_group: data.d_group,
+                    preview: safeStr(data.preview),
+                    tags: [safeStr(data.name) || id],
+                    isTag: true
+                })).filter(item => {
+                    // 搜索筛选（防御：cname/name 可能为空）
+                    if (searchTerm) {
+                        return (item.cname || '').toLowerCase().includes(searchTerm) ||
+                               (item.name || '').toLowerCase().includes(searchTerm);
+                    }
+                    return true;
+                });
+
+                // 排序
+                filteredCharacters.sort((a, b) => {
+                    switch (sortBy) {
+                        case 'name':
+                            return a.cname.localeCompare(b.cname);
+                        case 'lora':
+                            if (a.has_lora && !b.has_lora) return -1;
+                            if (!a.has_lora && b.has_lora) return 1;
+                            return 0;
+                        default:
+                            return 0;
+                    }
+                });
+            }
+
+            // 更新显示
+            updateDisplay();
+            updateStats();
+        }
+
+        // 更新显示
+        function updateDisplay() {
+            const container = document.getElementById('imagesGrid');
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, filteredCharacters.length);
+            const pageData = filteredCharacters.slice(startIndex, endIndex);
+
+            if (pageData.length === 0) {
+                container.innerHTML = `<div class="toast">${t('noMatch')}</div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+
+            pageData.forEach(char => {
+                if (char.isTag) {
+                    // 标签模式：显示标签卡片
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+                    
+                    // 检查是否有预览图
+                    const hasPreview = char.preview && char.preview !== '';
+                    
+                    card.innerHTML = `
+                        <div class="image-wrapper" data-entry-type="tag" data-entry-id="${escapeHtml(char.id)}" data-entry-category="${escapeHtml(char.source)}">
+                            ${hasPreview ?
+                                `<button class="preview-zoom-btn" onclick="event.stopPropagation(); zoomCardPreview('${char.preview}', '${escapeHtml(char.cname)}')" title="${t('zoom')}">🔍</button>
+                                <img src="${char.preview}" alt="${char.cname}">` :
+                                `<div class="no-image">
+                                    <div class="icon">🏷️</div>
+                                    <div class="text">${t('dropToUpdatePreview')}</div>
+                                </div>`
+                            }
+                            ${char.has_lora ? '<div class="badges"><span class="badge lora">LoRA</span></div>' : ''}
+                        </div>
+                        <div class="card-content">
+                            <div class="char-name">${char.cname}</div>
+                            <div class="char-series">${getCategoryDisplay(char.source)} ${t('tagLabel')}</div>
+                            ${char.description ? '<div class="tag-desc">' + char.description.substring(0, 80) + (char.description.length > 80 ? '…' : '') + '</div>' : ''}
+                            ${char.d_group !== undefined && char.d_group !== null && char.d_group !== 0 ? '<div class="tag-dgroup">' + t('group') + ' ' + char.d_group + '</div>' : ''}
+                            <div class="tags-preview">
+                                <span class="tag-chip">${char.name}</span>
+                            </div>
+                            <div class="actions">
+                                <button class="action-btn copy-name" data-name="${escapeHtml(char.cname)}">${t('copyName')}</button>
+                                <button class="action-btn copy-prompt" data-prompt="${escapeHtml(char.name)}">${t('copyTag')}</button>
+                                <button class="action-btn delete-btn" data-tagid="${escapeHtml(char.id)}" data-category="${escapeHtml(char.source)}" onclick="event.stopPropagation(); confirmDeleteTag(this.dataset.tagid, this.dataset.category, '${escapeHtml(char.cname)}')">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+
+                    // 点击事件
+                    card.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('copy-name')) {
+                            e.stopPropagation();
+                            copyToClipboard(e.target.dataset.name);
+                        } else if (e.target.classList.contains('copy-prompt')) {
+                            e.stopPropagation();
+                            copyToClipboard(e.target.dataset.prompt);
+                        } else if (!e.target.closest('.actions') && !e.target.closest('.preview-zoom-btn')) {
+                            showTagDetail(char);
+                        }
+                    });
+
+                    container.appendChild(card);
+                } else {
+                    // 人物模式：显示角色卡片
+                    // 优先级: 独立预览图 > imageMap 查表 > 占位
+                    const imageUrl = char.preview || getCharacterImage(char.cname, char.source, char.name);
+                    const hasImage = imageUrl !== null;
+
+                    const card = document.createElement('div');
+                    card.className = 'image-card';
+
+                    card.innerHTML = `
+                        <div class="image-wrapper" data-entry-type="character" data-entry-name="${escapeHtml(char.cname)}" data-entry-source="${escapeHtml(char.source)}">
+                            ${hasImage ?
+                                `<button class="preview-zoom-btn" onclick="event.stopPropagation(); zoomCardPreview('${imageUrl}', '${escapeHtml(char.cname)}')" title="${t('zoom')}">🔍</button>
+                                <img src="${imageUrl}" alt="${char.cname}">` :
+                                `<div class="no-image">
+                                    <div class="icon">📷</div>
+                                    <div class="text">${t('dropToUpdatePreview')}</div>
+                                </div>`
+                            }
+                            <div class="badges">
+                                ${char.has_lora ? '<span class="badge lora">LoRA</span>' : ''}
+                                <span class="badge source">${char.source}</span>
+                            </div>
+                        </div>
+                        <div class="card-content">
+                            <div class="char-name">${char.cname}</div>
+                            <div class="char-series">${char.source}</div>
+                            <div class="tags-preview">
+                                ${char.tags.slice(0, 4).map(tag => 
+                                    `<span class="tag-chip">${tag}</span>`
+                                ).join('')}
+                                ${char.tags.length > 4 ? `<span class="tag-chip">+${char.tags.length - 4}</span>` : ''}
+                            </div>
+                            <div class="actions">
+                                <button class="action-btn copy-name" data-name="${escapeHtml(char.cname)}">${t('copyName')}</button>
+                                <button class="action-btn copy-series" data-series="${escapeHtml(char.source)}">${t('copySeries')}</button>
+                                <button class="action-btn copy-prompt" data-prompt="${escapeHtml(char.name)}">${t('copyPrompt')}</button>
+                                <button class="action-btn delete-btn" data-cname="${escapeHtml(char.cname)}" data-source="${escapeHtml(char.source)}" onclick="event.stopPropagation(); confirmDeleteCharacter(this.dataset.cname, this.dataset.source)">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+
+                    // 点击事件
+                    card.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('copy-name')) {
+                            e.stopPropagation();
+                            copyToClipboard(e.target.dataset.name);
+                        } else if (e.target.classList.contains('copy-series')) {
+                            e.stopPropagation();
+                            copyToClipboard(e.target.dataset.series);
+                        } else if (e.target.classList.contains('copy-prompt')) {
+                            e.stopPropagation();
+                            copyToClipboard(e.target.dataset.prompt);
+                        } else if (!e.target.closest('.actions') && !e.target.closest('.preview-zoom-btn')) {
+                            showDetail(char);
+                        }
+                    });
+
+                    container.appendChild(card);
+                }
+            });
+
+            // 更新分页
+            updatePagination();
+        }
+
+        // 更新统计
+        function updateStats() {
+            document.getElementById('totalCount').textContent = Object.keys(pretagsData.characters).length;
+            document.getElementById('loraCount').textContent = Object.values(pretagsData.characters).filter(c => c.has_lora).length;
+            document.getElementById('seriesCount').textContent = Object.keys(pretagsData.series).length;
+            
+            // 计算标签总数
+            let tagsCount = 0;
+            Object.values(pretagsData.categories).forEach(cat => {
+                tagsCount += Object.keys(cat).length;
+            });
+            document.getElementById('tagsCount').textContent = tagsCount;
+        }
+
+        // 更新分页
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredCharacters.length / pageSize);
+            const container = document.getElementById('pagination');
+
+            container.innerHTML = '';
+
+            if (totalPages <= 1) return;
+
+            // 上一页
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.textContent = t('prevPage');
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    updateDisplay();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+            container.appendChild(prevBtn);
+
+            // 页码
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                    pageBtn.textContent = i;
+                    pageBtn.addEventListener('click', () => {
+                        currentPage = i;
+                        updateDisplay();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    });
+                    container.appendChild(pageBtn);
+                } else if (i === currentPage - 3 || i === currentPage + 3) {
+                    const ellipsis = document.createElement('span');
+                    ellipsis.textContent = '...';
+                    ellipsis.style.padding = '10px';
+                    container.appendChild(ellipsis);
+                }
+            }
+
+            // 下一页
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.textContent = t('nextPage');
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    updateDisplay();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+            container.appendChild(nextBtn);
+        }
+
+        // 显示详情
+        function showDetail(char, autoEdit = false) {
+            const panel = document.getElementById('detailPanel');
+            const title = document.getElementById('detailTitle');
+            const content = document.getElementById('detailContent');
+
+            title.textContent = char.cname;
+            
+            // 保存当前编辑的数据
+            window.currentEditData = { ...char };
+            
+            // 构建完整 prompt
+            const fullPrompt = [char.name, char.appearance, char.clothing].filter(Boolean).join(', ');
+
+            content.innerHTML = `
+                <div class="edit-mode-toggle">
+                    <button class="edit-mode-btn" id="editModeBtn" onclick="toggleEditMode()">${t('editMode')}</button>
+                </div>
+                
+                <!-- 查看模式 -->
+                <div id="viewMode">
+                    <div class="detail-section">
+                        <h4>${t('basicInfo')}</h4>
+                        <div class="detail-info">
+                            <span class="label">${t('charName')}</span>
+                            <span class="value">${char.cname}</span>
+                            <span class="label">${t('seriesLabel')}</span>
+                            <span class="value">${char.source}</span>
+                            <span class="label">${t('engName')}</span>
+                            <span class="value">${char.name || t('none')}</span>
+                            <span class="label">LoRA</span>
+                            <span class="value">${char.has_lora ? `✅ ${char.lora_file}` : '❌ ' + t('none')}</span>
+                            ${char.has_lora ? `
+                            <span class="label">LoRA Hash</span>
+                            <span class="value">${char.lora_hash || t('none')}</span>
+                            <span class="label">${t('unetWeight')}</span>
+                            <span class="value">${char.unet_weight || 0.8}</span>
+                            <span class="label">${t('clipWeight')}</span>
+                            <span class="value">${char.clip_weight || 0.8}</span>
+                            <span class="label">${t('linkLabel')}</span>
+                            <span class="value">${char.lora_link ? escapeHtml(char.lora_link) : t('none')}</span>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>${t('appearanceTags')} <button class="copy-section-btn" onclick="copyToClipboard('${escapeHtml(char.appearance || '')}')">${t('copy')}</button></h4>
+                        <div class="detail-tags">
+                            ${char.appearance && char.appearance.trim() && char.appearance.trim() !== '，' ? char.appearance.split(',').map(tag =>
+                                `<span class="detail-tag">${tag.trim()}</span>`
+                            ).filter(t => t !== '<span class="detail-tag"></span>' && t !== '<span class="detail-tag">，</span>').join('') : '<span style="color:#868e96;">' + t('none') + '</span>'}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>${t('clothingTags')} <button class="copy-section-btn" onclick="copyToClipboard('${escapeHtml(char.clothing || '')}')">${t('copy')}</button></h4>
+                        <div class="detail-tags">
+                            ${char.clothing && char.clothing.trim() && char.clothing.trim() !== '，' ? char.clothing.split(',').map(tag =>
+                                `<span class="detail-tag">${tag.trim()}</span>`
+                            ).filter(t => t !== '<span class="detail-tag"></span>' && t !== '<span class="detail-tag">，</span>').join('') : '<span style="color:#868e96;">' + t('none') + '</span>'}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>${t('fullPrompt')}</h4>
+                        <div class="detail-prompt">${escapeHtml(fullPrompt)}</div>
+                    </div>
+
+                    <div class="detail-actions">
+                        <button class="detail-btn primary" onclick="copyToClipboard('${escapeHtml(fullPrompt)}')">${t('copyFullPrompt')}</button>
+                        <button class="detail-btn secondary" onclick="show补录Form()">${t('uploadPreview')}</button>
+                    </div>
+                </div>
+
+                <!-- 编辑模式 -->
+                <div id="editMode" style="display: none;">
+                    <div class="detail-section">
+                        <h4>${t('editInfo')}</h4>
+                        <div class="edit-form">
+                            <div class="form-group">
+                                <label>${t('charName')}</label>
+                                <input type="text" id="editCname" value="${escapeHtml(char.cname)}">
+                            </div>
+                            <div class="form-group">
+                                <label>${t('seriesLabel')}</label>
+                                <input type="text" id="editSource" value="${escapeHtml(char.source)}">
+                            </div>
+                            <div class="form-group">
+                                <label>${t('engName')}</label>
+                                <input type="text" id="editName" value="${escapeHtml(char.name)}">
+                            </div>
+                            <div class="form-group">
+                                <label>${t('appearanceLabel')}</label>
+                                <textarea id="editAppearance" rows="3">${escapeHtml(char.appearance)}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>${t('clothingLabel')}</label>
+                                <textarea id="editClothing" rows="3">${escapeHtml(char.clothing)}</textarea>
+                            </div>
+                            ${char.has_lora ? `
+                            <div class="form-group">
+                                <label>${t('loraFilename')}</label>
+                                <input type="text" id="editLoraFile" value="${escapeHtml(char.lora_file)}">
+                            </div>
+                            <div class="form-group">
+                                <label>${t('loraLink')}</label>
+                                <input type="text" id="editLoraLink" value="${escapeHtml(char.lora_link)}">
+                            </div>
+                            <div class="form-group">
+                                <label>${t('loraHash')}</label>
+                                <input type="text" id="editLoraHash" value="${escapeHtml(char.lora_hash)}">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>${t('unetWeight')}</label>
+                                    <input type="number" id="editUnetWeight" value="${char.unet_weight || 0.8}" step="0.1" min="0" max="2">
+                                </div>
+                                <div class="form-group">
+                                    <label>${t('clipWeight')}</label>
+                                    <input type="number" id="editClipWeight" value="${char.clip_weight || 0.8}" step="0.1" min="0" max="2">
+                                </div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="detail-actions">
+                        <button class="detail-btn primary" onclick="saveEdit()">${t('saveChanges')}</button>
+                        <button class="detail-btn secondary" onclick="toggleEditMode()">${t('cancel')}</button>
+                    </div>
+                </div>
+            `;
+
+            panel.classList.add('show');
+
+            // 填充补录表单隐藏字段
+            document.getElementById('补录Cname').value = char.cname;
+            document.getElementById('补录Source').value = char.source || '';
+            // 重置补录表单
+            补录ImageDataUrl = null;
+            document.getElementById('补录ImageUrl').value = '';
+            document.getElementById('补录ImageFile').value = '';
+            document.getElementById('补录Preview').style.display = 'none';
+            document.getElementById('补录Status').innerHTML = '';
+
+            // 如果是从✏️按钮进入，自动切换到编辑模式
+            if (autoEdit) {
+                toggleEditMode();
+            }
+        }
+
+        // 显示补录表单
+        function show补录Form() {
+            document.getElementById('补录Form').classList.add('show');
+        }
+
+        // 显示标签详情
+        function showTagDetail(tag, autoEdit = false) {
+            const panel = document.getElementById('detailPanel');
+            const title = document.getElementById('detailTitle');
+            const content = document.getElementById('detailContent');
+
+            title.textContent = tag.cname;
+            
+            // 保存当前标签数据
+            window.currentTagData = { ...tag };
+
+            // 判断分类特有字段
+            const isArtStyle = tag.source === 'style';
+            const isOther = tag.source === 'other';
+
+            content.innerHTML = `
+                <div class="edit-mode-toggle">
+                    <button class="edit-mode-btn" id="tagEditModeBtn" onclick="toggleTagEditMode()">${t('editMode')}</button>
+                </div>
+
+                <!-- 查看模式 -->
+                <div id="tagViewMode">
+                    <div class="detail-section">
+                        <h4>${t('tagInfo')}</h4>
+                        <div class="detail-info">
+                            <span class="label">${t('tagName')}</span>
+                            <span class="value">${tag.cname}</span>
+                            <span class="label">${t('category')}</span>
+                            <span class="value">${getCategoryDisplay(tag.source)}</span>
+                            <span class="label">${t('engTag')}</span>
+                            <span class="value">${tag.name || t('none')}</span>
+                            ${tag.description ? `<span class="label">${t('styleDesc')}</span><span class="value" style="white-space: pre-wrap;">${escapeHtml(tag.description)}</span>` : ''}
+                            ${tag.d_group !== undefined && tag.d_group !== null && tag.d_group !== 0 ? `<span class="label">${t('groupLabel')}</span><span class="value">${tag.d_group}</span>` : ''}
+                            <span class="label">LoRA</span>
+                            <span class="value">${tag.has_lora ? `✅ ${tag.lora_file || t('noFileName')}` : '❌ ' + t('none')}</span>
+                            ${tag.has_lora ? `
+                                <span class="label">LoRA Hash</span>
+                                <span class="value">${tag.lora_hash || t('none')}</span>
+                                <span class="label">${t('unetWeight')}</span>
+                                <span class="value">${tag.unet_weight || 0}</span>
+                                <span class="label">${t('clipWeight')}</span>
+                                <span class="value">${tag.clip_weight || 0}</span>
+                                ${tag.lora_link ? `<span class="label">${t('loraLink')}</span><span class="value" style="word-break:break-all;">${escapeHtml(tag.lora_link)}</span>` : ''}
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>${t('fullTag')}</h4>
+                        <div class="detail-prompt">${escapeHtml(tag.name)}</div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h4>${t('updatePreview')}</h4>
+                        <div class="upload-preview">
+                            <div class="upload-area" id="uploadArea" onclick="document.getElementById('imageUpload').click()">
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">${t('clickOrDrag')}</div>
+                                <div class="upload-hint">${t('supportFormats')}</div>
+                            </div>
+                            <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+                            <div class="upload-url">
+                                <label>${t('orEnterUrl')}</label>
+                                <input type="text" id="imageUrlInput" placeholder="https://example.com/image.jpg">
+                                <button class="detail-btn secondary" onclick="uploadFromUrl()">${t('upload')}</button>
+                            </div>
+                            <div id="uploadPreview" class="upload-preview-image" style="display: none;">
+                                <img id="previewImage" src="" alt="预览">
+                                <button class="detail-btn secondary" onclick="clearUploadPreview()">${t('clear')}</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-actions">
+                        <button class="detail-btn primary" onclick="copyToClipboard('${escapeHtml(tag.name)}')">${t('copyTagBtn')}</button>
+                        <button class="detail-btn secondary" onclick="saveTagPreview()">${t('savePreview')}</button>
+                    </div>
+                </div>
+
+                <!-- 编辑模式 -->
+                <div id="tagEditMode" style="display: none;">
+                    <div class="detail-section">
+                        <h4>${t('editInfo')}</h4>
+                        <div class="edit-form">
+                            <div class="form-group">
+                                <label>${t('tagName')}</label>
+                                <input type="text" id="tagEditName" value="${escapeHtml(tag.cname)}">
+                            </div>
+                            <div class="form-group">
+                                <label>${t('engTagLabel')}</label>
+                                <textarea id="tagEditTag" rows="3">${escapeHtml(tag.name)}</textarea>
+                            </div>
+                            ${isArtStyle ? `
+                            <div class="form-group">
+                                <label>${t('styleDescLabel')}</label>
+                                <textarea id="tagEditDesc" rows="3">${escapeHtml(tag.description || '')}</textarea>
+                            </div>
+                            ` : ''}
+                            ${isOther ? `
+                            <div class="form-group">
+                                <label>${t('dGroupLabel')}</label>
+                                <input type="number" id="tagEditDGroup" value="${tag.d_group || 0}">
+                            </div>
+                            ` : ''}
+                            <div class="form-group">
+                                <label class="toggle-label" onclick="var cb=document.getElementById('tagEditHasLora'); cb.checked=!cb.checked; toggleTagEditLoraFields()">
+                                    <span>${t('loraLabel')}</span>
+                                    <span class="toggle-switch">
+                                        <input type="checkbox" id="tagEditHasLora" ${tag.has_lora ? 'checked' : ''} onchange="toggleTagEditLoraFields()">
+                                        <span class="toggle-slider"></span>
+                                    </span>
+                                </label>
+                            </div>
+                            <div id="tagEditLoraFields" style="display:${tag.has_lora ? 'block' : 'none'};">
+                                <div class="form-group">
+                                    <label>${t('loraFilename')}</label>
+                                    <input type="text" id="tagEditLoraFile" value="${escapeHtml(tag.lora_file || '')}">
+                                </div>
+                                <div class="form-group">
+                                    <label>${t('loraHash')}</label>
+                                    <input type="text" id="tagEditLoraHash" value="${escapeHtml(tag.lora_hash || '')}">
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>${t('unetWeight')}</label>
+                                        <input type="number" id="tagEditUnetWeight" value="${tag.unet_weight || 0.8}" step="0.1" min="0" max="2">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>${t('clipWeight')}</label>
+                                        <input type="number" id="tagEditClipWeight" value="${tag.clip_weight || 0.8}" step="0.1" min="0" max="2">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>${t('loraLink')}</label>
+                                    <input type="text" id="tagEditLoraLink" value="${escapeHtml(tag.lora_link || '')}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-actions">
+                        <button class="detail-btn primary" onclick="saveTagEdit()">${t('saveChanges')}</button>
+                        <button class="detail-btn secondary" onclick="toggleTagEditMode()">${t('cancel')}</button>
+                    </div>
+                </div>
+            `;
+
+            panel.classList.add('show');
+
+            // 如果是从✏️按钮进入，自动切换到编辑模式
+            if (autoEdit) {
+                toggleTagEditMode();
+            }
+        }
+
+        // 处理补录 - 保存角色独立预览图
+        let 补录ImageDataUrl = null;
+
+        function handle补录FileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                补录ImageDataUrl = e.target.result;
+                document.getElementById('补录PreviewImg').src = e.target.result;
+                document.getElementById('补录Preview').style.display = 'block';
+                document.getElementById('补录ImageUrl').value = '';  // 清空 URL（以文件优先）
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function handle补录() {
+            const charData = window.currentEditData;
+            if (!charData || !charData.id) {
+                showToast(t('charInfoNotFound'));
+                return;
+            }
+
+            const imageUrl = document.getElementById('补录ImageUrl').value.trim();
+            const statusEl = document.getElementById('补录Status');
+
+            let imagePayload;
+            if (补录ImageDataUrl) {
+                imagePayload = { dataUrl: 补录ImageDataUrl };
+            } else if (imageUrl) {
+                imagePayload = { url: imageUrl };
+            } else {
+                statusEl.innerHTML = '<span style="color:#dc3545;">' + t('uploadOrUrl') + '</span>';
+                return;
+            }
+
+            statusEl.innerHTML = '<span style="color:#667eea;">' + t('saving') + '</span>';
+
+            try {
+                const resp = await fetch('/api/save-character-preview', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ charId: charData.id, image: imagePayload })
+                });
+                const result = await resp.json();
+                if (result.success) {
+                    statusEl.innerHTML = '<span style="color:#28a745;">' + t('previewSaved') + '</span>';
+                    setTimeout(() => {
+                        document.getElementById('补录Form').classList.remove('show');
+                        document.getElementById('detailPanel').classList.remove('show');
+                        // 清除临时数据
+                        补录ImageDataUrl = null;
+                        document.getElementById('补录ImageUrl').value = '';
+                        document.getElementById('补录ImageFile').value = '';
+                        document.getElementById('补录Preview').style.display = 'none';
+                        statusEl.innerHTML = '';
+                        filterAndDisplay();
+                    }, 1200);
+                } else {
+                    statusEl.innerHTML = `<span style="color:#dc3545;">${t('saveFailedMsg')}${result.message || ''}</span>`;
+                }
+            } catch (e) {
+                statusEl.innerHTML = `<span style="color:#dc3545;">${t('requestFailed')}${e.message}</span>`;
+            }
+        }
+
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(t('copied'));
+            }).catch(() => {
+                // 降级方案
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                showToast(t('copied'));
+            });
+        }
+
+        // 显示 Toast 提示
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ===== 删除确认 =====
+        let pendingDelete = null;
+
+        function confirmDeleteTag(tagId, category, tagName) {
+            pendingDelete = { tagId, category, tagName, type: 'tag' };
+            document.getElementById('confirmMsg').textContent = t('confirmDeleteTag') + tagName + t('confirmDeleteTagSuffix');
+            document.getElementById('confirmDeleteBtn').onclick = executeDeleteTag;
+            document.getElementById('confirmOverlay').classList.add('show');
+        }
+
+        function closeConfirmDialog() {
+            document.getElementById('confirmOverlay').classList.remove('show');
+            pendingDelete = null;
+        }
+
+        async function executeDeleteTag() {
+            if (!pendingDelete || pendingDelete.type === 'character') return;
+            const { tagId, category, tagName } = pendingDelete;
+            closeConfirmDialog();
+
+            try {
+                const response = await fetch('/api/delete-tag', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ category, tagId })
+                });
+                if (response.ok) {
+                    // 从服务端重新加载数据，确保前后端一致
+                    await loadPretagsData();
+                    showToast(t('deleted') + tagName + '」');
+                    filterAndDisplay();
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    showToast(t('deleteFailed') + (err.message || response.statusText));
+                }
+            } catch (error) {
+                // 后端不可用，只更新本地
+                if (pretagsData.categories[category] && pretagsData.categories[category][tagId]) {
+                    delete pretagsData.categories[category][tagId];
+                }
+                showToast(t('deletedLocal'));
+                filterAndDisplay();
+            }
+        }
+
+        // ===== 角色删除 =====
+        function confirmDeleteCharacter(charId, cname) {
+            pendingDelete = { charId, cname, type: 'character' };
+            document.getElementById('confirmMsg').textContent = t('confirmDeleteChar') + cname + t('confirmDeleteTagSuffix');
+            document.getElementById('confirmDeleteBtn').onclick = executeDeleteCharacter;
+            document.getElementById('confirmOverlay').classList.add('show');
+        }
+
+        async function executeDeleteCharacter() {
+            if (!pendingDelete || pendingDelete.type !== 'character') return;
+            const { charId, cname } = pendingDelete;
+            closeConfirmDialog();
+
+            try {
+                const response = await fetch('/api/delete-character', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ charId })
+                });
+                if (response.ok) {
+                    await loadPretagsData();
+                    showToast(t('deletedChar') + cname + '」');
+                    filterAndDisplay();
+                } else {
+                    showToast(t('deleteFailed') + response.statusText);
+                }
+            } catch (error) {
+                if (pretagsData.characters[charId]) delete pretagsData.characters[charId];
+                showToast(t('deletedLocal'));
+                filterAndDisplay();
+            }
+        }
+
+        // ===== 新增标签/角色 =====
+        let editingTagKey = null;
+
+        function showAddTagForm(existingData) {
+            editingTagKey = existingData ? existingData.name || null : null;
+            const isEdit = !!existingData;
+            const isChar = currentTab === 'character';
+            document.getElementById('tagFormTitle').textContent = isEdit ? (isChar ? t('editChar') : t('editCard')) : (isChar ? t('addCharacter') : t('addCard') + ' (' + getCategoryDisplay(currentTab) + ')');
+            document.getElementById('tagFormSubmitBtn').textContent = isEdit ? t('saveChangesShort') : t('confirmAdd');
+            
+            // Reset or fill fields
+            document.getElementById('tagFormName').value = existingData ? (existingData.name || '') : '';
+            document.getElementById('tagFormSource').value = existingData ? (existingData.source || '') : '';
+            document.getElementById('tagFormTag').value = existingData ? (existingData.tag || '') : '';
+            document.getElementById('tagFormAppearance').value = existingData ? (existingData.appearance || '') : '';
+            document.getElementById('tagFormClothing').value = existingData ? (existingData.clothing || '') : '';
+            document.getElementById('tagFormDesc').value = existingData ? (existingData.description || '') : '';
+            document.getElementById('tagFormDGroup').value = existingData ? (existingData.d_group || 0) : '0';
+            
+            const hasLora = existingData ? !!existingData.has_lora : false;
+            document.getElementById('tagFormHasLora').checked = hasLora;
+            document.getElementById('tagFormLoraFile').value = (existingData && existingData.lora_file) || '';
+            document.getElementById('tagFormLoraHash').value = (existingData && existingData.lora_hash) || '';
+            document.getElementById('tagFormUnetWeight').value = (existingData && existingData.unet_weight) || 0.8;
+            document.getElementById('tagFormClipWeight').value = (existingData && existingData.clip_weight) || 0.8;
+            document.getElementById('tagFormLoraLink').value = (existingData && existingData.lora_link) || '';
+            
+            // Character mode fields
+            document.getElementById('tagFormSourceGroup').style.display = isChar ? 'block' : 'none';
+            document.getElementById('tagFormAppearanceGroup').style.display = isChar ? 'block' : 'none';
+            document.getElementById('tagFormClothingGroup').style.display = isChar ? 'block' : 'none';
+            document.getElementById('tagFormNameLabel').textContent = isChar ? t('charNameRequired') : t('tagNameRequired');
+            document.getElementById('tagFormTagLabel').textContent = isChar ? t('engPromptName') : t('engTagLabel');
+            document.getElementById('tagFormTagGroup').style.display = 'block';
+            
+            // Category-specific fields
+            document.getElementById('tagFormDescGroup').style.display = (currentTab === 'style') ? 'block' : 'none';
+            document.getElementById('tagFormDGroupGroup').style.display = (currentTab === 'other') ? 'block' : 'none';
+            
+            toggleLoraFields();
+            document.getElementById('tagFormOverlay').classList.add('show');
+        }
+
+        function closeTagForm() {
+            document.getElementById('tagFormOverlay').classList.remove('show');
+            editingTagKey = null;
+        }
+
+        function toggleLoraFields() {
+            const checked = document.getElementById('tagFormHasLora').checked;
+            document.getElementById('tagFormLoraFields').style.display = checked ? 'block' : 'none';
+        }
+
+        async function submitTagForm() {
+            const isChar = currentTab === 'character';
+            const name = document.getElementById('tagFormName').value.trim();
+            if (!name) {
+                showToast(isChar ? t('enterCharName') : t('enterTagName'));
+                return;
+            }
+
+            if (isChar) {
+                // Character submit
+                const charData = {
+                    cname: name,
+                    source: document.getElementById('tagFormSource').value.trim(),
+                    name: document.getElementById('tagFormTag').value.trim(),
+                    appearance: document.getElementById('tagFormAppearance').value.trim(),
+                    clothing: document.getElementById('tagFormClothing').value.trim(),
+                    has_lora: document.getElementById('tagFormHasLora').checked,
+                };
+                if (charData.has_lora) {
+                    charData.lora_file = document.getElementById('tagFormLoraFile').value.trim();
+                    charData.lora_hash = document.getElementById('tagFormLoraHash').value.trim();
+                    charData.unet_weight = parseFloat(document.getElementById('tagFormUnetWeight').value) || 0.8;
+                    charData.clip_weight = parseFloat(document.getElementById('tagFormClipWeight').value) || 0.8;
+                    charData.lora_link = document.getElementById('tagFormLoraLink').value.trim();
+                }
+
+                try {
+                    const response = await fetch('/api/add-character', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ data: charData })
+                    });
+                    if (response.ok) {
+                        const result = await response.json();
+                        const charId = result.charId;
+                        if (!charId) {
+                            showToast(t('addFailedNoId'));
+                            return;
+                        }
+                        // Update local data with ID
+                        const tags = [];
+                        if (charData.appearance) tags.push(...charData.appearance.split(',').map(t => t.trim()).filter(Boolean));
+                        if (charData.clothing) tags.push(...charData.clothing.split(',').map(t => t.trim()).filter(Boolean));
+                        pretagsData.characters[charId] = {
+                            id: charId,
+                            cname: name,
+                            source: charData.source,
+                            name: charData.name,
+                            appearance: charData.appearance,
+                            clothing: charData.clothing,
+                            has_lora: charData.has_lora,
+                            lora_file: charData.lora_file || '',
+                            lora_link: charData.lora_link || '',
+                            lora_hash: charData.lora_hash || '',
+                            unet_weight: charData.unet_weight || 0,
+                            clip_weight: charData.clip_weight || 0,
+                            tags: [...new Set(tags)],
+                            tags_count: tags.length
+                        };
+                        showToast(t('addedChar') + name + '」');
+                        closeTagForm();
+                        filterAndDisplay();
+                    } else {
+                        const err = await response.json().catch(() => ({}));
+                        showToast(t('addFailed') + (err.message || response.statusText));
+                    }
+                } catch (error) {
+                    showToast(t('addFailedBackend'));
+                }
+                return;
+            }
+
+            // Tag submit
+            const isEdit = !!editingTagKey;
+            const tagName = name;
+            const tagData = {
+                name: tagName,
+                tag: document.getElementById('tagFormTag').value.trim(),
+                has_lora: document.getElementById('tagFormHasLora').checked,
+            };
+
+            if (tagData.has_lora) {
+                tagData.lora_file = document.getElementById('tagFormLoraFile').value.trim();
+                tagData.lora_hash = document.getElementById('tagFormLoraHash').value.trim();
+                tagData.unet_weight = parseFloat(document.getElementById('tagFormUnetWeight').value) || 0.8;
+                tagData.clip_weight = parseFloat(document.getElementById('tagFormClipWeight').value) || 0.8;
+                tagData.lora_link = document.getElementById('tagFormLoraLink').value.trim();
+            }
+            if (currentTab === 'style') {
+                tagData.description = document.getElementById('tagFormDesc').value.trim();
+            }
+            if (currentTab === 'other') {
+                tagData.d_group = parseInt(document.getElementById('tagFormDGroup').value) || 0;
+            }
+
+            const apiUrl = isEdit ? '/api/edit-tag' : '/api/add-tag';
+            const apiBody = isEdit
+                ? { category: currentTab, oldName: editingTagKey, tagData }
+                : { category: currentTab, tagName, tagData };
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(apiBody)
+                });
+                if (response.ok) {
+                    const result = await response.json();
+                    const tagId = result.tagId;
+                    if (!tagId && !isEdit) {
+                        showToast(t('addFailedNoId'));
+                        return;
+                    }
+                    // Update local data with ID
+                    if (!pretagsData.categories[currentTab]) pretagsData.categories[currentTab] = {};
+                    const finalId = isEdit ? editingTagKey : tagId;
+                    pretagsData.categories[currentTab][finalId] = {
+                        name: tagName,
+                        tag: tagData.tag,
+                        has_lora: tagData.has_lora,
+                        lora_file: tagData.lora_file || '',
+                        lora_link: tagData.lora_link || '',
+                        lora_hash: tagData.lora_hash || '',
+                        unet_weight: tagData.unet_weight || 0,
+                        clip_weight: tagData.clip_weight || 0,
+                        description: tagData.description || '',
+                        d_group: tagData.d_group
+                    };
+                    showToast(isEdit ? t('saved') : t('added') + tagName + '」');
+                    editingTagKey = null;
+                    closeTagForm();
+                    filterAndDisplay();
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    showToast((isEdit ? t('saveFailed') : t('addFailed')) + (err.message || response.statusText));
+                }
+            } catch (error) {
+                showToast((isEdit ? t('saveFailedBackend') : t('addFailedBackend')));
+                editingTagKey = null;
+                closeTagForm();
+            }
+        }
+    </script>
+
+    <!-- 删除确认弹窗 -->
+    <div class="confirm-overlay" id="confirmOverlay">
+        <div class="confirm-dialog">
+            <div class="confirm-icon">⚠️</div>
+            <h3 data-i18n="confirmDelete">确认删除</h3>
+            <div class="confirm-msg" id="confirmMsg" data-i18n="confirmDeleteMsg">确定要删除此卡片吗？此操作不可撤销。</div>
+            <div class="confirm-actions">
+                <button class="btn-secondary" onclick="closeConfirmDialog()" data-i18n="cancel">取消</button>
+                <button class="btn-danger" id="confirmDeleteBtn" data-i18n="confirmDeleteBtn">确认删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新增/编辑标签弹窗 -->
+    <div class="tag-form-overlay" id="tagFormOverlay">
+        <div class="tag-form">
+            <h3 id="tagFormTitle">➕ 新增卡片</h3>
+            <div class="form-group" id="tagFormSourceGroup" style="display:none;">
+                <label data-i18n="seriesRequired">系列 *</label>
+                <input type="text" id="tagFormSource" data-i18n-placeholder="phSeries" placeholder="例如：鸣潮">
+            </div>
+            <div class="form-group">
+                <label id="tagFormNameLabel" data-i18n="tagNameRequired">标签名 *</label>
+                <input type="text" id="tagFormName" data-i18n-placeholder="phTagName" placeholder="例如：高饱和平涂赛璐璐">
+            </div>
+            <div class="form-group" id="tagFormAppearanceGroup" style="display:none;">
+                <label data-i18n="appearanceTagLabel">外貌 Tag</label>
+                <textarea id="tagFormAppearance" data-i18n-placeholder="phAppearance" placeholder="例如：1girl, blue eyes, long hair, ..."></textarea>
+            </div>
+            <div class="form-group" id="tagFormClothingGroup" style="display:none;">
+                <label data-i18n="clothingTagLabel">服装 Tag</label>
+                <textarea id="tagFormClothing" data-i18n-placeholder="phClothing" placeholder="例如：clothes: xxx, ..."></textarea>
+            </div>
+            <div class="form-group" id="tagFormTagGroup">
+                <label id="tagFormTagLabel" data-i18n="engTagLabel">英文 Tag</label>
+                <textarea id="tagFormTag" data-i18n-placeholder="phEngTag" placeholder="例如：artist:xxx, ..."></textarea>
+            </div>
+            <div class="form-group" id="tagFormDescGroup" style="display:none;">
+                <label data-i18n="styleDescLabel">画风描述</label>
+                <textarea id="tagFormDesc" data-i18n-placeholder="phStyleDesc" placeholder="画风描述文本..."></textarea>
+            </div>
+            <div class="form-group" id="tagFormDGroupGroup" style="display:none;">
+                <label data-i18n="dGroupLabel">d_group 分组ID</label>
+                <input type="number" id="tagFormDGroup" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label class="toggle-label" id="loraToggleLabel" onclick="var cb=document.getElementById('tagFormHasLora'); cb.checked=!cb.checked; toggleLoraFields()">
+                    <span data-i18n="loraLabel">LoRA</span>
+                    <span class="toggle-switch">
+                        <input type="checkbox" id="tagFormHasLora" onchange="toggleLoraFields()">
+                        <span class="toggle-slider"></span>
+                    </span>
+                </label>
+            </div>
+            <div id="tagFormLoraFields" style="display:none;">
+                <div class="form-group">
+                    <label data-i18n="loraFilename">LoRA 文件名</label>
+                    <input type="text" id="tagFormLoraFile" data-i18n-placeholder="phLoraFile" placeholder="例如：高饱和平涂赛璐璐">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="loraHash">LoRA Hash</label>
+                    <input type="text" id="tagFormLoraHash" data-i18n-placeholder="phLoraHash" placeholder="例如：D0AFD75FAF">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="unetWeight">UNet 权重</label>
+                    <input type="number" id="tagFormUnetWeight" step="0.1" min="0" max="2" value="0.8">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="clipWeight">CLIP 权重</label>
+                    <input type="number" id="tagFormClipWeight" step="0.1" min="0" max="2" value="0.8">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="loraLink">LoRA 链接</label>
+                    <input type="text" id="tagFormLoraLink" placeholder="https://civitai.com/models/...">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-cancel" onclick="closeTagForm()" data-i18n="cancel">取消</button>
+                <button class="btn-primary" id="tagFormSubmitBtn" onclick="submitTagForm()" data-i18n="confirmAdd">确认新增</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
+
+<!-- 添加编辑模式样式和脚本 -->
+<style>
+    .edit-mode-toggle {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 15px;
+    }
+
+    .edit-mode-btn {
+        padding: 8px 16px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .edit-mode-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .edit-form .form-group {
+        margin-bottom: 15px;
+    }
+
+    .edit-form .form-group label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: #495057;
+        font-weight: 500;
+    }
+
+    .edit-form .form-group input,
+    .edit-form .form-group textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 13px;
+        transition: all 0.3s ease;
+    }
+
+    .edit-form .form-group input:focus,
+    .edit-form .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .edit-form .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+
+    .edit-form .form-row {
+        display: flex;
+        gap: 15px;
+    }
+
+    .edit-form .form-row .form-group {
+        flex: 1;
+    }
+
+    .lora-link {
+        color: #667eea;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .lora-link:hover {
+        color: #764ba2;
+        text-decoration: underline;
+    }
+
+    .edit-status {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 9999;
+        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2s;
+        backdrop-filter: blur(10px);
+    }
+
+    .edit-status.success {
+        background: rgba(40, 167, 69, 0.9);
+        color: white;
+    }
+
+    .edit-status.error {
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+    }
+
+    @keyframes slideInRight {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+</style>
+
+<script>
+    // 切换编辑模式
+    function toggleEditMode() {
+        const viewMode = document.getElementById('viewMode');
+        const editMode = document.getElementById('editMode');
+        const editBtn = document.getElementById('editModeBtn');
+
+        if (viewMode.style.display === 'none') {
+            viewMode.style.display = 'block';
+            editMode.style.display = 'none';
+            editBtn.textContent = t('editMode');
+        } else {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+            editBtn.textContent = t('viewMode');
+        }
+    }
+
+    // 保存编辑
+    async function saveEdit() {
+        const data = window.currentEditData;
+        if (!data || !data.id) {
+            showEditStatus('error', t('noDataToSave'));
+            return;
+        }
+
+        // 收集编辑后的数据
+        const updatedData = {
+            cname: document.getElementById('editCname')?.value || data.cname,
+            source: document.getElementById('editSource')?.value || data.source,
+            name: document.getElementById('editName')?.value || data.name,
+            appearance: document.getElementById('editAppearance')?.value || data.appearance,
+            clothing: document.getElementById('editClothing')?.value || data.clothing,
+            has_lora: data.has_lora,
+            lora_file: document.getElementById('editLoraFile')?.value || data.lora_file,
+            lora_link: document.getElementById('editLoraLink')?.value || data.lora_link,
+            lora_hash: document.getElementById('editLoraHash')?.value || data.lora_hash,
+            unet_weight: parseFloat(document.getElementById('editUnetWeight')?.value) || data.unet_weight,
+            clip_weight: parseFloat(document.getElementById('editClipWeight')?.value) || data.clip_weight,
+            tags: data.tags
+        };
+
+        // 发送到后端保存
+        try {
+            const response = await fetch('/api/save-pretags', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    type: 'character',
+                    charId: data.id,
+                    data: updatedData
+                })
+            });
+
+            if (response.ok) {
+                // 更新本地数据
+                if (pretagsData.characters[data.id]) {
+                    pretagsData.characters[data.id] = { ...updatedData, id: data.id };
+                }
+                showEditStatus('success', t('saveOk'));
+                // 刷新显示
+                setTimeout(() => {
+                    filterAndDisplay();
+                    // 重新显示详情
+                    showDetail({ ...updatedData, id: data.id });
+                }, 1000);
+            } else {
+                showEditStatus('error', t('saveFailedWith') + response.statusText);
+            }
+        } catch (error) {
+            // 如果后端不可用，只更新本地
+            console.warn('后端不可用，仅更新本地数据:', error);
+            if (pretagsData.characters[data.id]) {
+                pretagsData.characters[data.id] = { ...updatedData, id: data.id };
+            }
+            showEditStatus('success', t('updatedLocal'));
+            setTimeout(() => {
+                filterAndDisplay();
+                showDetail({ ...updatedData, id: data.id });
+            }, 1000);
+        }
+    }
+
+    // 显示编辑状态
+    function showEditStatus(type, message) {
+        const status = document.createElement('div');
+        status.className = `edit-status ${type}`;
+        status.textContent = message;
+        document.body.appendChild(status);
+        setTimeout(() => status.remove(), 2500);
+    }
+
+    // 切换标签编辑模式
+    function toggleTagEditMode() {
+        const viewMode = document.getElementById('tagViewMode');
+        const editMode = document.getElementById('tagEditMode');
+        const editBtn = document.getElementById('tagEditModeBtn');
+
+        if (viewMode.style.display === 'none') {
+            viewMode.style.display = 'block';
+            editMode.style.display = 'none';
+            editBtn.textContent = t('editMode');
+        } else {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+            editBtn.textContent = t('viewMode');
+        }
+    }
+
+    // 切换标签编辑中的 LoRA 字段
+    function toggleTagEditLoraFields() {
+        const checked = document.getElementById('tagEditHasLora').checked;
+        document.getElementById('tagEditLoraFields').style.display = checked ? 'block' : 'none';
+    }
+
+    // 保存标签编辑
+    async function saveTagEdit() {
+        const data = window.currentTagData;
+        if (!data || !data.id) {
+            showEditStatus('error', t('noDataToSave'));
+            return;
+        }
+
+        const newName = document.getElementById('tagEditName')?.value.trim() || data.cname;
+        const newTag = document.getElementById('tagEditTag')?.value.trim() || data.name;
+        const hasLora = document.getElementById('tagEditHasLora')?.checked || false;
+
+        const tagData = {
+            name: newName,
+            tag: newTag,
+            has_lora: hasLora,
+        };
+
+        if (hasLora) {
+            tagData.lora_file = document.getElementById('tagEditLoraFile')?.value.trim() || '';
+            tagData.lora_hash = document.getElementById('tagEditLoraHash')?.value.trim() || '';
+            tagData.unet_weight = parseFloat(document.getElementById('tagEditUnetWeight')?.value) || 0.8;
+            tagData.clip_weight = parseFloat(document.getElementById('tagEditClipWeight')?.value) || 0.8;
+            tagData.lora_link = document.getElementById('tagEditLoraLink')?.value.trim() || '';
+        }
+
+        // 分类特有字段
+        if (data.source === 'style') {
+            tagData.description = document.getElementById('tagEditDesc')?.value.trim() || '';
+        }
+        if (data.source === 'other') {
+            tagData.d_group = parseInt(document.getElementById('tagEditDGroup')?.value) || 0;
+        }
+
+        // 发送到后端保存
+        try {
+            const response = await fetch('/api/edit-tag', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    category: data.source,
+                    tagId: data.id,
+                    tagData: tagData
+                })
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                // 更新本地数据
+                if (pretagsData.categories[data.source] && pretagsData.categories[data.source][data.id]) {
+                    const updated = { ...tagData };
+                    if (result.preview) {
+                        updated.preview = result.preview;
+                    } else if (data.preview) {
+                        updated.preview = data.preview;
+                    }
+                    pretagsData.categories[data.source][data.id] = updated;
+                }
+                showEditStatus('success', t('saveOk'));
+                setTimeout(() => {
+                    filterAndDisplay();
+                    // 重新显示详情（用更新后的数据）
+                    const updatedTag = { ...data, cname: newName, name: newTag, has_lora: hasLora, ...tagData };
+                    if (result.preview) updatedTag.preview = result.preview;
+                    showTagDetail(updatedTag);
+                }, 1000);
+            } else {
+                const err = await response.json().catch(() => ({}));
+                showEditStatus('error', t('saveFailedWith') + (err.message || response.statusText));
+            }
+        } catch (error) {
+            console.warn('后端不可用，仅更新本地数据:', error);
+            // 本地更新
+            if (pretagsData.categories[data.source] && pretagsData.categories[data.source][data.id]) {
+                pretagsData.categories[data.source][data.id] = tagData;
+            }
+            showEditStatus('success', t('updatedLocal'));
+            setTimeout(() => {
+                filterAndDisplay();
+                const updatedTag = { ...data, cname: newName, name: newTag, ...tagData };
+                showTagDetail(updatedTag);
+            }, 1000);
+        }
+    }
+</script>
+
+<!-- 添加上传预览图样式和脚本 -->
+<style>
+    .upload-preview {
+        margin-top: 10px;
+    }
+
+    .upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 30px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .upload-area:hover {
+        border-color: #667eea;
+        background: #f0f4ff;
+    }
+
+    .upload-area.dragover {
+        border-color: #667eea;
+        background: #e8eeff;
+    }
+
+    .upload-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+    }
+
+    .upload-text {
+        font-size: 16px;
+        color: #495057;
+        margin-bottom: 5px;
+    }
+
+    .upload-hint {
+        font-size: 12px;
+        color: #6c757d;
+    }
+
+    .upload-url {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .upload-url label {
+        font-size: 13px;
+        color: #495057;
+        white-space: nowrap;
+    }
+
+    .upload-url input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        font-size: 13px;
+    }
+
+    .upload-url input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+
+    .upload-preview-image {
+        margin-top: 15px;
+        text-align: center;
+        position: relative;
+    }
+
+    .upload-preview-image img {
+        max-width: 100%;
+        max-height: 200px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        cursor: pointer;
+    }
+
+    .preview-zoom-btn {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        z-index: 10;
+    }
+
+    .preview-zoom-btn:hover {
+        background: rgba(0, 0, 0, 0.8);
+        transform: scale(1.1);
+    }
+
+    .preview-zoom-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 10000;
+        justify-content: center;
+        align-items: center;
+        cursor: zoom-out;
+    }
+
+    .preview-zoom-overlay.show {
+        display: flex;
+    }
+
+    .preview-zoom-overlay img {
+        max-width: 90%;
+        max-height: 90%;
+        object-fit: contain;
+        border-radius: 8px;
+    }
+
+    .preview-zoom-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 24px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .preview-zoom-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.1);
+    }
+
+    .upload-status {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        z-index: 9999;
+        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2s;
+    }
+
+    .upload-status.success {
+        background: rgba(40, 167, 69, 0.9);
+        color: white;
+    }
+
+    .upload-status.error {
+        background: rgba(220, 53, 69, 0.9);
+        color: white;
+    }
+
+    /* === 拖放预览更新 === */
+    .image-wrapper.dragover {
+        outline: 3px dashed #667eea;
+        outline-offset: -3px;
+        box-shadow: 0 0 20px rgba(102, 126, 234, 0.5), inset 0 0 30px rgba(102, 126, 234, 0.15);
+        transform: scale(1.03);
+        transition: all 0.2s ease;
+    }
+    .image-wrapper.dragover img {
+        filter: brightness(0.7);
+    }
+    .image-wrapper.drag-uploading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    .image-wrapper .drag-overlay {
+        display: none;
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: rgba(102, 126, 234, 0.8);
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+        border-radius: 12px;
+    }
+    .image-wrapper.dragover .drag-overlay {
+        display: flex;
+    }
+</style>
+
+<!-- 预览图放大查看弹窗 -->
+<div id="previewZoomOverlay" class="preview-zoom-overlay" onclick="closePreviewZoom()">
+    <button class="preview-zoom-close" onclick="closePreviewZoom()">×</button>
+    <img id="previewZoomImage" src="" alt="预览">
+</div>
+
+<script>
+    // 放大查看卡片预览图
+    function zoomCardPreview(imageUrl, title) {
+        const zoomOverlay = document.getElementById('previewZoomOverlay');
+        const zoomImg = document.getElementById('previewZoomImage');
+        
+        zoomImg.src = imageUrl;
+        zoomImg.alt = title;
+        zoomOverlay.classList.add('show');
+    }
+
+    function closePreviewZoom() {
+        const zoomOverlay = document.getElementById('previewZoomOverlay');
+        zoomOverlay.classList.remove('show');
+    }
+
+    // ESC 键关闭放大预览
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closePreviewZoom();
+        }
+    });
+
+    // 处理图片上传
+    function handleImageUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        // 检查文件类型
+        if (!file.type.startsWith('image/')) {
+            showUploadStatus('error', t('selectImage'));
+            return;
+        }
+
+        // 检查文件大小（限制 10MB）
+        if (file.size > 10 * 1024 * 1024) {
+            showUploadStatus('error', t('imageTooLarge'));
+            return;
+        }
+
+        // 显示预览
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('uploadPreview');
+            const previewImg = document.getElementById('previewImage');
+            previewImg.src = e.target.result;
+            preview.style.display = 'block';
+            
+            // 保存图片数据
+            window.currentUploadImage = {
+                file: file,
+                dataUrl: e.target.result
+            };
+        };
+        reader.readAsDataURL(file);
+    }
+
+    // 从 URL 上传
+    function uploadFromUrl() {
+        const url = document.getElementById('imageUrlInput').value;
+        if (!url) {
+            showUploadStatus('error', t('enterImageUrl'));
+            return;
+        }
+
+        // 显示预览
+        const preview = document.getElementById('uploadPreview');
+        const previewImg = document.getElementById('previewImage');
+        previewImg.src = url;
+        preview.style.display = 'block';
+        
+        // 保存 URL
+        window.currentUploadImage = {
+            url: url
+        };
+    }
+
+    // 清除上传预览
+    function clearUploadPreview() {
+        const preview = document.getElementById('uploadPreview');
+        preview.style.display = 'none';
+        window.currentUploadImage = null;
+    }
+
+    // 保存标签预览图
+    async function saveTagPreview() {
+        const tagData = window.currentTagData;
+        const uploadImage = window.currentUploadImage;
+
+        if (!tagData || !tagData.id) {
+            showUploadStatus('error', t('noTagData'));
+            return;
+        }
+
+        if (!uploadImage) {
+            showUploadStatus('error', t('uploadImageFirst'));
+            return;
+        }
+
+        // 发送到后端
+        try {
+            const response = await fetch('/api/save-tag-preview', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    tagId: tagData.id,
+                    category: tagData.source,
+                    image: uploadImage
+                })
+            });
+
+            if (response.ok) {
+                showUploadStatus('success', t('previewSaveOk'));
+                setTimeout(() => {
+                    // 关闭详情面板
+                    document.getElementById('detailPanel').classList.remove('show');
+                    // 刷新显示
+                    filterAndDisplay();
+                }, 1000);
+            } else {
+                showUploadStatus('error', t('saveFailedResponse') + response.statusText);
+            }
+        } catch (error) {
+            console.error('保存预览图失败:', error);
+            showUploadStatus('error', t('saveFailedResponse') + error.message);
+        }
+    }
+
+    // 显示上传状态
+    function showUploadStatus(type, message) {
+        const status = document.createElement('div');
+        status.className = `upload-status ${type}`;
+        status.textContent = message;
+        document.body.appendChild(status);
+        setTimeout(() => status.remove(), 2500);
+    }
+
+    // 卡片拖放预览更新（事件委托，支持动态创建的卡片）
+    (function() {
+        let dragTarget = null;
+
+        document.addEventListener('dragover', function(e) {
+            const wrapper = e.target.closest('.image-wrapper');
+            if (!wrapper) return;
+            e.preventDefault();
+            if (dragTarget && dragTarget !== wrapper) {
+                dragTarget.classList.remove('dragover');
+            }
+            dragTarget = wrapper;
+            wrapper.classList.add('dragover');
+        });
+
+        document.addEventListener('dragleave', function(e) {
+            const wrapper = e.target.closest('.image-wrapper');
+            if (wrapper === dragTarget) {
+                wrapper.classList.remove('dragover');
+                dragTarget = null;
+            }
+        });
+
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (dragTarget) {
+                dragTarget.classList.remove('dragover');
+            }
+            const wrapper = dragTarget || e.target.closest('.image-wrapper');
+            dragTarget = null;
+            if (!wrapper) return;
+
+            const files = e.dataTransfer.files;
+            if (files.length === 0) return;
+            handleCardDrop(wrapper, files[0]);
+        });
+
+        // 也保留 uploadArea 的拖放（详情面板内）
+        const uploadArea = document.getElementById('uploadArea');
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleImageUpload({ target: { files: files } });
+                }
+            });
+        }
+    })();
+
+    async function handleCardDrop(wrapper, file) {
+        const entryType = wrapper.dataset.entryType;
+        const entryId = wrapper.dataset.entryId;
+        const entrySource = wrapper.dataset.entrySource || wrapper.dataset.entryCategory || '';
+
+        if (!entryType || !entryId) {
+            showToast(t('cannotIdentifyCard'));
+            return;
+        }
+        if (!file.type.startsWith('image/')) {
+            showToast(t('dropImageFile'));
+            return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+            showToast(t('imageExceedLimit'));
+            return;
+        }
+
+        // 上传状态
+        wrapper.classList.add('drag-uploading');
+        showToast(t('uploadingPreview'));
+
+        // 读文件为 dataUrl
+        const dataUrl = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = function(e) { resolve(e.target.result); };
+            reader.readAsDataURL(file);
+        });
+
+        // 根据类型调不同 API
+        let apiUrl, body;
+        if (entryType === 'character') {
+            apiUrl = '/api/save-character-preview';
+            body = { charId: entryId, image: { dataUrl } };
+        } else {
+            apiUrl = '/api/save-tag-preview';
+            body = { tagId: entryId, category: entrySource, image: { dataUrl } };
+        }
+
+        try {
+            const resp = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const result = await resp.json();
+            if (result.success) {
+                showToast(t('previewUpdated'));
+                // 即时替换卡片图片
+                const img = wrapper.querySelector('img');
+                if (img) {
+                    img.src = dataUrl;
+                }
+                // 替换 no-image div
+                const noImg = wrapper.querySelector('.no-image');
+                if (noImg) {
+                    noImg.outerHTML = `<img src="${dataUrl}" alt="">`;
+                }
+                // 异步刷新数据
+                setTimeout(() => filterAndDisplay(), 1500);
+            } else {
+                showToast(t('saveFailedShort') + (result.message || ''));
+            }
+        } catch (e) {
+            showToast(t('requestFailedShort') + e.message);
+        } finally {
+            wrapper.classList.remove('drag-uploading');
+        }
+    }
+</script>

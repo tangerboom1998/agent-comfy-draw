@@ -1,0 +1,69 @@
+{
+  "_meta": {
+    "version": "2.0",
+    "description": "Hashtag 命令关键字映射配置。用户可自定义 # 前缀关键字到命令类型的对应关系，每个命令支持多个别名（aliases），第一个别名为默认显示名。修改后重启生效。v2.0: data_key 统一为英文。"
+  },
+
+  "character": {
+    "aliases": ["人物", "char", "character"],
+    "data_key": "character",
+    "description": "指定人物名生成: #人物 角色名 [外貌] [服装] [权重]",
+    "sub_fields": {
+      "appearance": {
+        "aliases": ["外貌", "appearance", "app"],
+        "data_key": "appearance"
+      },
+      "clothing": {
+        "aliases": ["服装", "clothing", "cloth"],
+        "data_key": "clothing"
+      }
+    }
+  },
+
+  "categories": {
+    "action": {
+      "aliases": ["动作", "action", "pose"],
+      "data_key": "action"
+    },
+    "clothing": {
+      "aliases": ["服装", "outfit", "clothes"],
+      "data_key": "clothing"
+    },
+    "shot": {
+      "aliases": ["镜头", "shot", "camera"],
+      "data_key": "shot"
+    },
+    "style": {
+      "aliases": ["画风", "style", "artstyle"],
+      "data_key": "style"
+    },
+    "scene": {
+      "aliases": ["场景", "scene", "bg"],
+      "data_key": "scene"
+    },
+    "other": {
+      "aliases": ["其他", "other", "misc"],
+      "data_key": "other"
+    }
+  },
+
+  "random": {
+    "aliases": ["随机", "random", "rand"],
+    "description": "随机选择角色: #随机 [系列名] [外貌] [服装] [权重]"
+  },
+
+  "query": {
+    "aliases": ["角色", "query", "find"],
+    "description": "角色查询: #角色 查询词"
+  },
+
+  "roll_artist": {
+    "aliases": ["撸串", "artist", "roll"],
+    "description": "随机选取画师: #撸串 数量"
+  },
+
+  "translate": {
+    "aliases": ["翻译", "translate", "trans"],
+    "description": "翻译为英文: #翻译 中文（需有道翻译配置）"
+  }
+}

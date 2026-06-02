@@ -1,0 +1,332 @@
+#!/usr/bin/env python3
+"""
+pretags — 预设标签库统一 CLI 工具
+
+用法:
+  pretags list [category]           列出分类或指定分类条目
+  pretags search <keyword> [cat]    搜索标签/角色
+  pretags info <category> <name>    查看条目详情
+  pretags stats                     统计信息
+  pretags server [start|stop|status] 管理 web 服务
+  pretags export [--format json]    导出数据
+  pretags preview <cat> <name> <img> [--source S] 更新条目预览图
+
+数据源: DrawingSpells/data/pretags.json（assets/pretags.json → 软链接）
+"""
+
+import argparse
+import json
+import os
+import shutil
+import signal
+import subprocess
+import sys
+from pathlib import Path
+
+SKILL_ROOT = Path(__file__).resolve().parent  # pretags 文件所在目录 = skill根
+DATA_PATH = SKILL_ROOT / "DrawingSpells" / "data" / "pretags.json"
+SERVER_DIR = SKILL_ROOT / "DrawingSpells"
+SERVER_PID_FILE = SKILL_ROOT / ".server.pid"
+
+# 有效分类（英文键名）→ 中文显示名
+CATEGORY_DISPLAY = {
+    "character": "人物", "action": "动作", "clothing": "服装",
+    "shot": "镜头", "style": "画风", "scene": "场景", "other": "其他",
+}
+VALID_CATEGORIES = list(CATEGORY_DISPLAY.keys())
+
+
+def load_data():
+    with open(DATA_PATH, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def cmd_list(args):
+    data = load_data()
+    if args.category:
+        if args.category not in VALID_CATEGORIES:
+            print(f"错误: 无效分类 '{args.category}'。有效: {', '.join(VALID_CATEGORIES)}")
+            return
+        if args.category == "character":
+            entries = data.get("characters", {})
+        else:
+            entries = data.get("categories", {}).get(args.category, {})
+        names = sorted(entries.keys())
+        total = len(names)
+        page = names[args.offset:args.offset + args.limit]
+        print(f"分类 '{args.category}' (共 {total} 条, 显示 {args.offset+1}-{min(args.offset+args.limit, total)}):")
+        for name in page:
+            e = entries[name]
+            tag = e.get("tag", "") or e.get("name", "")
+            lora = " [LoRA]" if e.get("has_lora") else ""
+            print(f"  - {name}{lora}: {tag[:60]}{'...' if len(tag)>60 else ''}")
+    else:
+        cats = data.get("categories", {})
+        chars = data.get("characters", {})
+        series = data.get("series", {})
+        print("预设标签库分类:")
+        for cat in VALID_CATEGORIES:
+            display = CATEGORY_DISPLAY[cat]
+            if cat == "character":
+                print(f"  {display}: {len(chars)} 角色")
+            elif cat in cats:
+                print(f"  {display}: {len(cats[cat])} 标签")
+        print(f"  系列: {len(series)} 个来源")
+
+
+def cmd_search(args):
+    data = load_data()
+    kw = args.keyword.lower()
+    results = []
+
+    # Search categories
+    for cat in VALID_CATEGORIES:
+        if cat == "character":
+            entries = data.get("characters", {})
+        else:
+            entries = data.get("categories", {}).get(cat, {})
+        for name, e in entries.items():
+            tag = e.get("tag", "") or e.get("name", "")
+            if kw in name.lower() or kw in tag.lower():
+                results.append((cat, name, e))
+            if len(results) >= args.limit:
+                break
+        if len(results) >= args.limit:
+            break
+
+    if not results:
+        print(f"未找到匹配 '{args.keyword}' 的条目")
+        return
+    print(f"搜索 '{args.keyword}' 结果 ({len(results)} 条):")
+    for cat, name, e in results:
+        tag = e.get("tag", "") or e.get("name", "")
+        lora = " [LoRA]" if e.get("has_lora") else ""
+        display = CATEGORY_DISPLAY.get(cat, cat)
+        print(f"  [{display}] {name}{lora}: {tag[:80]}")
+
+
+def cmd_info(args):
+    data = load_data()
+    if args.category not in VALID_CATEGORIES:
+        print(f"错误: 无效分类 '{args.category}'")
+        return
+    if args.category == "character":
+        entries = data.get("characters", {})
+    else:
+        entries = data.get("categories", {}).get(args.category, {})
+    if args.name not in entries:
+        print(f"错误: 分类 '{args.category}' 中不存在 '{args.name}'")
+        return
+    e = entries[args.name]
+    display = CATEGORY_DISPLAY.get(args.category, args.category)
+    print(f"详情 [{display}] {args.name}:")
+    for k, v in e.items():
+        if k not in ("tags",):
+            print(f"  {k}: {v}")
+    if e.get("tags"):
+        print(f"  tags: {', '.join(e['tags'][:20])}")
+
+
+def cmd_stats(args):
+    data = load_data()
+    chars = data.get("characters", {})
+    cats = data.get("categories", {})
+    series = data.get("series", {})
+    total = len(chars)
+    lora_chars = sum(1 for c in chars.values() if c.get("has_lora"))
+    print("预设标签库统计:")
+    print(f"  人物: {len(chars)} 角色 (LoRA: {lora_chars})")
+    for cat in ['action', 'clothing', 'shot', 'style', 'scene', 'other']:
+        if cat in cats:
+            c = cats[cat]
+            lora = sum(1 for e in c.values() if e.get("has_lora"))
+            display = CATEGORY_DISPLAY.get(cat, cat)
+            print(f"  {display}: {len(c)} 标签 (LoRA: {lora})")
+            total += len(c)
+    print(f"  系列: {len(series)} 个来源")
+    print(f"  总计: {total} 条目")
+
+
+def _server_pid():
+    if SERVER_PID_FILE.exists():
+        pid = int(SERVER_PID_FILE.read_text().strip())
+        try:
+            os.kill(pid, 0)
+            return pid
+        except OSError:
+            pass
+    return None
+
+
+def cmd_server(args):
+    if args.server_action == "start":
+        pid = _server_pid()
+        if pid:
+            print(f"服务器已在运行 (PID: {pid})")
+            return
+        proc = subprocess.Popen(
+            [sys.executable, "-u", "server.py"],
+            cwd=str(SERVER_DIR),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        SERVER_PID_FILE.write_text(str(proc.pid))
+        print(f"服务器已启动 (PID: {proc.pid})")
+        print(f"访问: http://localhost:8765/index-pretags.html")
+    elif args.server_action == "stop":
+        pid = _server_pid()
+        if pid:
+            os.kill(pid, signal.SIGTERM)
+            SERVER_PID_FILE.unlink(missing_ok=True)
+            print(f"服务器已停止 (PID: {pid})")
+        else:
+            print("服务器未运行")
+    elif args.server_action == "status":
+        pid = _server_pid()
+        if pid:
+            print(f"服务器运行中 (PID: {pid})")
+        else:
+            print("服务器未运行")
+
+
+def cmd_export(args):
+    data = load_data()
+    fmt = args.format or "json"
+    if fmt == "json":
+        output = json.dumps(data, ensure_ascii=False, indent=2)
+        if args.output:
+            Path(args.output).write_text(output, encoding='utf-8')
+            print(f"已导出到 {args.output}")
+        else:
+            print(output)
+    else:
+        print(f"不支持的格式: {fmt}")
+
+
+def cmd_preview(args):
+    """更新条目预览图。复制本地图片到对应目录并写入 JSON。"""
+    data = load_data()
+    image_path = Path(args.image_path).expanduser().resolve()
+
+    if not image_path.exists():
+        print(f"错误: 图片文件不存在: {args.image_path}")
+        return
+    if not image_path.suffix.lower() in ('.jpg', '.jpeg', '.png', '.webp', '.gif'):
+        print(f"警告: 非标准图片格式 '{image_path.suffix}'，继续尝试...")
+
+    if args.category == "character":
+        if not args.source:
+            print("错误: 人物需要 --source/-s 指定系列名")
+            return
+        chars = data.get("characters", {})
+        if args.name not in chars:
+            print(f"错误: 人物 '{args.name}' 不存在于预设标签库")
+            return
+
+        target_dir = SKILL_ROOT / "DrawingSpells" / "data" / "character-previews"
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        safe_name = args.name.replace('/', '_').replace('\\', '_').replace(' ', '_')
+        safe_src = (args.source or 'unknown').replace('/', '_').replace('\\', '_').replace(' ', '_')
+        ext = image_path.suffix.lower() or '.jpg'
+        filename = f"{safe_name}__{safe_src}{ext}"
+        target_file = target_dir / filename
+
+        shutil.copy2(str(image_path), str(target_file))
+
+        preview_path = f"./data/character-previews/{filename}"
+        chars[args.name]["preview"] = preview_path
+
+    else:
+        if args.category not in VALID_CATEGORIES:
+            print(f"错误: 无效分类 '{args.category}'。有效: {', '.join(VALID_CATEGORIES)}")
+            return
+        cats = data.get("categories", {})
+        if args.category not in cats or args.name not in cats.get(args.category, {}):
+            print(f"错误: 分类 '{args.category}' 中不存在 '{args.name}'")
+            return
+
+        target_dir = SKILL_ROOT / "DrawingSpells" / "data" / "previews"
+        target_dir.mkdir(parents=True, exist_ok=True)
+
+        safe_cat = args.category.replace('/', '_').replace('\\', '_').replace(' ', '_')
+        safe_name = args.name.replace('/', '_').replace('\\', '_').replace(' ', '_')
+        ext = image_path.suffix.lower() or '.jpg'
+        filename = f"{safe_cat}_{safe_name}{ext}"
+        target_file = target_dir / filename
+
+        shutil.copy2(str(image_path), str(target_file))
+
+        preview_path = f"./data/previews/{filename}"
+        cats[args.category][args.name]["preview"] = preview_path
+
+    with open(DATA_PATH, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+    stat = target_file.stat()
+    size_kb = stat.st_size / 1024
+    print(f"✅ 预览图已更新")
+    print(f"   条目: [{args.category}] {args.name}")
+    print(f"   文件: {target_file}")
+    print(f"   大小: {size_kb:.1f} KB")
+    print(f"   JSON: preview={preview_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="pretags 预设标签库管理工具")
+    sub = parser.add_subparsers(dest="command")
+
+    # list
+    p_list = sub.add_parser("list", help="列出分类或条目")
+    p_list.add_argument("category", nargs="?", help="分类名")
+    p_list.add_argument("--limit", type=int, default=50)
+    p_list.add_argument("--offset", type=int, default=0)
+
+    # search
+    p_search = sub.add_parser("search", help="搜索标签/角色")
+    p_search.add_argument("keyword", help="关键词")
+    p_search.add_argument("--limit", type=int, default=30)
+
+    # info
+    p_info = sub.add_parser("info", help="条目详情")
+    p_info.add_argument("category", help="分类名")
+    p_info.add_argument("name", help="条目名称")
+
+    # stats
+    sub.add_parser("stats", help="统计信息")
+
+    # server
+    p_srv = sub.add_parser("server", help="管理 web 服务")
+    p_srv.add_argument("server_action", choices=["start", "stop", "status"])
+
+    # export
+    p_exp = sub.add_parser("export", help="导出数据")
+    p_exp.add_argument("--format", choices=["json"], default="json")
+    p_exp.add_argument("--output", "-o", help="输出文件")
+
+    # preview
+    p_preview = sub.add_parser("preview", help="更新条目预览图")
+    p_preview.add_argument("category", help="分类名（character/action/clothing/shot/style/scene/other）")
+    p_preview.add_argument("name", help="条目名称")
+    p_preview.add_argument("image_path", help="本地图片路径")
+    p_preview.add_argument("--source", "-s", help="系列名（人物必需）")
+
+    args = parser.parse_args()
+    if not args.command:
+        parser.print_help()
+        return
+
+    commands = {
+        "list": cmd_list,
+        "search": cmd_search,
+        "info": cmd_info,
+        "stats": cmd_stats,
+        "server": cmd_server,
+        "export": cmd_export,
+        "preview": cmd_preview,
+    }
+    commands[args.command](args)
+
+
+if __name__ == "__main__":
+    main()

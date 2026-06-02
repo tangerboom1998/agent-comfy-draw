@@ -1,0 +1,461 @@
+{
+  "1": {
+    "inputs": {
+      "width": [
+        "2",
+        0
+      ],
+      "height": [
+        "3",
+        0
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "空Latent"
+    }
+  },
+  "2": {
+    "inputs": {
+      "int": 1024
+    },
+    "class_type": "Primitive integer [Crystools]",
+    "_meta": {
+      "title": "整数元节点"
+    }
+  },
+  "3": {
+    "inputs": {
+      "int": 1536
+    },
+    "class_type": "Primitive integer [Crystools]",
+    "_meta": {
+      "title": "整数元节点"
+    }
+  },
+  "4": {
+    "inputs": {
+      "seed": 413324212840442
+    },
+    "class_type": "CR Seed",
+    "_meta": {
+      "title": "随机种"
+    }
+  },
+  "10": {
+    "inputs": {
+      "input": "masterpiece, score_7, painterly, impasto, brush strokes, @wlopstyle, 1boy, headless knight, dullahan, riding a black armored horse with bright red eyes, intricate black armor, holding own helmet in one hand, gripping huge red sword with dark aura in other hand, blood on white snow beneath horse hooves, huge full moon partially obscured by dark clouds,trees in background, low perspective from victim's point of view, human hand in foreground, dark fantasy atmospheric, detailed composition, dullahan standing very close by, looking down at victim,view from below"
+    },
+    "class_type": "FETextInput",
+    "_meta": {
+      "title": "FETextInput"
+    }
+  },
+  "25": {
+    "inputs": {
+      "unet_name": "anima_baseV10.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "UNet加载器"
+    }
+  },
+  "26": {
+    "inputs": {
+      "clip_name": "qwen_3_06b_base.safetensors",
+      "type": "qwen_image",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载CLIP"
+    }
+  },
+  "28": {
+    "inputs": {
+      "vae_name": "qwen/qwen_image_vae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载VAE"
+    }
+  },
+  "30": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "4",
+        0
+      ],
+      "steps": 30,
+      "cfg": 5,
+      "sampler_name": "er_sde",
+      "scheduler": "beta",
+      "start_at_step": 1,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "enable",
+      "model": [
+        "39",
+        0
+      ],
+      "positive": [
+        "38",
+        0
+      ],
+      "negative": [
+        "37",
+        0
+      ],
+      "latent_image": [
+        "1",
+        0
+      ]
+    },
+    "class_type": "KSamplerAdvanced",
+    "_meta": {
+      "title": "K采样器（高级）"
+    }
+  },
+  "31": {
+    "inputs": {
+      "samples": [
+        "30",
+        0
+      ],
+      "vae": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "37": {
+    "inputs": {
+      "text": "lowres,(bad),text,error,fewer,extra,missing,worst quality,jpeg artifacts,low quality,watermark,unfinished,displeasing,oldest,faceless,bad  background,NEGATIVE_HANDSXL,furry,extra arms,extra fingers,extra  legs,extra toes,blush,((more than 5 fingers with 1 hand)),NAINEG_XL-neg,head_tilt,",
+      "clip": [
+        "39",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "38": {
+    "inputs": {
+      "text": [
+        "39",
+        2
+      ],
+      "clip": [
+        "39",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "39": {
+    "inputs": {
+      "model_type": "noob",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "25",
+        0
+      ],
+      "clip": [
+        "26",
+        0
+      ],
+      "prompt": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "FEEncLoraAutoLoader",
+    "_meta": {
+      "title": "FEEncLoraAutoLoader"
+    }
+  },
+  "44": {
+    "inputs": {
+      "images": [
+        "50",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
+  "45": {
+    "inputs": {
+      "filename_prefix": "CCUI",
+      "password": "whitecat114514",
+      "erase_pwd_in_meta": "no",
+      "images": [
+        "50",
+        0
+      ]
+    },
+    "class_type": "FESaveEncryptImage",
+    "_meta": {
+      "title": "FESaveEncryptImage"
+    }
+  },
+  "50": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": true,
+      "max_size": 1024,
+      "seed": 441731854141464,
+      "steps": 40,
+      "cfg": 7,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.3,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "31",
+        0
+      ],
+      "model": [
+        "39",
+        0
+      ],
+      "clip": [
+        "39",
+        1
+      ],
+      "vae": [
+        "28",
+        0
+      ],
+      "positive": [
+        "38",
+        0
+      ],
+      "negative": [
+        "37",
+        0
+      ],
+      "bbox_detector": [
+        "54",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "FaceDetailer"
+    }
+  },
+  "54": {
+    "inputs": {
+      "model_name": "bbox/face_yolov8m.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "67": {
+    "inputs": {
+      "images": [
+        "75",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
+  "69": {
+    "inputs": {
+      "upscale_model": "4x-UltraSharp.pth",
+      "mode": "rescale",
+      "rescale_factor": 1.25,
+      "resize_width": 1024,
+      "resampling_method": "lanczos",
+      "supersample": "true",
+      "rounding_modulus": 8,
+      "image": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "CR Upscale Image",
+    "_meta": {
+      "title": "🔍 CR Upscale Image"
+    }
+  },
+  "71": {
+    "inputs": {
+      "pixels": [
+        "69",
+        0
+      ],
+      "vae": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {
+      "title": "VAE编码"
+    }
+  },
+  "72": {
+    "inputs": {
+      "samples": [
+        "73",
+        0
+      ],
+      "vae": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "73": {
+    "inputs": {
+      "seed": 759410557680163,
+      "steps": 30,
+      "cfg": 6,
+      "sampler_name": "euler",
+      "scheduler": "beta",
+      "denoise": 0.3,
+      "model": [
+        "39",
+        0
+      ],
+      "positive": [
+        "38",
+        0
+      ],
+      "negative": [
+        "37",
+        0
+      ],
+      "latent_image": [
+        "71",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "75": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": true,
+      "max_size": 1024,
+      "seed": 854186407889666,
+      "steps": 40,
+      "cfg": 7,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.3,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "72",
+        0
+      ],
+      "model": [
+        "39",
+        0
+      ],
+      "clip": [
+        "39",
+        1
+      ],
+      "vae": [
+        "28",
+        0
+      ],
+      "positive": [
+        "38",
+        0
+      ],
+      "negative": [
+        "37",
+        0
+      ],
+      "bbox_detector": [
+        "54",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "FaceDetailer"
+    }
+  },
+  "76": {
+    "inputs": {
+      "filename_prefix": "CCUI",
+      "password": "whitecat114514",
+      "erase_pwd_in_meta": "no",
+      "images": [
+        "75",
+        0
+      ]
+    },
+    "class_type": "FESaveEncryptImage",
+    "_meta": {
+      "title": "FESaveEncryptImage"
+    }
+  }
+}

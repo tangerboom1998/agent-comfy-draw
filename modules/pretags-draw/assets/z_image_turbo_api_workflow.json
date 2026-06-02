@@ -1,0 +1,432 @@
+{
+  "3": {
+    "inputs": {
+      "seed": 686938145864603,
+      "steps": 9,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.9900000000000002,
+      "model": [
+        "30",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "latent_image": [
+        "13",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "6": {
+    "inputs": {
+      "text": [
+        "30",
+        2
+      ],
+      "clip": [
+        "30",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive Prompt)"
+    }
+  },
+  "7": {
+    "inputs": {
+      "text": "blurry ugly bad",
+      "clip": [
+        "18",
+        0
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative Prompt)"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "11": {
+    "inputs": {
+      "shift": 3,
+      "model": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingAuraFlow",
+    "_meta": {
+      "title": "采样算法（AuraFlow）"
+    }
+  },
+  "13": {
+    "inputs": {
+      "width": 1024,
+      "height": 1536,
+      "batch_size": 1
+    },
+    "class_type": "EmptySD3LatentImage",
+    "_meta": {
+      "title": "空Latent图像（SD3）"
+    }
+  },
+  "16": {
+    "inputs": {
+      "unet_name": "z_image_turbo_bf16.safetensors",
+      "weight_dtype": "default"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {
+      "title": "UNet加载器"
+    }
+  },
+  "17": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "加载VAE"
+    }
+  },
+  "18": {
+    "inputs": {
+      "clip_name": "qwen/qwen_3_4b.safetensors",
+      "type": "lumina2",
+      "device": "default"
+    },
+    "class_type": "CLIPLoader",
+    "_meta": {
+      "title": "加载CLIP"
+    }
+  },
+  "30": {
+    "inputs": {
+      "model_type": "noob",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "11",
+        0
+      ],
+      "clip": [
+        "18",
+        0
+      ],
+      "prompt": [
+        "31",
+        0
+      ]
+    },
+    "class_type": "FEEncLoraAutoLoader",
+    "_meta": {
+      "title": "FEEncLoraAutoLoader"
+    }
+  },
+  "31": {
+    "inputs": {
+      "input": "8k,best quality,masterpiece,(ultra-detailed),\nshengtang style,chinese clothes,The image in shengtang style.,\n"
+    },
+    "class_type": "FETextInput",
+    "_meta": {
+      "title": "FETextInput"
+    }
+  },
+  "37": {
+    "inputs": {
+      "images": [
+        "41",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
+  "38": {
+    "inputs": {
+      "filename_prefix": "CCUI",
+      "password": "whitecat114514",
+      "erase_pwd_in_meta": "no",
+      "images": [
+        "41",
+        0
+      ]
+    },
+    "class_type": "FESaveEncryptImage",
+    "_meta": {
+      "title": "FESaveEncryptImage"
+    }
+  },
+  "40": {
+    "inputs": {
+      "model_name": "bbox/face_yolov8m.pt"
+    },
+    "class_type": "UltralyticsDetectorProvider",
+    "_meta": {
+      "title": "UltralyticsDetectorProvider"
+    }
+  },
+  "41": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": true,
+      "max_size": 1024,
+      "seed": [
+        "51",
+        0
+      ],
+      "steps": 10,
+      "cfg": 7,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.3,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "8",
+        0
+      ],
+      "model": [
+        "30",
+        0
+      ],
+      "clip": [
+        "30",
+        1
+      ],
+      "vae": [
+        "17",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "bbox_detector": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "FaceDetailer"
+    }
+  },
+  "45": {
+    "inputs": {
+      "seed": [
+        "51",
+        0
+      ],
+      "steps": 10,
+      "cfg": 1,
+      "sampler_name": "euler",
+      "scheduler": "beta",
+      "denoise": 0.5,
+      "model": [
+        "30",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "latent_image": [
+        "47",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "46": {
+    "inputs": {
+      "samples": [
+        "45",
+        0
+      ],
+      "vae": [
+        "17",
+        0
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "47": {
+    "inputs": {
+      "upscale_method": "bilinear",
+      "scale_by": 1.25,
+      "samples": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "LatentUpscaleBy",
+    "_meta": {
+      "title": "缩放Latent（比例）"
+    }
+  },
+  "48": {
+    "inputs": {
+      "guide_size": 512,
+      "guide_size_for": true,
+      "max_size": 1024,
+      "seed": [
+        "51",
+        0
+      ],
+      "steps": 10,
+      "cfg": 7,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 0.3,
+      "feather": 5,
+      "noise_mask": true,
+      "force_inpaint": true,
+      "bbox_threshold": 0.5,
+      "bbox_dilation": 10,
+      "bbox_crop_factor": 3,
+      "sam_detection_hint": "center-1",
+      "sam_dilation": 0,
+      "sam_threshold": 0.93,
+      "sam_bbox_expansion": 0,
+      "sam_mask_hint_threshold": 0.7,
+      "sam_mask_hint_use_negative": "False",
+      "drop_size": 10,
+      "wildcard": "",
+      "cycle": 1,
+      "inpaint_model": false,
+      "noise_mask_feather": 20,
+      "tiled_encode": false,
+      "tiled_decode": false,
+      "image": [
+        "46",
+        0
+      ],
+      "model": [
+        "30",
+        0
+      ],
+      "clip": [
+        "30",
+        1
+      ],
+      "vae": [
+        "17",
+        0
+      ],
+      "positive": [
+        "6",
+        0
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "bbox_detector": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "FaceDetailer",
+    "_meta": {
+      "title": "FaceDetailer"
+    }
+  },
+  "49": {
+    "inputs": {
+      "images": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
+  "50": {
+    "inputs": {
+      "filename_prefix": "CCUI",
+      "password": "whitecat114514",
+      "erase_pwd_in_meta": "no",
+      "images": [
+        "48",
+        0
+      ]
+    },
+    "class_type": "FESaveEncryptImage",
+    "_meta": {
+      "title": "FESaveEncryptImage"
+    }
+  },
+  "51": {
+    "inputs": {
+      "seed": 1062938810201994
+    },
+    "class_type": "CR Seed",
+    "_meta": {
+      "title": "随机种"
+    }
+  }
+}

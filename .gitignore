@@ -1,0 +1,97 @@
+# 环境变量文件（包含敏感信息）
+.env
+.env.local
+.env.*.local
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 虚拟环境
+venv/
+env/
+ENV/
+.venv
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志文件
+*.log
+logs/
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+
+# 输出目录（生成的图片，只保留 .gitkeep 占位）
+output/*
+!output/.gitkeep
+
+# 数据文件（20MB+，不提交到仓库，通过 PRETAGS_DATA_PATH 环境变量指定路径）
+pretags.json
+
+# Tanger-Presets-Show 角色图库（大体积图片资源，不提交到仓库）
+modules/Tanger-Presets-Show/data/character/
+modules/Tanger-Presets-Show/data/character-data.tar.gz
+
+# 数据备份文件
+*.backup
+*.bak
+backup_ver/
+pretags_backup/
+Tanger-Presets-Show/data/pretags_backup/
+Tanger-Presets-Show/data/*.backup
+Tanger-Presets-Show/data/*.bak
+pretags-draw/assets/pretags_backup/
+
+# 测试文件
+.pytest_cache/
+.coverage
+htmlcov/
+
+# 构建产物
+dist/
+build/
+*.egg-info/
+
+# Node.js（如果有前端构建）
+node_modules/
+package-lock.json
+yarn.lock
+
+# 模型文件（通常很大，不应提交到仓库）
+*.safetensors
+*.ckpt
+*.pt
+*.pth
+*.bin
+
+# 个人配置文件
+config.local.json
+settings.local.json
+
+# 文档生成
+docs/_build/
+
+# 外部 Git 仓库（custom_nodes 下的第三方插件）
+custom_nodes/
+
+# VSCode 工作区文件
+*.code-workspace
+
+# pytest 缓存
+.pytest_cache/

@@ -1,0 +1,328 @@
+{
+  "10": {
+    "inputs": {
+      "text": [
+        "84",
+        2
+      ],
+      "token_normalization": "none",
+      "weight_interpretation": "A1111",
+      "clip": [
+        "84",
+        1
+      ]
+    },
+    "class_type": "BNK_CLIPTextEncodeAdvanced",
+    "_meta": {
+      "title": "CLIP文本编码器(BNK)"
+    }
+  },
+  "14": {
+    "inputs": {
+      "text": "lowres,bad,error,fewer,extra,missing,worst quality,jpeg artifacts,bad quality,watermark,unfinished,displeasing,chromatic aberration,signature,extra digits,artistic error,username,scan,[abstract],toy,chibi,sitting,nsfw,lowres,bad,error,fewer,extra,missing,worst quality,jpeg artifacts,bad quality,watermark,unfinished,displeasing,chromatic aberration,signature,extra digits,artistic error,username,scan,[abstract],text,lowres,{bad},error,fewer,extra,missing,worst quality,jpeg artifacts,bad quality,watermark,unfinished,displeasing,chromatic aberration,signature,extra digits,artistic error,username,scan,[abstract],lowres,{bad},error,fewer,extra,missing,worst quality,jpeg artifacts,bad quality,(watermark),unfinished,displeasing,chromatic aberration,signature,extra digits,artistic error,username,scan,[abstract],lowres,bad,text,error,missing,extra,fewer,cropped,jpeg artifacts,worst quality,bad quality,watermark,displeasing,unfinished,chromatic aberration,scan,",
+      "token_normalization": "none",
+      "weight_interpretation": "A1111",
+      "clip": [
+        "84",
+        1
+      ]
+    },
+    "class_type": "BNK_CLIPTextEncodeAdvanced",
+    "_meta": {
+      "title": "CLIP文本编码器(BNK)"
+    }
+  },
+  "19": {
+    "inputs": {
+      "width": [
+        "20",
+        0
+      ],
+      "height": [
+        "21",
+        0
+      ],
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "空Latent"
+    }
+  },
+  "20": {
+    "inputs": {
+      "int": 1024
+    },
+    "class_type": "Primitive integer [Crystools]",
+    "_meta": {
+      "title": "整数元节点"
+    }
+  },
+  "21": {
+    "inputs": {
+      "int": 1539
+    },
+    "class_type": "Primitive integer [Crystools]",
+    "_meta": {
+      "title": "整数元节点"
+    }
+  },
+  "32": {
+    "inputs": {
+      "seed": 204604031717183
+    },
+    "class_type": "CR Seed",
+    "_meta": {
+      "title": "随机种"
+    }
+  },
+  "48": {
+    "inputs": {
+      "add_noise": "enable",
+      "noise_seed": [
+        "32",
+        0
+      ],
+      "steps": 50,
+      "cfg": 5,
+      "sampler_name": "ddim",
+      "scheduler": "normal",
+      "start_at_step": 0,
+      "end_at_step": 10000,
+      "return_with_leftover_noise": "disable",
+      "preview_method": "none",
+      "vae_decode": "true",
+      "model": [
+        "84",
+        0
+      ],
+      "positive": [
+        "10",
+        0
+      ],
+      "negative": [
+        "14",
+        0
+      ],
+      "latent_image": [
+        "19",
+        0
+      ],
+      "optional_vae": [
+        "87",
+        2
+      ]
+    },
+    "class_type": "KSampler Adv. (Efficient)",
+    "_meta": {
+      "title": "K采样器(高级效率)"
+    }
+  },
+  "67": {
+    "inputs": {
+      "ckpt_name": "noobaiXLNAIXL_epsilonPred11Version.safetensors",
+      "prompt": "",
+      "example": "[none]"
+    },
+    "class_type": "CheckpointLoader|pysssss",
+    "_meta": {
+      "title": "Checkpoint加载器(pysss)"
+    }
+  },
+  "83": {
+    "inputs": {
+      "filename_prefix": "CCUI",
+      "password": "whitecat114514",
+      "erase_pwd_in_meta": "no",
+      "images": [
+        "48",
+        5
+      ]
+    },
+    "class_type": "FESaveEncryptImage",
+    "_meta": {
+      "title": "FESaveEncryptImage"
+    }
+  },
+  "84": {
+    "inputs": {
+      "model_type": "sdxl",
+      "strength_model": 1,
+      "strength_clip": 1,
+      "model": [
+        "88",
+        0
+      ],
+      "clip": [
+        "88",
+        1
+      ],
+      "prompt": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "FEEncLoraAutoLoader",
+    "_meta": {
+      "title": "FEEncLoraAutoLoader"
+    }
+  },
+  "85": {
+    "inputs": {
+      "input": "masterpiece,best quality,ultra-detailed,very aesthetic,depth of field,best lighting,detailed illustration,detailed background,cinematic,beautiful face,beautiful eyes,\nambient occlusion,raytracing,soft lighting,blum effect,masterpiece,absolutely eye-catching,intricate cinematic background,\n8K,illustrating,CG,\n2girls,multiple girls,tongue out,tongue,smile,blush,on back,dakimakura (medium),lying,looking at viewer,spread legs,nude,Two overlapping people,lying on top of each other,\nshenhe \\(genshin impact\\),ganyu \\(genshin impact\\),\nsexy,slutty,hot,aroused),flirting:2,seductive smile,smile,parted lips,perfectly round breasts,nipples,perky breasts,detailed eyes,innie pussy,narrow waist,lying in flowers,lying on flowers,looking at viewer,lying on side,from side,very awa,one leg up,holding thigh,looking at viewer,garden,flower garden,lilac,wisteria,purple flowers,white flowers,bush,foliage,leaves,nature,sunlight,dappled sunlight,petals flowing,\n(rella:1.2),(redum4:1.2) (au \\(d elete\\):1.2) (dino \\(dinoartforame\\):1.1),fully lips,dynamic emotion,"
+    },
+    "class_type": "FETextInput",
+    "_meta": {
+      "title": "FETextInput"
+    }
+  },
+  "87": {
+    "inputs": {
+      "ckpt_name": "tamix_ninini_v4.safetensors",
+      "prompt": "",
+      "example": "[none]"
+    },
+    "class_type": "CheckpointLoader|pysssss",
+    "_meta": {
+      "title": "Checkpoint加载器(pysss)"
+    }
+  },
+  "88": {
+    "inputs": {
+      "Input": 2,
+      "model1": [
+        "67",
+        0
+      ],
+      "clip1": [
+        "67",
+        1
+      ],
+      "model2": [
+        "92",
+        0
+      ],
+      "clip2": [
+        "87",
+        1
+      ]
+    },
+    "class_type": "CR Switch Model and CLIP",
+    "_meta": {
+      "title": "模型CLIP切换"
+    }
+  },
+  "91": {
+    "inputs": {
+      "images": [
+        "48",
+        5
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  },
+  "92": {
+    "inputs": {
+      "sampling": "eps",
+      "zsnr": false,
+      "model": [
+        "87",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingDiscrete",
+    "_meta": {
+      "title": "模型离散采样算法"
+    }
+  },
+  "94": {
+    "inputs": {
+      "upscale_by": 1.3,
+      "seed": 85499224414811,
+      "steps": 60,
+      "cfg": 7.5,
+      "sampler_name": "euler_ancestral",
+      "scheduler": "karras",
+      "denoise": 0.25,
+      "mode_type": "Linear",
+      "tile_width": 960,
+      "tile_height": 960,
+      "mask_blur": 10,
+      "tile_padding": 8,
+      "seam_fix_mode": "Half Tile",
+      "seam_fix_denoise": 0.85,
+      "seam_fix_width": 64,
+      "seam_fix_mask_blur": 8,
+      "seam_fix_padding": 16,
+      "force_uniform_tiles": true,
+      "tiled_decode": false,
+      "image": [
+        "48",
+        5
+      ],
+      "model": [
+        "48",
+        0
+      ],
+      "positive": [
+        "10",
+        0
+      ],
+      "negative": [
+        "14",
+        0
+      ],
+      "vae": [
+        "48",
+        4
+      ],
+      "upscale_model": [
+        "95",
+        0
+      ]
+    },
+    "class_type": "UltimateSDUpscale",
+    "_meta": {
+      "title": "Ultimate SD Upscale"
+    }
+  },
+  "95": {
+    "inputs": {
+      "model_name": "4x-UltraSharp.pth"
+    },
+    "class_type": "UpscaleModelLoader",
+    "_meta": {
+      "title": "加载放大模型"
+    }
+  },
+  "96": {
+    "inputs": {
+      "filename_prefix": "CCUI",
+      "password": "whitecat114514",
+      "erase_pwd_in_meta": "no",
+      "images": [
+        "94",
+        0
+      ]
+    },
+    "class_type": "FESaveEncryptImage",
+    "_meta": {
+      "title": "FESaveEncryptImage"
+    }
+  },
+  "97": {
+    "inputs": {
+      "images": [
+        "94",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "预览图像"
+    }
+  }
+}
