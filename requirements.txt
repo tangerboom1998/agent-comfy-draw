@@ -1,0 +1,23 @@
+# ComfyUI Draw Suite - Python Dependencies
+# Python 3.8+ required
+
+# Core dependencies
+websocket-client>=1.0.0     # ComfyUI WebSocket API
+requests>=2.31.0            # HTTP requests for APIs
+python-dotenv>=1.0.0        # Environment variable management
+
+# Image processing
+Pillow>=10.0.0              # Image manipulation and preview generation
+
+# Data processing
+pandas>=2.0.0               # Excel import/export
+openpyxl>=3.1.0             # Excel file format support
+numpy>=1.24.0               # Numerical operations
+
+# Async support
+aiohttp>=3.9.0              # Async HTTP for Anima workflow
+
+# Optional dependencies (uncomment if needed)
+# beautifulsoup4>=4.12.0    # HTML parsing for web scraping
+# lxml>=4.9.0               # XML/HTML parser
+# tqdm>=4.66.0              # Progress bars for batch operations
