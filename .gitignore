@@ -41,12 +41,21 @@ logs/
 output/*
 !output/.gitkeep
 
-# 数据文件（20MB+，不提交到仓库，通过 PRETAGS_DATA_PATH 环境变量指定路径）
-pretags.json
+# 数据文件（20MB+，可选择提交或使用 Git LFS）
+# 如果不使用 Git LFS，取消以下注释以忽略大型数据文件
+# pretags/*.json
+# pretags/pretags-*.json
+
+# 保留 pretags 目录结构
+!pretags/.gitkeep
 
 # Tanger-Presets-Show 角色图库（大体积图片资源，不提交到仓库）
 modules/Tanger-Presets-Show/data/character/
 modules/Tanger-Presets-Show/data/character-data.tar.gz
+modules/Tanger-Presets-Show/data/character-previews/
+
+# Tanger-Presets-Show 配置文件（存储用户选择的默认数据文件）
+modules/Tanger-Presets-Show/.pretags_default
 
 # 数据备份文件
 *.backup
