@@ -96,19 +96,25 @@ LORA_MODEL_DIR=/home/user/ComfyUI/models/loras
 
 ```
 comfyui-draw/
+├── LICENSE                     # MIT 许可证
+├── requirements.txt            # Python 依赖列表
 ├── SKILL.md                    # 项目总览和快速开始指南
 ├── .env.example                # 环境变量配置模板
 ├── README.md                   # 本文件
+│
+├── pretags/                    # 角色标签数据文件（主存储位置）
+│   ├── pretags-anima.json      # Anima 工作流数据（19MB，19,000+ 角色）
+│   └── pretags-ill-noob.json   # Illustrious/Noob 工作流数据（20MB）
 │
 ├── modules/comfyui-api/                # ComfyUI API 封装（独立模块）
 │   ├── SKILL.md                # ComfyUI API 使用文档
 │   └── workflows/              # 预设工作流
 │
 ├── modules/Tanger-Presets-Show/              # 角色标签管理系统（独立模块）
-│   ├── server.py               # Web 服务器
+│   ├── server.py               # Web 服务器（智能路径解析）
 │   ├── index.html              # Web 管理界面
-│   ├── data/pretags.json       # 角色标签数据（ID-key 结构）
-│   └── imgs/                   # 预览图资源
+│   ├── data/                   # 数据目录（符号链接到 ../../pretags/）
+│   └── imgs/                   # 预览图资源（724MB）
 │
 ├── modules/civitai-api/                # Civitai API 封装（独立模块）
 │   ├── SKILL.md                # Civitai API 使用文档
@@ -221,9 +227,16 @@ python comfyui_draw.py --prompt "your prompt here"
 
 - **Web 管理界面**：可视化管理 19,000+ 角色和 10,000+ 标签
 - **ID-key 架构**：基于 MD5 的稳定 ID 系统（8字符）
+- **智能路径解析**：自动搜索 `pretags/` 目录或使用 `PRETAGS_DATA_PATH` 环境变量
+- **多数据文件支持**：支持多个 pretags.json 文件（如 anima、ill-noob）
 - **LoRA 集成**：角色关联 LoRA 模型和触发词
 - **预览图管理**：角色和标签预览图自动关联
 - **实时搜索**：按名称、来源、系列、标签搜索
+
+**数据文件位置**：
+- 主存储：`pretags/pretags-anima.json`、`pretags/pretags-ill-noob.json`
+- 符号链接：`modules/Tanger-Presets-Show/data/` → `../../pretags/`
+- 自定义路径：通过 `PRETAGS_DATA_PATH` 环境变量指定
 
 ### 2. 绘图工作流（pretags-draw）
 
@@ -252,11 +265,19 @@ python comfyui_draw.py --prompt "your prompt here"
 项目使用**相对路径**，确保跨平台兼容性：
 
 ```python
-# ✅ 正确
-data_path = os.path.join(os.path.dirname(__file__), "../Tanger-Presets-Show/data/pretags.json")
+# ✅ 正确：使用相对路径
+import os
+from pathlib import Path
 
-# ❌ 错误
-data_path = "/home/user/comfyui-draw/Tanger-Presets-Show/data/pretags.json"
+# 方式 1：相对于当前脚本路径
+script_dir = Path(__file__).resolve().parent
+pretags_path = script_dir.parent / "pretags" / "pretags-anima.json"
+
+# 方式 2：使用环境变量（推荐）
+pretags_path = os.getenv("PRETAGS_DATA_PATH", "./pretags/pretags-anima.json")
+
+# ❌ 错误：硬编码绝对路径
+pretags_path = "/home/user/comfyui-draw/pretags/pretags-anima.json"
 ```
 
 ## 🔧 开发指南
@@ -265,20 +286,24 @@ data_path = "/home/user/comfyui-draw/Tanger-Presets-Show/data/pretags.json"
 
 **Pretags 数据格式（ID-key 结构，自 2026-05-20）：**
 
+**数据文件位置**：
+- `pretags/pretags-anima.json` - Anima 工作流数据（19MB）
+- `pretags/pretags-ill-noob.json` - Illustrious/Noob 工作流数据（20MB）
+
 ```json
 {
   "characters": {
-    "a1b2c3d4": {
-      "id": "a1b2c3d4",
-      "name": "角色名",
-      "source": "来源",
-      "series": "系列",
-      "tags": ["tag1", "tag2"],
-      "appearance": "外观描述",
-      "clothing": "服装描述",
-      "lora": "lora:character_name:0.8",
-      "trigger": "trigger_word",
-      "preview": "imgs/characters/角色名_来源.png"
+    "c23fe569": {
+      "id": "c23fe569",
+      "cname": "弗洛洛",
+      "source": "鸣潮",
+      "name": "frolo",
+      "appearance": "1girl, blue eyes, ...",
+      "clothing": "dress, ...",
+      "has_lora": true,
+      "lora_file": "弗洛洛-Frolo",
+      "tags": ["1girl", "blue eyes", ...],
+      "tags_count": 15
     }
   },
   "categories": {
@@ -308,12 +333,12 @@ import hashlib
 def generate_card_id(card_type, **fields):
     """
     生成稳定的 8 字符 ID
-    - characters: MD5(name + source)
+    - characters: MD5(cname + name + source)
     - categories: MD5(name + category)
     """
     if card_type == "character":
-        key = f"{fields['name']}_{fields['source']}"
-    elif card_type == "tag":
+        key = f"{fields['cname']}_{fields['name']}_{fields['source']}"
+    elif card_type == "category":
         key = f"{fields['name']}_{fields['category']}"
     return hashlib.md5(key.encode('utf-8')).hexdigest()[:8]
 ```
@@ -350,7 +375,27 @@ def generate_card_id(card_type, **fields):
 
 ## ⚠️ 常见问题
 
-### 1. ComfyUI 连接失败
+### 1. 数据文件找不到
+
+Tanger-Presets-Show 使用智能路径解析，按以下顺序查找数据文件：
+
+```bash
+# 1. 检查环境变量（优先级最高）
+echo $PRETAGS_DATA_PATH
+
+# 2. 检查 pretags/ 目录
+ls -lh pretags/*.json
+
+# 3. 检查符号链接
+ls -lh modules/Tanger-Presets-Show/data/*.json
+
+# 自定义数据文件位置（推荐）
+export PRETAGS_DATA_PATH=/path/to/your/pretags-anima.json
+# 或在 .env 文件中设置
+echo "PRETAGS_DATA_PATH=./pretags/pretags-anima.json" >> .env
+```
+
+### 2. ComfyUI 连接失败
 
 ```bash
 # 检查 ComfyUI 是否运行
@@ -360,7 +405,7 @@ curl http://127.0.0.1:8188/system_stats
 cat .env | grep COMFYUI_HOST
 ```
 
-### 2. LoRA 路径错误
+### 3. LoRA 路径错误
 
 确保 LoRA 格式包含 `lora:` 前缀：
 
@@ -372,7 +417,7 @@ lora_str = "lora:character_name:0.8"
 lora_str = "character_name:0.8"
 ```
 
-### 3. 预览图不显示
+### 4. 预览图不显示
 
 检查预览图路径和文件是否存在：
 
@@ -381,7 +426,7 @@ ls -la Tanger-Presets-Show/imgs/characters/
 ls -la Tanger-Presets-Show/imgs/tags/
 ```
 
-### 4. 数据迁移问题
+### 5. 数据迁移问题
 
 如需回滚到旧的 name-key 结构：
 
