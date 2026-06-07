@@ -131,17 +131,17 @@ comfyui-draw/
 │   └── comfyui-startup/        # ComfyUI 启动管理
 │
 ├── output/                     # 生成图片输出目录
-└── references/                 # 项目参考文档（11个精简文件）
+└── references/                 # 项目参考文档（简洁精炼）
     ├── anima-prompt-and-workflow.md    # Anima Prompt 与工作流指南
     ├── artstyle-curation.md            # 画风管理与测试
     ├── character-preview-generation.md # 角色预览图生成
     ├── comfyui-pitfalls.md             # ComfyUI 常见陷阱
-    ├── docker-sandbox-guide.md         # Docker Sandbox 配置
     ├── environment-setup.md            # 环境配置
-    ├── face-detailer-pipeline.md       # FaceDetailer 管线
     ├── pretags-data-management.md      # Pretags 数据管理
+    ├── pretags-draw-rules.md           # Pretags Draw 使用规则
     ├── pretags-excel-workflow.md       # Pretags Excel 导入导出
     ├── safetensors-tag-recovery.md     # Safetensors Tag 提取
+    ├── workflow-node-mapping.md        # 工作流节点映射
     └── z-image-guide.md                # z-image Turbo 工作流
 ```
 
@@ -365,13 +365,14 @@ def generate_card_id(card_type, **fields):
 - [画风管理与测试](references/artstyle-curation.md)
 - [角色预览图生成](references/character-preview-generation.md)
 - [ComfyUI 常见陷阱](references/comfyui-pitfalls.md)
-- [Docker Sandbox 配置](references/docker-sandbox-guide.md)
 - [环境配置](references/environment-setup.md)
-- [FaceDetailer 管线](references/face-detailer-pipeline.md)
 - [Pretags 数据管理](references/pretags-data-management.md)
+- [Pretags Draw 使用规则](references/pretags-draw-rules.md)
 - [Pretags Excel 导入导出](references/pretags-excel-workflow.md)
 - [Safetensors Tag 提取](references/safetensors-tag-recovery.md)
+- [工作流节点映射](references/workflow-node-mapping.md)
 - [z-image Turbo 工作流](references/z-image-guide.md)
+- [项目警告汇总](WARNINGS.md)
 
 ## ⚠️ 常见问题
 

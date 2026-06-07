@@ -53,6 +53,22 @@
 - Anima 工作流需要 `aiohttp` 包
 - 推荐使用 conda 环境 `comfy311`
 
+### Docker Sandbox 配置
+**如果在 Docker Sandbox 环境中运行**：
+
+- **路径映射**: 
+  - 容器内：`/workspace/output/`
+  - 宿主机：`/home/user/output/`
+  - Discord 发图必须使用宿主机路径
+
+- **环境变量**:
+  ```yaml
+  docker_env:
+    COMFYUI_HOST: "http://host.docker.internal:8188"
+  ```
+
+- **依赖**: Docker 镜像可能缺少 `aiohttp`, `openpyxl`, `Pillow`
+
 ---
 
 ## 🌐 外部 API
