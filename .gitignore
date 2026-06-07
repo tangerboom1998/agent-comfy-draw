@@ -66,6 +66,16 @@ Tanger-Presets-Show/data/pretags_backup/
 Tanger-Presets-Show/data/*.backup
 Tanger-Presets-Show/data/*.bak
 pretags-draw/assets/pretags_backup/
+pretags/*.backup.*
+
+# 审计和进度报告文档（不提交到仓库）
+*_AUDIT*.md
+*_REPORT*.md
+*_REFACTOR*.md
+*_GOVERNANCE*.md
+*_CLEANUP*.md
+*_TEMPLATE.md
+WEEK*.md
 
 # 测试文件
 .pytest_cache/
