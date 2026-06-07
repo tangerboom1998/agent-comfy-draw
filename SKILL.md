@@ -11,11 +11,39 @@ metadata:
     emoji: "🎨"
     requires:
       env: ["COMFYUI_HOST"]
+agent_constraints:
+  forbidden:
+    - "修改任何 SKILL.md 文档（未经用户明确允许）"
+    - "修改项目代码文件（未经用户明确允许）"
+    - "删除或重命名现有文件"
+  allowed:
+    - "根据用户习惯新增 reference 文档（需遵循 REFERENCE_TEMPLATE.md，保持简洁 ≤150 行）"
+    - "向 WARNINGS.md 添加新的警告或提醒"
+    - "创建临时分析报告（*_REPORT.md, *_AUDIT.md）"
+    - "回答问题和提供建议"
 ---
 
 # ComfyUI Draw Suite
 
 完整的 AI 绘画工具套件，提供从模型管理、标签系统、提示词处理到图片生成的端到端解决方案。
+
+## 🤖 Agent 使用规范
+
+**使用本项目时，Agent 必须遵守以下约束**：
+
+### 禁止操作（未经用户明确允许）
+- ❌ 修改任何 SKILL.md 文档
+- ❌ 修改项目代码文件
+- ❌ 删除或重命名现有文件
+- ❌ 修改 Git 配置
+
+### 允许操作
+- ✅ 根据用户习惯新增 reference 文档（需遵循 [REFERENCE_TEMPLATE.md](REFERENCE_TEMPLATE.md)，保持简洁 ≤150 行）
+- ✅ 向 [WARNINGS.md](WARNINGS.md) 添加新的警告或提醒
+- ✅ 创建临时分析报告（`*_REPORT.md`, `*_AUDIT.md`）
+- ✅ 回答问题和提供建议
+
+详见：[WARNINGS.md](WARNINGS.md) → Agent 行为约束
 
 ## 🚀 快速开始
 
