@@ -116,7 +116,7 @@ agent_constraints:
 **SDXL (Illustrious/Noob)**:
 - ✅ 纯 tag 最佳：`1girl, solo, long_hair, silver_hair`
 - ✅ 画师不加 @：`wlop`, `big_chungus`
-- ✅ 支持 LoRA：`<lora:xxx:0.9:0.9>`
+- ✅ 支持 LoRA：`<lora:xxx:0.8:0.8>`（格式见下方规范）
 - ✅ 仅英文，弱语义
 
 **z-image Turbo**:
@@ -129,6 +129,7 @@ agent_constraints:
 - [Pretags Draw 工作流](modules/pretags-draw/SKILL.md#-agent-工作流约束)
 - [Agent 工作流指南](AGENT_WORKFLOW_GUIDE.md)
 - [模型提示词对比](references/model-prompt-comparison.md)
+- **LoRA 格式规范**：`<lora:LoRA文件名:unet权重:text权重(可选)>`，如 `<lora:jijia-anima-Tanger:0.8>` 或 `<lora:jijia-anima-Tanger:0.8:0.8>`。文件名不带 `.safetensors` 扩展名和目录路径
 
 ## 🚀 快速开始
 

@@ -108,11 +108,34 @@ Agent 应通过以下方式识别模型类型：
 ### 禁止的操作
 
 - ❌ **跳过 tag_producer** - 不要直接构建英文 prompt，必须通过 tag_producer 查询 pretags
-- ❌ **手动编写 LoRA** - 不要手动写 `<lora:xxx>`，必须从 pretags 数据获取
+- ❌ **手动编写 LoRA** - 不要手动写 `<lora:xxx>`，必须从 pretags 数据获取。LoRA 格式见下方规范
 - ❌ **忽略用户需求** - 不要省略用户指定的画风、动作、场景
 - ❌ **猜测角色信息** - 角色不在 pretags 中时，应提示用户而非猜测
 - ❌ **忽略模型特性** - 不要对所有模型使用相同格式的提示词
 - ❌ **凭记忆回答查询** - 查询角色信息时必须调用查询工具，不要凭记忆
+
+### 📌 LoRA 格式规范
+
+通过提示词调用 LoRA 的标准格式：
+
+```
+<lora:LoRA文件名:unet权重:text权重(可选)>
+```
+
+**示例**：
+```
+<lora:jijia-anima-Tanger:0.8>          # 仅 UNET 权重
+<lora:jijia-anima-Tanger:0.8:0.8>      # UNET + Text 权重
+<lora:zhezhi-anima:0.9:0.9>
+<lora:nami-lol:0.8>
+```
+
+**规则**：
+1. **文件名不带扩展名** - 不要加 `.safetensors`
+2. **文件名不带目录路径** - 如 `jijia-anima-Tanger`，不是 `画风/jijia-anima-Tanger`
+3. **SDXL 通常用双权重** - `<lora:xxx:0.8:0.8>`（unet:clip）
+4. **Flux/Anima 不支持 LoRA** - 不要添加
+5. **括号包裹** - 必须使用 `<lora:...>` 格式
 
 ### 角色和标签查询
 
