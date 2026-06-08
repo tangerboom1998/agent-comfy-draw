@@ -112,6 +112,33 @@ Agent 应通过以下方式识别模型类型：
 - ❌ **忽略用户需求** - 不要省略用户指定的画风、动作、场景
 - ❌ **猜测角色信息** - 角色不在 pretags 中时，应提示用户而非猜测
 - ❌ **忽略模型特性** - 不要对所有模型使用相同格式的提示词
+- ❌ **凭记忆回答查询** - 查询角色信息时必须调用查询工具，不要凭记忆
+
+### 角色和标签查询
+
+**当用户查询角色或标签信息时**：
+
+1. **使用查询工具**：
+   ```bash
+   # 搜索角色
+   python modules/pretags-draw/scripts/pretags_manager.py search "折枝"
+   
+   # 查看详细信息
+   python modules/pretags-draw/scripts/pretags_manager.py info "折枝"
+   
+   # 按系列搜索
+   python modules/pretags-draw/scripts/character_query.py --series "鸣潮"
+   ```
+
+2. **响应格式**：
+   - 显示完整信息：中文名、英文名、来源、LoRA 状态
+   - 标注 LoRA：✅ 有（文件名、权重）或 ❌ 无
+   - 提供使用示例：如何在 tag_producer 中使用
+
+3. **处理规则**：
+   - 找到结果 → 显示完整信息 + 使用方法
+   - 未找到 → 提示用户检查拼写或搜索系列
+   - 多个结果 → 列出所有匹配项，让用户选择
 
 详见：
 - [Agent 工作流指南](../../AGENT_WORKFLOW_GUIDE.md)
