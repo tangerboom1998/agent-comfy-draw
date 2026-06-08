@@ -11,7 +11,8 @@
 
 **代理配置**：
 ```bash
-export HTTPS_PROXY=http://42.244.25.206:2090
+export HTTPS_PROXY=http://your-proxy-server:port
+# 示例：export HTTPS_PROXY=http://127.0.0.1:7890
 ```
 
 **工具路径**：
