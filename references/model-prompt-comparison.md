@@ -125,7 +125,29 @@ a beautiful girl with flowing silver hair standing gracefully under the moonligh
 2. **画师不加 @** - 直接写 `wlop`, `big_chungus`
 3. **仅英文** - 不支持中文
 4. **弱语义** - 复杂句子效果差，拆成 tag 更好
-5. **LoRA 支持** - 支持 `<lora:filename:unet:clip>` 格式
+5. **LoRA 支持** - 支持 `<lora:filename:unet:text>` 格式
+
+**LoRA 格式规范**:
+```
+<lora:filename:unet_weight:text_weight(optional)>
+        ↑      ↑          ↑
+        |      |          └─ Text 权重（可选，默认=UNET权重）
+        |      └──────────── UNET 权重
+        └─────────────────── 文件名（不含 .safetensors 后缀和目录路径）
+
+示例：
+<lora:jijia-anima-Tanger:0.8>           # 仅 UNET 权重
+<lora:jijia-anima-Tanger:0.8:0.8>       # UNET + Text 权重
+<lora:zhezhi-anima:0.9:0.9>
+<lora:nami-lol:0.8>
+```
+
+**规则**:
+- 文件名不带 `.safetensors` 扩展名
+- 文件名不带目录路径（如 `画风/...`）
+- SDXL 通常用双权重 `<lora:xxx:0.8:0.8>`（unet:clip）
+- Flux/Anima 不支持 SDXL LoRA
+- 必须使用 `<lora:...>` 括号包裹
 
 **推荐参数**:
 - Steps: 20-30
