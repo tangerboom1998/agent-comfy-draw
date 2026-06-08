@@ -116,29 +116,55 @@ Agent 应通过以下方式识别模型类型：
 
 ### 角色和标签查询
 
-**当用户查询角色或标签信息时**：
+**当用户查询角色或标签信息时，使用两级查询系统**：
 
-1. **使用查询工具**：
+#### 查询流程
+
+1. **Level 1: 查询 Pretags（优先）**：
    ```bash
-   # 搜索角色
    python modules/pretags-draw/scripts/pretags_manager.py search "折枝"
-   
-   # 查看详细信息
-   python modules/pretags-draw/scripts/pretags_manager.py info "折枝"
-   
-   # 按系列搜索
-   python modules/pretags-draw/scripts/character_query.py --series "鸣潮"
    ```
+   - 找到 → 返回完整信息（LoRA、权重、外观、服装）
+   - 未找到 → 继续 Level 2
 
-2. **响应格式**：
-   - 显示完整信息：中文名、英文名、来源、LoRA 状态
-   - 标注 LoRA：✅ 有（文件名、权重）或 ❌ 无
-   - 提供使用示例：如何在 tag_producer 中使用
+2. **Level 2: 查询 Danbooru（备选）**：
+   ```bash
+   export HTTPS_PROXY=http://127.0.0.1:7890
+   python modules/danbooru-tag-scraper/scripts/danbooru.py character "zhezhi"
+   ```
+   - 找到 → 返回基础信息（英文标签，无 LoRA）
+   - 未找到 → 告知用户并提供建议
 
-3. **处理规则**：
-   - 找到结果 → 显示完整信息 + 使用方法
-   - 未找到 → 提示用户检查拼写或搜索系列
-   - 多个结果 → 列出所有匹配项，让用户选择
+#### 响应格式
+
+**Pretags 数据**：
+```
+✅ 找到角色：折枝（zhezhi）
+📍 数据来源：Pretags
+✅ LoRA：zhezhi-anima (0.9/0.9)
+外观：long hair, blue eyes, blue dress...
+使用：折枝 服装 外貌 0.9
+```
+
+**Danbooru 数据**：
+```
+⚠️ Pretags 未找到，从 Danbooru 获取
+📍 数据来源：Danbooru API
+标签：1girl, long_hair, blue_eyes...
+❌ 无 LoRA、无中文、无本地化
+建议：添加到 Pretags
+```
+
+#### 处理规则
+
+- ✅ **严格按优先级** - 先 Pretags，后 Danbooru
+- ✅ **标注数据源** - 明确来自哪个数据源
+- ✅ **区分完整度** - Pretags 完整，Danbooru 基础
+- ✅ **提供建议** - Danbooru 数据建议添加到 Pretags
+
+详见：
+- [两级查询方案](../../AGENT_TWO_LEVEL_QUERY.md)
+- [Danbooru Tag Scraper](../danbooru-tag-scraper/SKILL.md)
 
 详见：
 - [Agent 工作流指南](../../AGENT_WORKFLOW_GUIDE.md)

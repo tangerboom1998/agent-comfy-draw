@@ -54,19 +54,56 @@ agent_constraints:
 
 ### 角色和标签查询约束
 
-**当用户查询角色信息或标签时，必须使用查询工具**：
+**当用户查询角色信息或标签时，必须使用两级查询系统**：
 
-1. **使用查询工具** - 调用 `pretags_manager.py search <角色名>` 获取实时数据
-2. **显示完整信息** - 包括英文名、来源、LoRA 状态、标签、外观、服装
-3. **标注 LoRA 状态** - 明确告知角色是否有 LoRA 及文件名
-4. **提供使用示例** - 告诉用户如何在 tag_producer 中使用
+#### 查询优先级（严格遵守）
 
-**禁止操作**：
-- ❌ 凭记忆回答角色信息
-- ❌ 编造或猜测角色数据
-- ❌ 只提供中文名不提供英文 tag
+1. **Level 1: Pretags（优先）**
+   - 本地查询，极快
+   - 完整信息：LoRA、权重、中文名、外观、服装
+   - 工具：`pretags_manager.py search <角色名>`
 
-详见：[Agent 查询指南](AGENT_QUERY_GUIDE.md)
+2. **Level 2: Danbooru（备选）**
+   - 仅当 Pretags 未找到时使用
+   - 基础信息：英文标签、分类
+   - 需要代理：`HTTPS_PROXY=http://127.0.0.1:7890`
+   - 工具：`danbooru.py character <角色名>`
+
+#### 响应格式要求
+
+**从 Pretags 获取时**：
+```
+✅ 找到角色：XXX
+📍 数据来源：Pretags（本地数据库）
+[显示完整信息：LoRA、权重、标签]
+```
+
+**从 Danbooru 获取时**：
+```
+⚠️ Pretags 中未找到，从 Danbooru 获取基础信息
+📍 数据来源：Danbooru API
+[显示基础信息]
+⚠️ 注意：无 LoRA、无中文、无本地化数据
+建议：添加到 Pretags 以获取完整功能
+```
+
+**都未找到时**：
+```
+❌ 未找到角色
+- Pretags：❌ 未找到
+- Danbooru：❌ 未找到
+建议：检查拼写或手动添加
+```
+
+#### 禁止操作
+- ❌ 跳过 Pretags 直接查 Danbooru
+- ❌ 隐藏数据来源
+- ❌ 混淆信息完整度
+- ❌ 凭记忆回答
+
+详见：
+- [两级查询方案](AGENT_TWO_LEVEL_QUERY.md)
+- [Agent 查询指南](AGENT_QUERY_GUIDE.md)
 
 #### 模型特性差异（必须遵守）
 
