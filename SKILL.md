@@ -50,10 +50,32 @@ agent_constraints:
 1. **必须使用 tag_producer** - 不要跳过 tag_producer 直接构建英文 prompt
 2. **从 pretags 获取数据** - 角色信息、LoRA、画风等必须从 pretags 数据库查询
 3. **遵循标准流程** - 用户需求 → 中文指令 → tag_producer → comfyui_draw.py
+4. **根据模型调整提示词** - 必须根据使用的模型类型（Anima/SDXL/z-image）调整提示词格式
+
+#### 模型特性差异（必须遵守）
+
+**Anima (Flux)**:
+- ✅ 可用 tag + 短句：`a girl with long hair, 1girl, solo`
+- ✅ 画师加 @：`@wlop`, `@big chungus`
+- ✅ 添加：`newest, latest, safe`
+- ✅ 仅英文，有语义理解
+
+**SDXL (Illustrious/Noob)**:
+- ✅ 纯 tag 最佳：`1girl, solo, long_hair, silver_hair`
+- ✅ 画师不加 @：`wlop`, `big_chungus`
+- ✅ 支持 LoRA：`<lora:xxx:0.9:0.9>`
+- ✅ 仅英文，弱语义
+
+**z-image Turbo**:
+- ✅ 自然语言：`一个银发红瞳的女孩穿着白裙子`
+- ✅ 支持中英文
+- ✅ 强语义理解
+- ✅ 参数：Steps=4, CFG=1.0
 
 详见：
-- [Pretags Draw 工作流](modules/pretags-draw/SKILL.md#agent-工作流约束)
+- [Pretags Draw 工作流](modules/pretags-draw/SKILL.md#-agent-工作流约束)
 - [Agent 工作流指南](AGENT_WORKFLOW_GUIDE.md)
+- [模型提示词对比](references/model-prompt-comparison.md)
 
 ## 🚀 快速开始
 
