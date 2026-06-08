@@ -11,11 +11,41 @@ metadata:
     emoji: "🎨"
     requires:
       env: ["COMFYUI_HOST"]
+agent_workflow:
+  required_steps:
+    - "用户提出生图需求时，必须识别角色名、画风、动作等元素"
+    - "构建中文指令字符串传给 tag_producer.py"
+    - "调用 tag_producer.py 查询 pretags 数据库"
+    - "使用 tag_producer 输出的完整 prompt（含 LoRA）调用 comfyui_draw.py"
+  forbidden:
+    - "不要跳过 tag_producer，直接构建英文 prompt"
+    - "不要手动编写 LoRA 格式，必须从 pretags 获取"
+    - "不要忽略用户指定的画风、动作、场景要求"
 ---
 
 # Pretags Draw
 
 AI 绘图工作流模块，集成中文提示词处理引擎和 ComfyUI API，实现从中文需求到图片生成的完整流程。
+
+## 🤖 Agent 工作流约束
+
+**当用户要求生图时，Agent 必须遵循以下流程**：
+
+### 必须执行的步骤
+
+1. **识别需求元素** - 从用户输入中提取角色名、画风、动作、场景等
+2. **构建中文指令** - 按格式组装：`<角色名> 服装 外貌 [权重] 动作 <动作名> 画风 <画风名> [权重] 撸串 <数量>`
+3. **调用 tag_producer** - 执行 `python modules/pretags-draw/scripts/tag_producer.py "<中文指令>"`
+4. **使用完整输出** - 将 tag_producer 输出的完整 prompt（含 LoRA）传给 comfyui_draw.py
+
+### 禁止的操作
+
+- ❌ **跳过 tag_producer** - 不要直接构建英文 prompt，必须通过 tag_producer 查询 pretags
+- ❌ **手动编写 LoRA** - 不要手动写 `<lora:xxx>`，必须从 pretags 数据获取
+- ❌ **忽略用户需求** - 不要省略用户指定的画风、动作、场景
+- ❌ **猜测角色信息** - 角色不在 pretags 中时，应提示用户而非猜测
+
+详见：[Agent 工作流指南](../../AGENT_WORKFLOW_GUIDE.md)
 
 ## 🚀 快速开始
 

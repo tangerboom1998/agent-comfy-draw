@@ -43,7 +43,17 @@ agent_constraints:
 - ✅ 创建临时分析报告（`*_REPORT.md`, `*_AUDIT.md`）
 - ✅ 回答问题和提供建议
 
-详见：[WARNINGS.md](WARNINGS.md) → Agent 行为约束
+### 绘图工作流约束
+
+**当用户要求生图时，必须遵循 pretags-draw 工作流**：
+
+1. **必须使用 tag_producer** - 不要跳过 tag_producer 直接构建英文 prompt
+2. **从 pretags 获取数据** - 角色信息、LoRA、画风等必须从 pretags 数据库查询
+3. **遵循标准流程** - 用户需求 → 中文指令 → tag_producer → comfyui_draw.py
+
+详见：
+- [Pretags Draw 工作流](modules/pretags-draw/SKILL.md#agent-工作流约束)
+- [Agent 工作流指南](AGENT_WORKFLOW_GUIDE.md)
 
 ## 🚀 快速开始
 
