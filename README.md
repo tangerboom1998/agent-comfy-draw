@@ -162,11 +162,24 @@ comfyui-draw/
 # 复制环境变量模板
 cp .env.example .env
 
-# 编辑 .env 文件，至少配置以下必需项：
+# 编辑 .env 文件，配置必需项：
 # COMFYUI_HOST=http://127.0.0.1:8188
+# PRETAGS_DATA_PATH=./pretags/pretags-anima.json
 ```
 
-### 3. 安装 Python 依赖
+### 3. 准备 Pretags 数据
+
+```bash
+# 复制示例数据文件（首次使用）
+cd pretags/
+cp example-pretags-anima.json pretags-anima.json
+# 或使用 Illustrious/Noob 工作流：
+# cp example-pretags-ill-noob.json pretags-ill-noob.json
+
+# 详见 pretags/README.md
+```
+
+### 4. 安装 Python 依赖
 
 ```bash
 # 推荐使用虚拟环境

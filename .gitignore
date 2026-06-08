@@ -46,6 +46,10 @@ output/*
 # pretags/*.json
 # pretags/pretags-*.json
 
+# 用户的实际 pretags 数据（不提交）
+pretags/pretags-*.json
+!pretags/example-pretags-*.json
+
 # 保留 pretags 目录结构
 !pretags/.gitkeep
 
