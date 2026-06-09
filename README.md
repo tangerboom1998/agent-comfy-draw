@@ -190,7 +190,32 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install websocket-client requests python-dotenv pillow
 ```
 
-### 4. 启动 Tanger-Presets-Show 管理界面
+### 5. 下载角色预览图数据（可选）
+```bash
+# 角色预览图数据 (675MB) 来自 DrawingSpells 数据集
+# 安装 ModelScope 并下载到 data 目录后解压
+pip install modelscope
+cd modules/Tanger-Presets-Show/data
+modelscope download --dataset tangerboom/character-data character-data.tar.gz --local_dir ./
+tar xzf character-data.tar.gz    # 解压出 character/ 目录
+rm character-data.tar.gz          # 可选：删除压缩包节省空间
+cd ../../..
+
+# 数据来源：https://github.com/hbl917070/DrawingSpells (已获授权使用)
+```
+
+解压后目录结构：
+```
+modules/Tanger-Presets-Show/data/
+├── characterList.js           # 角色索引（已有）
+├── imageCountList.js          # 图片统计（已有）
+├── character-previews/        # 手动设置的预览图
+└── character/                 # 14,000+ 张角色预览图
+    ├── 00094-3137981235.webp
+    └── ...
+```
+
+### 6. 启动 Tanger-Presets-Show 管理界面
 
 ```bash
 cd Tanger-Presets-Show
@@ -199,7 +224,7 @@ python server.py
 # 访问 http://localhost:8765
 ```
 
-### 5. 开始绘图
+### 7. 开始绘图
 
 参考 [`pretags-draw/SKILL.md`](modules/pretags-draw/SKILL.md) 了解完整的绘图工作流。
 
@@ -461,10 +486,27 @@ python rollback_to_name_key.py
 
 本项目采用 MIT 许可证 - 详见 LICENSE 文件
 
+## 📦 角色预览图数据集
+
+角色预览图数据 (`character-data.tar.gz`, 675MB) 来源于 [DrawingSpells](https://github.com/hbl917070/DrawingSpells) 项目，已获授权在本项目中使用。
+
+**下载方式**：
+```bash
+pip install modelscope
+cd modules/Tanger-Presets-Show/data/
+modelscope download --dataset tangerboom/character-data character-data.tar.gz --local_dir ./
+tar xzf character-data.tar.gz
+rm character-data.tar.gz
+cd ../../..
+```
+
+该数据集包含 19,000+ 角色的预览图，用于 Tanger-Presets-Show 管理界面展示。
+
 ## 🙏 致谢
 
 - [ComfyUI](https://github.com/comfyanonymous/ComfyUI) - 强大的 AI 图像生成框架
 - [Civitai](https://civitai.com) - 模型分享社区
+- [DrawingSpells](https://github.com/hbl917070/DrawingSpells) - 角色预览图数据集
 - 所有贡献者和用户
 
 ## 📞 联系方式

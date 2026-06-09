@@ -24,6 +24,25 @@ if not exist "output" mkdir output
 if not exist "modules\Tanger-Presets-Show\imgs\characters" mkdir modules\Tanger-Presets-Show\imgs\characters
 if not exist "modules\Tanger-Presets-Show\imgs\tags" mkdir modules\Tanger-Presets-Show\imgs\tags
 echo ✅ 目录结构创建完成
+
+REM 可选：下载角色预览图数据
+echo.
+echo 🖼️  检查角色预览图数据
+if exist "modules\Tanger-Presets-Show\data\character-data.tar.gz" (
+    for %%I in (modules\Tanger-Presets-Show\data\character-data.tar.gz) do set SIZE=%%~zI
+    echo ✅ 角色预览图数据已存在
+) else (
+    echo ⚠️  角色预览图数据 (675MB) 未找到
+    echo    如需下载，在终端执行：
+    echo    pip install modelscope
+    echo    cd modules\Tanger-Presets-Show\data
+    echo    modelscope download --dataset tangerboom/character-data character-data.tar.gz --local_dir ./
+    echo    tar xzf character-data.tar.gz
+    echo    rm character-data.tar.gz
+    echo.
+    echo    数据来源：https://github.com/hbl917070/DrawingSpells
+)
+echo.
 echo.
 
 REM 3. 检查 Python 版本

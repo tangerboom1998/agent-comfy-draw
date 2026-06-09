@@ -31,10 +31,45 @@ mkdir -p output
 mkdir -p modules/Tanger-Presets-Show/imgs/characters
 mkdir -p modules/Tanger-Presets-Show/imgs/tags
 echo "✅ 目录结构创建完成"
+
+# 可选：下载角色预览图数据
+echo ""
+echo "🖼️  检查角色预览图数据"
+if [ -f "modules/Tanger-Presets-Show/data/character-data.tar.gz" ]; then
+    SIZE=$(du -h modules/Tanger-Presets-Show/data/character-data.tar.gz | cut -f1)
+    echo "✅ 角色预览图数据已存在 ($SIZE)"
+else
+    echo "📦 角色预览图数据 (675MB) 未找到"
+    echo "   下载命令："
+    echo "   pip install modelscope"
+    echo "   modelscope download --dataset tangerboom/character-data character-data.tar.gz --local_dir ./modules/Tanger-Presets-Show/data/"
+    echo ""
+    read -p "是否安装 modelscope 并下载？(y/n) " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo "📦 正在安装 modelscope..."
+        pip install modelscope 2>/dev/null || pip3 install modelscope 2>/dev/null
+
+        DATA_DIR="modules/Tanger-Presets-Show/data"
+        echo "📦 正在下载角色预览图数据 (675MB)..."
+        cd $DATA_DIR
+        modelscope download --dataset tangerboom/character-data character-data.tar.gz --local_dir ./
+        echo "📦 正在解压..."
+        tar xzf character-data.tar.gz
+        rm character-data.tar.gz
+        cd $PROJECT_ROOT
+        echo "✅ 角色预览图数据已就绪 (14,000+ 预览图)"
+        echo ""
+        echo "   数据来源：https://github.com/hbl917070/DrawingSpells (已获授权使用)"
+    else
+        echo "⏭️  跳过下载，可后续手动下载"
+    fi
+fi
+echo ""
 echo ""
 
 # 3. 检查 Python 版本
-echo "🐍 步骤 3/5: 检查 Python 版本"
+echo "🐍 步骤 3/6: 检查 Python 版本"
 if command -v python3 &> /dev/null; then
     PYTHON_VERSION=$(python3 --version | awk '{print $2}')
     echo "✅ Python 版本: $PYTHON_VERSION"
@@ -54,7 +89,7 @@ fi
 echo ""
 
 # 4. 安装依赖
-echo "📦 步骤 4/5: 安装 Python 依赖"
+echo "📦 步骤 4/6: 安装 Python 依赖"
 read -p "是否安装依赖？(y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
@@ -70,7 +105,7 @@ fi
 echo ""
 
 # 5. 检查 Git LFS
-echo "📊 步骤 5/5: 检查 Git LFS（大文件管理）"
+echo "📊 步骤 5/6: 检查 Git LFS（大文件管理）"
 if command -v git-lfs &> /dev/null; then
     echo "✅ Git LFS 已安装"
 
@@ -106,7 +141,7 @@ fi
 echo ""
 
 # 6. 验证配置
-echo "🔍 验证配置"
+echo "🔍 步骤 6/6: 验证配置"
 echo "================================"
 
 # 检查 ComfyUI 配置
