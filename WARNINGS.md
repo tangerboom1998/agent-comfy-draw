@@ -23,7 +23,7 @@
 ## 📊 Pretags 数据
 
 ### LoRA 兼容性
-- **Anima 工作流**: 使用 Flux 模型，**不支持 SDXL LoRA**
+- **LoRA 文件分模型架构** - SDXL 训练的 LoRA 不能在 Flux 模型上用，反之亦然
 - **Noob 工作流**: 使用 SDXL 模型，支持 SDXL LoRA
 - 不要在 pretags-anima.json 中添加带 LoRA 的词条
 

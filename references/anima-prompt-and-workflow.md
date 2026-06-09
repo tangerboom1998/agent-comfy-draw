@@ -130,7 +130,7 @@ python comfyui_draw.py "prompt" \
 
 ## 注意事项
 
-- ⚠️ Anima 不支持 SDXL LoRA
+- ⚠️ LoRA 文件分模型架构 - SDXL LoRA 不能在 Flux 上用，需使用对应 Flux 版本的 LoRA。引用格式 `<lora:name:weight>` 一致
 - ⚠️ 工作流必须从 skill 根目录运行
 - ⚠️ 需要 aiohttp 包（`pip install aiohttp`）
 - ⚠️ 模板段落中不要出现中文字符

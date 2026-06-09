@@ -134,7 +134,7 @@ Agent 应通过以下方式识别模型类型：
 1. **文件名不带扩展名** - 不要加 `.safetensors`
 2. **文件名不带目录路径** - 如 `jijia-anima-Tanger`，不是 `画风/jijia-anima-Tanger`
 3. **SDXL 通常用双权重** - `<lora:xxx:0.8:0.8>`（unet:clip）
-4. **Flux/Anima 不支持 LoRA** - 不要添加
+4. **LoRA 文件分模型架构** - SDXL 训练的 LoRA 不能在 Flux 模型上用，反之亦然。但引用格式完全一致
 5. **括号包裹** - 必须使用 `<lora:...>` 格式
 
 ### 角色和标签查询
