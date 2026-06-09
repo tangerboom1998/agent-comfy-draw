@@ -488,7 +488,7 @@ python rollback_to_name_key.py
 
 ## 📦 角色预览图数据集
 
-角色预览图数据 (`character-data.tar.gz`, 675MB) 来源于 [DrawingSpells](https://github.com/hbl917070/DrawingSpells) 项目，已获授权在本项目中使用。
+角色预览图数据 (`character-data.tar.gz`, 675MB) 来源于 [DrawingSpells](https://github.com/hbl917070/DrawingSpells) 项目。
 
 **下载方式**：
 ```bash
