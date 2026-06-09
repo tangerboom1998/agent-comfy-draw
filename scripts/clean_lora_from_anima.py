@@ -8,10 +8,13 @@ Anima 工作流使用 Flux 模型，不兼容 SDXL LoRA。
 
 import json
 import os
+from pathlib import Path
 from datetime import datetime
 
-# 文件路径
-PRETAGS_FILE = '/home/hctang/claw-build/agent-comfy-draw/pretags/pretags-anima.json'
+# 文件路径（相对项目根目录）
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent
+PRETAGS_FILE = str(PROJECT_ROOT / 'pretags' / 'pretags-anima.json')
 BACKUP_FILE = f'{PRETAGS_FILE}.backup.{datetime.now().strftime("%Y%m%d_%H%M%S")}'
 
 def main():
