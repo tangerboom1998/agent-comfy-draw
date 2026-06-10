@@ -18,10 +18,12 @@
 ## 🚀 快速开始
 
 ### 环境配置
+
 ```bash
-cp .env.example .env          # 编辑 COMFYUI_HOST 为你的 ComfyUI 地址
 pip install -r requirements.txt
 ```
+
+**注意**：本项目主要为 AI Agent 使用，环境变量需设置在 Agent 的运行环境（如 `~/.bashrc` 或 Agent 配置的 `.env`）中，在项目目录下编辑 `.env` 文件不会生效。详见 [`.env.example`](.env.example)。
 
 ### 启动管理界面
 ```bash
