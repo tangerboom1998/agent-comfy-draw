@@ -98,17 +98,6 @@ comfyui-draw/
 - 项目总览：[`SKILL.md`](SKILL.md)
 - 参考文档：[`references/`](references/) 目录下含 Anima Prompt、画风管理、预览图生成、环境配置、工作流节点映射等详细说明
 
-## ⚠️ 常见问题
-
-**数据文件找不到？** Tanger-Presets-Show 按 `$PRETAGS_DATA_PATH` → `pretags/*.json` → 符号链接顺序查找。
-
-**ComfyUI 连接失败？**
-```bash
-curl http://127.0.0.1:8188/system_stats
-```
-
-**LoRA 路径错误？** LoRA 格式需要 `lora:` 前缀：`lora:character_name:0.8`
-
 ## 📄 许可证
 
 MIT License — 详见 [LICENSE](LICENSE)。
