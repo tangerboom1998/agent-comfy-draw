@@ -2,6 +2,8 @@
 
 基于 ComfyUI 的 AI 绘图工具集，包含角色管理、标签系统、画风测试、批量导入等工作流。
 
+> **设计定位**：本工具主要为 AI Agent 使用，帮助 Agent 更好地生成提示词和调用工作流，整体偏向二次元角色处理。大部分代码由 AI 生成。
+
 ## 📦 前置依赖
 
 项目中的 ComfyUI 工作流需要以下自定义节点：
@@ -28,6 +30,9 @@ cd modules/Tanger-Presets-Show && python server.py
 ```
 
 ### 可选：下载角色预览图 (675MB)
+
+该数据集包含大量角色的预览图，用于 Tanger-Presets-Show 管理界面展示。
+
 ```bash
 pip install modelscope
 cd modules/Tanger-Presets-Show/data
