@@ -110,8 +110,6 @@ settings.local.json
 # 文档生成
 docs/_build/
 
-# 外部 Git 仓库（custom_nodes 下的第三方插件）
-custom_nodes/
 
 # VSCode 工作区文件
 *.code-workspace

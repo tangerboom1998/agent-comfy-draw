@@ -1,0 +1,15 @@
+[project]
+name = "fexli-util-node-comfyui"
+description = "A set of Fe's Util nodes for ComfyUI"
+version = "1.0.1"
+license = {file = "LICENSE"}
+dependencies = ["pycryptodome", "sseclient-py"]
+
+[project.urls]
+Repository = "https://github.com/fexli/fexli-util-node-comfyui"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = "fexli"
+DisplayName = "fexli-util-node-comfyui"
+Icon = ""
