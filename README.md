@@ -41,7 +41,7 @@ cd modules/Tanger-Presets-Show/data
 modelscope download --dataset tangerboom/character-data character-data.tar.gz --local_dir ./
 tar xzf character-data.tar.gz && rm character-data.tar.gz
 cd ../../..
-# 数据来源：https://github.com/hbl917070/DrawingSpells (已获授权)
+# 数据来源：https://github.com/hbl917070/DrawingSpells
 ```
 
 ## ⚙️ 环境变量
