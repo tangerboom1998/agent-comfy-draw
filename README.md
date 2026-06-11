@@ -70,6 +70,7 @@ comfyui-draw/
 │   ├── comfyui-api/             # ComfyUI API 封装（独立模块）
 │   ├── Tanger-Presets-Show/     # 角色标签管理系统（独立模块）
 │   ├── civitai-api/             # Civitai 模型管理（独立模块）
+│   ├── danbooru-tag-scraper/    # Danbooru 标签爬取工具
 │   └── pretags-draw/            # 核心绘图工作流
 ├── tools/
 │   ├── pretags-batch-import/    # 批量导入工具
@@ -88,6 +89,7 @@ comfyui-draw/
 | **comfyui-api** | ComfyUI REST API 和 WebSocket 封装 | [`modules/comfyui-api/SKILL.md`](modules/comfyui-api/SKILL.md) |
 | **Tanger-Presets-Show** | 角色标签管理系统（Web UI + API） | [`SKILL.md`](SKILL.md) |
 | **civitai-api** | Civitai 模型搜索、下载、哈希查询 | [`modules/civitai-api/SKILL.md`](modules/civitai-api/SKILL.md) |
+| **danbooru-tag-scraper** | Danbooru 标签爬取工具 | [`modules/danbooru-tag-scraper/SKILL.md`](modules/danbooru-tag-scraper/SKILL.md) |
 | **pretags-draw** | 核心绘图工作流（4 步流程） | [`modules/pretags-draw/SKILL.md`](modules/pretags-draw/SKILL.md) |
 | **pretags-batch-import** | 批量导入角色和标签 | [`tools/pretags-batch-import/SKILL.md`](tools/pretags-batch-import/SKILL.md) |
 | **artstyle-test** | 画风 LoRA 批量测试 | [`tools/artstyle-test/SKILL.md`](tools/artstyle-test/SKILL.md) |
