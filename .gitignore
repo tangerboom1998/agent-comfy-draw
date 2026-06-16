@@ -116,3 +116,4 @@ docs/_build/
 
 # pytest 缓存
 .pytest_cache/
+scripts/upload_modelscope.py

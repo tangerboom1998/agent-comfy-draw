@@ -192,6 +192,12 @@ Danbooru 标签爬取工具，按类别批量获取标签构建词典。
 **文档**: [danbooru-tag-scraper/SKILL.md](modules/danbooru-tag-scraper/SKILL.md)
 **环境变量**: `HTTPS_PROXY` (必需)
 
+#### Prompt Inspiration
+打标数据灵感检索 + 图片自动打标工具，支持语义搜索和 VLM/WD 双引擎打标。
+
+**文档**: [prompt_inspiration/SKILL.md](modules/prompt_inspiration/SKILL.md)
+**环境变量**: `HTTPS_PROXY` (VLM/模型下载), `VLM_API_KEY` (VLM 调用)
+
 ### 辅助工具 (`tools/`)
 
 #### 画风测试
@@ -335,6 +341,7 @@ python civitai.py download <model_id>
 - [Pretags Draw](modules/pretags-draw/SKILL.md)
 - [Civitai API](modules/civitai-api/SKILL.md)
 - [Danbooru Tag Scraper](modules/danbooru-tag-scraper/SKILL.md)
+- [Prompt Inspiration](modules/prompt_inspiration/SKILL.md)
 - [Tanger-Presets-Show](modules/Tanger-Presets-Show/README.md)
 
 ### 工具文档

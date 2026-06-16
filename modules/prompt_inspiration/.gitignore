@@ -1,0 +1,33 @@
+# Built/derived data
+data/
+models/
+
+# ONNX model files (downloaded on demand)
+models/tagger_models/
+
+# Packaged archives for upload
+tagger_models.tar.gz
+
+# Old reference notebooks (replaced by prompt_inspiration/tagger/)
+tagger/*.ipynb
+
+# Prompt data (downloaded via modelscope)
+prompts/
+prompts.tar.gz
+
+# Design/planning artifacts (Superpowers agent output)
+docs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

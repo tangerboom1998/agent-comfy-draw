@@ -44,6 +44,24 @@ cd ../../..
 # 数据来源：https://github.com/hbl917070/DrawingSpells
 ```
 
+### 可选：下载 prompt_inspiration 数据
+
+该模块需要打标数据和 WD Tagger 模型，详见 [模块文档](modules/prompt_inspiration/SKILL.md)。
+
+```bash
+pip install modelscope
+cd modules/prompt_inspiration
+
+# 打标数据（2738 份提示词）
+modelscope download --dataset tangerboom/character-data prompts.tar.gz --local_dir ./
+tar xzf prompts.tar.gz && rm prompts.tar.gz
+
+# WD Tagger 模型（仅图片打标需要）
+modelscope download --dataset tangerboom/character-data tagger_models.tar.gz --local_dir ./
+mkdir -p models/tagger_models
+tar xzf tagger_models.tar.gz -C models/tagger_models && rm tagger_models.tar.gz
+```
+
 ## ⚙️ 环境变量
 
 | 变量名 | 说明 | 必需 |
@@ -71,6 +89,7 @@ comfyui-draw/
 │   ├── Tanger-Presets-Show/     # 角色标签管理系统（独立模块）
 │   ├── civitai-api/             # Civitai 模型管理（独立模块）
 │   ├── danbooru-tag-scraper/    # Danbooru 标签爬取工具
+│   ├── prompt_inspiration/      # 灵感检索与图片打标工具
 │   └── pretags-draw/            # 核心绘图工作流
 ├── tools/
 │   ├── pretags-batch-import/    # 批量导入工具
@@ -90,6 +109,7 @@ comfyui-draw/
 | **Tanger-Presets-Show** | 角色标签管理系统（Web UI + API） | [`SKILL.md`](SKILL.md) |
 | **civitai-api** | Civitai 模型搜索、下载、哈希查询 | [`modules/civitai-api/SKILL.md`](modules/civitai-api/SKILL.md) |
 | **danbooru-tag-scraper** | Danbooru 标签爬取工具 | [`modules/danbooru-tag-scraper/SKILL.md`](modules/danbooru-tag-scraper/SKILL.md) |
+| **prompt_inspiration** | 打标数据灵感检索 + 图片自动打标 | [`modules/prompt_inspiration/SKILL.md`](modules/prompt_inspiration/SKILL.md) |
 | **pretags-draw** | 核心绘图工作流（4 步流程） | [`modules/pretags-draw/SKILL.md`](modules/pretags-draw/SKILL.md) |
 | **pretags-batch-import** | 批量导入角色和标签 | [`tools/pretags-batch-import/SKILL.md`](tools/pretags-batch-import/SKILL.md) |
 | **artstyle-test** | 画风 LoRA 批量测试 | [`tools/artstyle-test/SKILL.md`](tools/artstyle-test/SKILL.md) |
