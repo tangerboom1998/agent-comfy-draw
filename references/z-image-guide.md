@@ -60,7 +60,7 @@ wait
 - ⚠️ Seed 最小值为 0（不是 -1）
 - ⚠️ 8 步版本提升有限，推荐使用 4 步
 
-更多警告见：[WARNINGS.md](../WARNINGS.md)
+更多警告见：[WARNINGS.md](warnings.md)
 
 ## 相关文档
 

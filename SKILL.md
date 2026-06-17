@@ -18,7 +18,7 @@ agent_constraints:
     - "删除或重命名现有文件"
   allowed:
     - "根据用户习惯新增 reference 文档（需遵循 REFERENCE_TEMPLATE.md，保持简洁 ≤150 行）"
-    - "向 WARNINGS.md 添加新的警告或提醒"
+    - "向 [WARNINGS.md](references/warnings.md) 添加新的警告或提醒"
     - "创建临时分析报告（*_REPORT.md, *_AUDIT.md）"
     - "回答问题和提供建议"
 ---
@@ -39,7 +39,7 @@ agent_constraints:
 
 ### 允许操作
 - ✅ 根据用户习惯新增 reference 文档（需遵循 [REFERENCE_TEMPLATE.md](REFERENCE_TEMPLATE.md)，保持简洁 ≤150 行）
-- ✅ 向 [WARNINGS.md](WARNINGS.md) 添加新的警告或提醒
+- ✅ 向 [WARNINGS.md](references/warnings.md) 添加新的警告或提醒
 - ✅ 创建临时分析报告（`*_REPORT.md`, `*_AUDIT.md`）
 - ✅ 回答问题和提供建议
 
@@ -101,9 +101,7 @@ agent_constraints:
 - ❌ 混淆信息完整度
 - ❌ 凭记忆回答
 
-详见：
-- [两级查询方案](AGENT_TWO_LEVEL_QUERY.md)
-- [Agent 查询指南](AGENT_QUERY_GUIDE.md)
+详见：[Agent 使用指南](references/agent-guide.md)
 
 #### 模型特性差异（必须遵守）
 
@@ -127,7 +125,7 @@ agent_constraints:
 
 详见：
 - [Pretags Draw 工作流](modules/pretags-draw/SKILL.md#-agent-工作流约束)
-- [Agent 工作流指南](AGENT_WORKFLOW_GUIDE.md)
+- [Agent 使用指南](references/agent-guide.md)
 - [模型提示词对比](references/model-prompt-comparison.md)
 - **LoRA 格式规范**：`<lora:LoRA文件名:unet权重:text权重(可选)>`，如 `<lora:jijia-anima-Tanger:0.8>` 或 `<lora:jijia-anima-Tanger:0.8:0.8>`。文件名不带 `.safetensors` 扩展名和目录路径
 
@@ -332,7 +330,7 @@ python civitai.py download <model_id>
 2. 项目根目录 `pretags/` 目录
 3. `modules/Tanger-Presets-Show/data/` 符号链接
 
-详见：[数据文件管理指南](DATA_MANAGEMENT.md)
+详见：[数据文件管理指南](references/data-management.md)
 
 ## 📚 文档索引
 
@@ -350,6 +348,8 @@ python civitai.py download <model_id>
 - [ComfyUI 启动](tools/comfyui-startup/SKILL.md)
 
 ### 参考文档
+- [警告和注意事项](references/warnings.md)
+- [Agent 使用指南](references/agent-guide.md)
 - [Anima Prompt 与工作流](references/anima-prompt-and-workflow.md)
 - [z-image Turbo 工作流](references/z-image-guide.md)
 - [工作流节点映射](references/workflow-node-mapping.md)
@@ -357,9 +357,11 @@ python civitai.py download <model_id>
 - [画风管理与测试](references/artstyle-curation.md)
 - [角色预览图生成](references/character-preview-generation.md)
 - [Pretags 数据管理](references/pretags-data-management.md)
+- [数据文件管理](references/data-management.md)
 - [Pretags Excel 导入导出](references/pretags-excel-workflow.md)
 - [ComfyUI 常见问题](references/comfyui-pitfalls.md)
 - [环境配置](references/environment-setup.md)
+- [发布检查清单](references/release-checklist.md)
 
 ## 📄 许可证
 

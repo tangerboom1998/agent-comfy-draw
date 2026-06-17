@@ -54,7 +54,7 @@ cp output/CCUI_*.png previews/{character_id}.jpg
 - ⚠️ 全量生成约需 3-4 小时
 - ⚠️ 使用 FaceDetailer 输出作为最终预览图
 
-更多警告见：[WARNINGS.md](../WARNINGS.md)
+更多警告见：[WARNINGS.md](warnings.md)
 
 ## 相关文档
 

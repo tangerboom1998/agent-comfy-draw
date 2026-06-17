@@ -135,7 +135,7 @@ python comfyui_draw.py "prompt" \
 - ⚠️ 需要 aiohttp 包（`pip install aiohttp`）
 - ⚠️ 模板段落中不要出现中文字符
 
-更多警告见：[WARNINGS.md](../WARNINGS.md)
+更多警告见：[WARNINGS.md](warnings.md)
 
 ## 相关文档
 

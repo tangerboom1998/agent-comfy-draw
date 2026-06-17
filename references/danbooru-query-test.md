@@ -161,9 +161,9 @@ python danbooru.py tag-info --tag "blonde_hair"
 
 ## 🔗 相关文档
 
-- [两级查询方案](../AGENT_TWO_LEVEL_QUERY.md)
+- [两级查询方案](agent-guide.md)
 - [Danbooru Tag Scraper SKILL](../modules/danbooru-tag-scraper/SKILL.md)
-- [Agent 查询指南](../AGENT_QUERY_GUIDE.md)
+- [Agent 使用指南](agent-guide.md)
 
 ---
 

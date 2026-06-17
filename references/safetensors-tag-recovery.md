@@ -60,7 +60,7 @@ def extract_tags(path):
 - ⚠️ 需要手动审核和分类，自动化容易出错
 - ⚠️ 不同训练方法的元数据结构可能不同
 
-更多警告见：[WARNINGS.md](../WARNINGS.md)
+更多警告见：[WARNINGS.md](warnings.md)
 
 ## 相关文档
 

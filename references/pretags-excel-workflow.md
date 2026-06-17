@@ -53,7 +53,7 @@ python import_from_excel.py \
 - ⚠️ Excel 中的 ID 不可修改
 - ⚠️ Docker 环境需要安装 openpyxl
 
-更多警告见：[WARNINGS.md](../WARNINGS.md)
+更多警告见：[WARNINGS.md](warnings.md)
 
 ## 相关文档
 

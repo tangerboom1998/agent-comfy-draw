@@ -57,7 +57,7 @@ python artstyle_rerun.py --start 0 --limit 15
 - ⚠️ LoRA 格式：`<lora:filename:0.8:0.8>`（不要省略 clip 权重）
 - ⚠️ 测试时使用通用 prompt，避免角色特征干扰
 
-更多警告见：[WARNINGS.md](../WARNINGS.md)
+更多警告见：[WARNINGS.md](warnings.md)
 
 ## 相关文档
 

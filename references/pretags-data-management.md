@@ -65,7 +65,7 @@ lora_file = "画风/jijia-gnoob-000014"
 - ⚠️ LoRA 文件路径统一使用 stem 名称（不带扩展名）
 - ⚠️ 批量操作前务必备份数据
 
-更多警告见：[WARNINGS.md](../WARNINGS.md)
+更多警告见：[WARNINGS.md](warnings.md)
 
 ## 相关文档
 
