@@ -98,6 +98,29 @@ python3 -m prompt_inspiration.cli tag photo.png --save --rebuild
 
 输出格式：**逗号连接，无句号，无句子**（WD 和 VLM 统一格式）。
 
+### 图片解析 `inspect`
+
+**优先从元数据提取提示词，无元数据时才回退到视觉分析**。
+
+```bash
+python3 -m prompt_inspiration.cli inspect photo.png
+python3 -m prompt_inspiration.cli inspect img1.png img2.png --json
+```
+
+支持的元数据格式：
+- **ComfyUI**：PNG tEXt `prompt` chunk（完整工作流 JSON）
+- **WebUI / Forge**：PNG tEXt `parameters` chunk（含正/负面提示词、采样器、模型等）
+- **JPEG**：EXIF UserComment（WebUI 输出）
+
+当无元数据时自动回退到 WD Tagger + VLM 视觉分析（同 `tag` 命令）。
+
+参数：
+| 参数 | 默认 | 说明 |
+|------|------|------|
+| `images` | 必填 | 图片路径（可多个） |
+| `--mode, -m` | both | 视觉回退模式：tags / caption / both |
+| `--json, -j` | — | JSON 格式输出 |
+
 ### 索引管理 `build` / `setup` / `info`
 
 ```bash
@@ -117,6 +140,7 @@ prompt_inspiration/
 │   ├── searcher.py                 搜索引擎
 │   ├── indexer.py                  索引构建
 │   ├── model_setup.py              ONNX 模型
+│   ├── metadata.py                 图片元数据提取（ComfyUI/WebUI）
 │   ├── tool.py                     agent 接口
 │   ├── config.py                   路径与配置
 │   └── tagger/

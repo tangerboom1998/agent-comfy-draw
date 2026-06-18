@@ -36,6 +36,7 @@ logs/
 *.tmp
 *.temp
 .cache/
+tmp/
 
 # 输出目录（生成的图片，只保留 .gitkeep 占位）
 output/*

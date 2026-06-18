@@ -1,12 +1,14 @@
 """Agent tool interface for Claude Code function calling.
 
-Exposes search_inspiration as a structured tool that agents can call
-to retrieve prompt inspiration from the tagging database.
+Exposes search_inspiration and extract_image_metadata as structured tools
+that agents can call to retrieve prompt inspiration from the tagging database
+and extract prompts from AI-generated images.
 """
 
 from typing import Dict, List, Optional
 
 from .searcher import search_inspiration as _search
+from .metadata import extract_metadata as _extract
 
 
 TOOL_DEFINITION = {
@@ -59,6 +61,30 @@ TOOL_DEFINITION = {
     },
 }
 
+EXTRACT_METADATA_TOOL_DEFINITION = {
+    "type": "function",
+    "function": {
+        "name": "extract_image_metadata",
+        "description": (
+            "Extract prompt metadata from an AI-generated image file. "
+            "Supports ComfyUI (workflow JSON in tEXt chunk) and "
+            "Stable Diffusion WebUI/Forge (parameters in tEXt chunk). "
+            "Returns the positive/negative prompts, model, LoRA, sampler settings, etc. "
+            "Returns null if the image has no generation metadata."
+        ),
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "filepath": {
+                    "type": "string",
+                    "description": "Path to the image file (PNG or JPEG)",
+                },
+            },
+            "required": ["filepath"],
+        },
+    },
+}
+
 
 def search_inspiration(
     query: str,
@@ -96,3 +122,36 @@ def search_inspiration(
         top_k=top_k,
         mode=mode,
     )
+
+
+def extract_image_metadata(filepath: str) -> Optional[Dict]:
+    """Agent-callable metadata extraction.
+
+    Extracts prompt metadata from AI-generated images (ComfyUI/WebUI).
+    Returns a dict with positive_prompt, negative_prompt, model, loras, etc.
+    Returns None if no generation metadata is found.
+
+    Args:
+        filepath: Path to the image file (PNG or JPEG)
+
+    Returns:
+        Dict with extracted metadata, or None if no metadata found.
+    """
+    meta = _extract(filepath)
+    if meta is None or not meta.has_prompt:
+        return None
+    return {
+        "source": meta.source,
+        "positive_prompt": meta.best_positive(),
+        "negative_prompt": meta.best_negative(),
+        "model": meta.model,
+        "model_hash": meta.model_hash,
+        "loras": meta.loras,
+        "sampler": meta.sampler,
+        "steps": meta.steps,
+        "cfg": meta.cfg,
+        "seed": meta.seed,
+        "scheduler": meta.scheduler,
+        "denoise": meta.denoise,
+        "size": meta.size,
+    }
