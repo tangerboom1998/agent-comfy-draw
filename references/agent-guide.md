@@ -174,3 +174,4 @@ python modules/pretags-draw/scripts/comfyui_draw.py \
 - ❌ 隐藏数据来源或混淆信息完整度
 - ❌ 凭记忆回答 / 编造信息
 - ❌ 跳过 tag_producer 直接构建英文 prompt
+- ❌ **拆分 tag_producer 调用** — tag_producer 是不可拆分的统一管线，同时完成 pretags 数据查询和提示词生成。禁止只查询 pretags 数据（如单独调用 pretags_manager.py search）后自行拼接英文 prompt，也禁止只拼接提示词而不经过 pretags 查询。必须将完整中文指令交给 tag_producer 一次性处理

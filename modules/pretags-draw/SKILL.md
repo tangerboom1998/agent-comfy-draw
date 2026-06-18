@@ -21,6 +21,7 @@ agent_workflow:
     - "不要跳过 tag_producer，直接构建英文 prompt"
     - "不要手动编写 LoRA 格式，必须从 pretags 获取"
     - "不要忽略用户指定的画风、动作、场景要求"
+    - "不要拆分 tag_producer 调用：不要只查询 pretags 数据不走 tag_producer 生成提示词，也不要只拼接提示词不经过 pretags 查询"
 ---
 
 # Pretags Draw
@@ -113,6 +114,24 @@ Agent 应通过以下方式识别模型类型：
 - ❌ **猜测角色信息** - 角色不在 pretags 中时，应提示用户而非猜测
 - ❌ **忽略模型特性** - 不要对所有模型使用相同格式的提示词
 - ❌ **凭记忆回答查询** - 查询角色信息时必须调用查询工具，不要凭记忆
+
+### ⚠️ tag_producer 完整调用规则（严格遵守）
+
+tag_producer 是一个**不可拆分的统一管线**：它同时完成 pretags 数据查询（角色/画风/LoRA 信息检索）和提示词生成（英文 tag + LoRA 格式拼接）。
+
+**使用 pretags 相关功能获取提示词时，必须走 tag_producer 的完整调用流程**，即：
+
+```bash
+python modules/pretags-draw/scripts/tag_producer.py "<完整中文指令>"
+# → 输出可直接传给 comfyui_draw.py 的完整 prompt（含 LoRA）
+```
+
+**禁止拆分调用，以下两种行为都是错误的**：
+
+- ❌ **只查询 pretags 不生成提示词** — 单独调用 `pretags_manager.py search` 获取角色信息后自行拼英文 prompt。角色信息、LoRA、画风 tag 必须由 tag_producer 从 pretags 数据库统一检索并拼接
+- ❌ **只拼接提示词不经过 pretags 查询** — 跳过 tag_producer，凭记忆或手动查询结果直接构建英文 prompt。tag_producer 会实时查询最新 pretags 数据，手动构建容易遗漏或过时
+
+**正确流程**：Agent 构建完整中文指令 → 传给 tag_producer → tag_producer 一次性完成数据查询 + 提示词生成 → 输出完整 prompt → 传给 comfyui_draw.py 生图
 
 ### 📌 LoRA 格式规范
 

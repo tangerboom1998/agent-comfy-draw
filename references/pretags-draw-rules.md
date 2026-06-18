@@ -78,6 +78,16 @@ Agent 执行的 12 项检查：
 11. 权重合理
 12. 画师标签
 
+## tag_producer 完整调用规则
+
+tag_producer 是**不可拆分的统一管线**，同时完成 pretags 数据查询和提示词生成。使用 pretags 功能获取提示词时，必须走 tag_producer 的完整调用流程。
+
+**禁止的行为**：
+- ❌ 只查询 pretags 数据（如单独调用 pretags_manager.py search）后自行拼接英文 prompt
+- ❌ 只拼接提示词不经过 pretags 查询（凭记忆或手动构建）
+
+**正确做法**：将完整中文指令传给 `python tag_producer.py "<中文指令>"`，由它统一完成数据查询 + 提示词生成。
+
 ## 相关文档
 
 - [Pretags Draw SKILL](../modules/pretags-draw/SKILL.md)

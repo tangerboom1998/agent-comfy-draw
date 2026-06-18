@@ -52,6 +52,15 @@ agent_constraints:
 3. **遵循标准流程** - 用户需求 → 中文指令 → tag_producer → comfyui_draw.py
 4. **根据模型调整提示词** - 必须根据使用的模型类型（Anima/SDXL/z-image）调整提示词格式
 
+> ⚠️ **tag_producer 完整调用规则（严格遵守）**
+>
+> tag_producer 是一个**不可拆分的统一管线**：它同时完成 pretags 数据查询（角色/画风/LoRA 信息检索）和提示词生成（英文 tag + LoRA 格式拼接）。使用 pretags 相关功能获取提示词时，**必须走 tag_producer 的完整调用流程**，禁止以下两种行为：
+>
+> - ❌ **只查询 pretags 数据不走 tag_producer 生成提示词** — 不要单独调用 pretags_manager.py search 获取角色信息后，自行拼接英文 prompt；必须将中文指令交给 tag_producer 一次性处理
+> - ❌ **只拼接提示词不经过 pretags 查询** — 不要跳过 tag_producer 直接用记忆或手动查询结果构建英文 prompt；tag_producer 会从 pretags 数据库实时检索最新数据
+>
+> 正确做法：将完整中文指令传给 `python tag_producer.py "<中文指令>"`，由它统一完成数据查询 + 提示词生成，输出可直接传给 comfyui_draw.py 的完整 prompt。
+
 ### 角色和标签查询约束
 
 **当用户查询角色信息或标签时，必须使用两级查询系统**：
