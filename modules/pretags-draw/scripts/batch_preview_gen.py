@@ -16,9 +16,10 @@ from pathlib import Path
 SKILL_ROOT = Path(__file__).resolve().parent.parent
 _PROJECT_ROOT = SKILL_ROOT.parent
 sys.path.insert(0, str(_PROJECT_ROOT))
+import _env  # noqa: F401 — 触发 .env 加载
 from _env import LORA_MODEL_DIR
 
-OUTPUT_DIR = SKILL_ROOT / "output"
+OUTPUT_DIR = Path(os.environ.get("COMFYUI_OUTPUT_DIR", "output"))
 PRETAGS_PATH = SKILL_ROOT / "pretags.json"
 PREVIEW_DIR = SKILL_ROOT / "Tanger-Presets-Show" / "data" / "character-previews"
 LORA_BASE = LORA_MODEL_DIR

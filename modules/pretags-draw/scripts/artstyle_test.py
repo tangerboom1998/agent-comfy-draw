@@ -20,8 +20,12 @@ import re
 from pathlib import Path
 
 SKILL_DIR = Path(__file__).resolve().parent.parent
-PRETAGS_PATH = SKILL_DIR.parent / "pretags.json"
-OUTPUT_DIR = SKILL_DIR / "output" / "artstyle_test"
+_PROJECT_ROOT = SKILL_DIR.parent
+sys.path.insert(0, str(_PROJECT_ROOT))
+import _env  # noqa: F401 — 触发 .env 加载
+
+PRETAGS_PATH = _PROJECT_ROOT / "pretags.json"
+OUTPUT_DIR = Path(os.environ.get("COMFYUI_OUTPUT_DIR", "output")) / "artstyle_test"
 COMFYUI_SCRIPT = SKILL_DIR / "scripts" / "comfyui_draw.py"
 
 # 测试用提示词模板
@@ -81,10 +85,14 @@ def generate_image(prompt, output_name):
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
     
     # 从输出中找到图片路径
+    out_dir_name = str(OUTPUT_DIR)
     for line in result.stdout.split('\n'):
         if '图片已保存' in line and '.png' in line:
-            # 提取路径
-            match = re.search(r'(output/\S+\.png)', line)
+            # 提取路径 — 匹配输出目录下的文件
+            match = re.search(r'(' + re.escape(out_dir_name) + r'\S*\.png)', line)
+            if not match:
+                # 兜底：匹配任意 .png 路径
+                match = re.search(r'(\S+\.png)', line)
             if match:
                 src = SKILL_DIR / match.group(1)
                 if src.exists():

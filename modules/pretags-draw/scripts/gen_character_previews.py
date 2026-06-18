@@ -32,9 +32,13 @@ from pathlib import Path
 
 # ── 路径配置 ──────────────────────────────────────────────────────────────
 SKILL_ROOT = Path(__file__).resolve().parent.parent
+_PROJECT_ROOT = SKILL_ROOT.parent
+sys.path.insert(0, str(_PROJECT_ROOT))
+import _env  # noqa: F401 — 触发 .env 加载
+
 PRETAGS_PATH = SKILL_ROOT / "pretags.json"
 PREVIEW_DIR = SKILL_ROOT / "Tanger-Presets-Show" / "data" / "character-previews"
-OUTPUT_DIR = SKILL_ROOT / "output"
+OUTPUT_DIR = Path(os.environ.get("COMFYUI_OUTPUT_DIR", "output"))
 COMFYUI_DRAW = SKILL_ROOT / "scripts" / "comfyui_draw.py"
 
 # ── 立绘模板 ──────────────────────────────────────────────────────────────

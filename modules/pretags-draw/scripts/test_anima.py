@@ -7,13 +7,19 @@ import time
 import uuid
 from pathlib import Path
 
+# 加载 .env
+_SKILL_ROOT = Path(__file__).resolve().parent.parent
+_PROJECT_ROOT = _SKILL_ROOT.parent
+sys.path.insert(0, str(_PROJECT_ROOT))
+import _env  # noqa: F401 — 触发 .env 加载
+
 import requests
 import websocket
 
 COMFYUI_HOST = os.environ.get("COMFYUI_HOST", "http://127.0.0.1:8188")
 WS_HOST = COMFYUI_HOST.replace("http://", "ws://").replace("https://", "wss://")
-WORKFLOW_PATH = Path(__file__).resolve().parent.parent / "assets" / "anima_api_workflow.json"
-OUTPUT_DIR = Path(__file__).resolve().parent.parent / "output"
+WORKFLOW_PATH = _SKILL_ROOT / "assets" / "anima_api_workflow.json"
+OUTPUT_DIR = Path(os.environ.get("COMFYUI_OUTPUT_DIR", "output"))
 
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 

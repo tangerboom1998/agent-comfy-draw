@@ -240,6 +240,9 @@ CIVITAI_API_KEY=your_api_key_here
 # Pretags 数据文件路径
 PRETAGS_DATA_PATH=./pretags/pretags-anima.json
 
+# 图片输出目录（所有脚本统一使用，避免输出到各模块自身的 output/ 子目录）
+COMFYUI_OUTPUT_DIR=./output
+
 # Tanger-Presets-Show 端口
 WEB_SHOW_PORT=8765
 
