@@ -29,21 +29,39 @@ _SKILL_ROOT = Path(__file__).resolve().parent.parent  # skill 根目录
 _ASSETS_DIR = _SKILL_ROOT / "assets"
 
 
-def _resolve_pretags_path() -> str:
-    """解析 pretags.json 路径：环境变量 > 向上搜索 pretags 目录 > 向上搜索 pretags.json > 本地回退"""
+def _resolve_pretags_path(cli_path: str | None = None) -> str:
+    """解析 pretags.json 路径。
+
+    优先级：cli_path 参数 > PRETAGS_DATA_PATH 环境变量 > 向上搜索 pretags/ 目录
+
+    支持目录或文件路径：
+    - 文件路径：直接使用该文件
+    - 目录路径：返回目录中第一个 JSON 文件
+
+    如果所有来源都无效，将抛出 RuntimeError。
+    """
     import os as _os
-    # 1. 环境变量优先（现在支持目录或文件）
+
+    # 1. CLI 参数优先
+    candidates = []
+    if cli_path:
+        candidates.append(('CLI 参数', cli_path))
+    # 2. 环境变量
     env_path = _os.getenv('PRETAGS_DATA_PATH')
     if env_path:
-        p = Path(env_path)
+        candidates.append(('PRETAGS_DATA_PATH', env_path))
+
+    for _source, raw_path in candidates:
+        p = Path(raw_path)
         if p.is_file():
-            return env_path
+            return raw_path
         elif p.is_dir():
-            # 如果是目录，返回目录中第一个 JSON 文件
             json_files = sorted(p.glob('*.json'))
             if json_files:
                 return str(json_files[0])
-    # 2. 从脚本所在目录向上搜索项目根目录的 pretags 文件夹
+            raise RuntimeError(f"{_source} 指向目录但未找到 JSON 文件：{raw_path}")
+
+    # 3. 向上搜索 pretags/ 目录（自动发现）
     start = Path(__file__).resolve().parent
     for p in [start, *start.parents]:
         pretags_dir = p / 'pretags'
@@ -51,13 +69,13 @@ def _resolve_pretags_path() -> str:
             json_files = sorted(pretags_dir.glob('*.json'))
             if json_files:
                 return str(json_files[0])
-    # 3. 从脚本所在目录向上搜索项目根目录的 pretags.json（兼容旧部署）
-    for p in [start, *start.parents]:
-        candidate = p / 'pretags.json'
-        if candidate.is_file():
-            return str(candidate)
-    # 4. 回退到本地 assets 目录（兼容旧部署）
-    return str(_ASSETS_DIR / "pretags.json")
+
+    raise RuntimeError(
+        "未找到 pretags 数据文件。请通过以下方式之一指定：\n"
+        "  1. 设置 PRETAGS_DATA_PATH 环境变量（如 PRETAGS_DATA_PATH=./pretags/pretags-anima.json）\n"
+        "  2. 在 .env 文件中配置 PRETAGS_DATA_PATH\n"
+        "  3. 将 pretags 数据文件放在项目根目录的 pretags/ 文件夹中"
+    )
 
 
 DEFAULT_PRETAGS_PATH = _resolve_pretags_path()
@@ -712,7 +730,17 @@ def process_prompt(prompt: str) -> str:
 # ── CLI 入口 ──────────────────────────────────────────────────────────────
 
 if __name__ == '__main__':
-    import sys
-    prompt = ' '.join(sys.argv[1:]) if len(sys.argv) > 1 else '白毛 狐耳 红瞳 古风 妖媚,撸串 4'
+    import sys, argparse as _ap
+    _cli = _ap.ArgumentParser(description='tag_producer: 中文关键词 → SDXL 英文 tag')
+    _cli.add_argument('--pretags-path', '-p', default=None,
+                       help='指定 pretags JSON 文件或目录路径（覆盖 PRETAGS_DATA_PATH 环境变量）')
+    _cli.add_argument('prompt', nargs='*', help='中文提示词指令')
+    _args = _cli.parse_args()
+
+    # 如果指定了 --pretags-path，通过环境变量传递给 _resolve_pretags_path
+    if _args.pretags_path:
+        os.environ['PRETAGS_DATA_PATH'] = _args.pretags_path
+
+    prompt = ' '.join(_args.prompt) if _args.prompt else '白毛 狐耳 红瞳 古风 妖媚,撸串 4'
     print(f"输入: {prompt}")
     print(f"输出: {process_prompt(prompt)}")

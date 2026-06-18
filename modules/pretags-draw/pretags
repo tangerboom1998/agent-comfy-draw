@@ -3,15 +3,15 @@
 pretags — 预设标签库统一 CLI 工具
 
 用法:
-  pretags list [category]           列出分类或指定分类条目
-  pretags search <keyword> [cat]    搜索标签/角色
-  pretags info <category> <name>    查看条目详情
-  pretags stats                     统计信息
-  pretags server [start|stop|status] 管理 web 服务
-  pretags export [--format json]    导出数据
-  pretags preview <cat> <name> <img> [--source S] 更新条目预览图
+  pretags [--pretags-path <path>] list [category]
+  pretags [--pretags-path <path>] search <keyword> [cat]
+  pretags [--pretags-path <path>] info <category> <name>
+  pretags [--pretags-path <path>] stats
+  pretags server [start|stop|status]
+  pretags [--pretags-path <path>] export [--format json]
+  pretags [--pretags-path <path>] preview <cat> <name> <img> [--source S]
 
-数据源: DrawingSpells/data/pretags.json（assets/pretags.json → 软链接）
+数据源优先级: --pretags-path > PRETAGS_DATA_PATH > pretags/ 目录自动发现
 """
 
 import argparse
@@ -24,9 +24,37 @@ import sys
 from pathlib import Path
 
 SKILL_ROOT = Path(__file__).resolve().parent  # pretags 文件所在目录 = skill根
-DATA_PATH = SKILL_ROOT / "DrawingSpells" / "data" / "pretags.json"
 SERVER_DIR = SKILL_ROOT / "DrawingSpells"
 SERVER_PID_FILE = SKILL_ROOT / ".server.pid"
+
+
+def _resolve_data_path(cli_path: str | None = None) -> Path:
+    """解析 pretags.json 路径。优先级：cli_path > PRETAGS_DATA_PATH > pretags/ 目录。"""
+    candidates = []
+    if cli_path:
+        candidates.append(('CLI 参数', cli_path))
+    env_path = os.getenv('PRETAGS_DATA_PATH')
+    if env_path:
+        candidates.append(('PRETAGS_DATA_PATH', env_path))
+    for _source, raw_path in candidates:
+        p = Path(raw_path)
+        if p.is_file():
+            return p
+        elif p.is_dir():
+            json_files = sorted(p.glob('*.json'))
+            if json_files:
+                return json_files[0]
+    # 向上搜索 pretags/ 目录
+    for p in [SKILL_ROOT, *SKILL_ROOT.parents]:
+        pretags_dir = p / 'pretags'
+        if pretags_dir.is_dir():
+            json_files = sorted(pretags_dir.glob('*.json'))
+            if json_files:
+                return json_files[0]
+    raise RuntimeError(
+        "未找到 pretags 数据文件。请通过 --pretags-path 或 PRETAGS_DATA_PATH 环境变量指定，"
+        "或将数据文件放在项目根目录的 pretags/ 文件夹中。"
+    )
 
 # 有效分类（英文键名）→ 中文显示名
 CATEGORY_DISPLAY = {
@@ -37,7 +65,8 @@ VALID_CATEGORIES = list(CATEGORY_DISPLAY.keys())
 
 
 def load_data():
-    with open(DATA_PATH, 'r', encoding='utf-8') as f:
+    data_path = _resolve_data_path()
+    with open(data_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 
@@ -260,7 +289,7 @@ def cmd_preview(args):
         preview_path = f"./data/previews/{filename}"
         cats[args.category][args.name]["preview"] = preview_path
 
-    with open(DATA_PATH, 'w', encoding='utf-8') as f:
+    with open(_resolve_data_path(), 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
     stat = target_file.stat()
@@ -274,6 +303,8 @@ def cmd_preview(args):
 
 def main():
     parser = argparse.ArgumentParser(description="pretags 预设标签库管理工具")
+    parser.add_argument("--pretags-path", "-p", default=None,
+                         help="指定 pretags JSON 文件或目录路径（覆盖 PRETAGS_DATA_PATH 环境变量）")
     sub = parser.add_subparsers(dest="command")
 
     # list
@@ -315,6 +346,10 @@ def main():
     if not args.command:
         parser.print_help()
         return
+
+    # 如果指定了 --pretags-path，通过环境变量传递给 _resolve_data_path
+    if args.pretags_path:
+        os.environ['PRETAGS_DATA_PATH'] = args.pretags_path
 
     commands = {
         "list": cmd_list,

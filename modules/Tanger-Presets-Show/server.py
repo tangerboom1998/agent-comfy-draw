@@ -61,47 +61,61 @@ def _set_default_pretags_filename(filename: str) -> None:
     config_file = Path(__file__).resolve().parent / '.pretags_default'
     config_file.write_text(filename)
 
-def _resolve_pretags_path() -> str:
-    """解析 pretags.json 路径：环境变量 > 向上搜索 pretags 目录 > 向上搜索 pretags.json > 本地回退"""
-    # 1. 环境变量优先（现在支持目录或文件）
+def _resolve_pretags_path(cli_path: str | None = None) -> str:
+    """解析 pretags.json 路径。
+
+    优先级：cli_path 参数 > PRETAGS_DATA_PATH 环境变量 > 向上搜索 pretags/ 目录
+
+    支持目录或文件路径：
+    - 文件路径：直接使用该文件
+    - 目录路径：优先使用 .pretags_default 配置的默认文件，否则使用目录中第一个 JSON 文件
+
+    如果所有来源都无效，将抛出 RuntimeError。
+    """
+    # 1. CLI 参数优先
+    candidates = []
+    if cli_path:
+        candidates.append(('CLI 参数', cli_path))
+    # 2. 环境变量
     env_path = os.getenv('PRETAGS_DATA_PATH')
     if env_path:
-        p = Path(env_path)
+        candidates.append(('PRETAGS_DATA_PATH', env_path))
+
+    for source, raw_path in candidates:
+        p = Path(raw_path)
         if p.is_file():
-            return env_path
+            return raw_path
         elif p.is_dir():
-            # 如果是目录，优先使用配置的默认文件
             default_filename = _get_default_pretags_filename()
             if default_filename:
                 default_path = p / default_filename
                 if default_path.is_file():
                     return str(default_path)
-            # 否则返回目录中第一个 JSON 文件
-            files = _scan_pretags_files(env_path)
+            files = _scan_pretags_files(raw_path)
             if files:
                 return files[0]['path']
-    # 2. 从脚本所在目录向上搜索项目根目录的 pretags 文件夹
+            raise RuntimeError(f"{source} 指向目录但未找到 JSON 文件：{raw_path}")
+
+    # 3. 向上搜索 pretags/ 目录（自动发现）
     start = Path(__file__).resolve().parent
     for p in [start, *start.parents]:
         pretags_dir = p / 'pretags'
         if pretags_dir.is_dir():
-            # 优先使用配置的默认文件
             default_filename = _get_default_pretags_filename()
             if default_filename:
                 default_path = pretags_dir / default_filename
                 if default_path.is_file():
                     return str(default_path)
-            # 否则返回目录中第一个 JSON 文件
             files = _scan_pretags_files(str(pretags_dir))
             if files:
                 return files[0]['path']
-    # 3. 从脚本所在目录向上搜索项目根目录的 pretags.json（兼容旧部署）
-    for p in [start, *start.parents]:
-        candidate = p / 'pretags.json'
-        if candidate.is_file():
-            return str(candidate)
-    # 4. 回退到本地相对路径（兼容旧部署）
-    return 'data/pretags.json'
+
+    raise RuntimeError(
+        "未找到 pretags 数据文件。请通过以下方式之一指定：\n"
+        "  1. 设置 PRETAGS_DATA_PATH 环境变量（如 PRETAGS_DATA_PATH=./pretags/pretags-anima.json）\n"
+        "  2. 在 .env 文件中配置 PRETAGS_DATA_PATH\n"
+        "  3. 将 pretags 数据文件放在项目根目录的 pretags/ 文件夹中"
+    )
 
 def _get_pretags_directory() -> str:
     """获取 pretags 文件所在目录"""

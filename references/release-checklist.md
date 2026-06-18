@@ -21,7 +21,7 @@ python --version  # 需要 3.8+
 
 ### 3. 数据完整性
 
-- [ ] 验证 `Tanger-Presets-Show/data/pretags.json` 存在
+- [ ] 验证 `PRETAGS_DATA_PATH` 配置正确，pretags 数据文件可访问
 - [ ] 确认数据使用 ID-key 结构（2026-05-20 后）
 - [ ] 检查预览图目录：
   - `Tanger-Presets-Show/imgs/characters/`

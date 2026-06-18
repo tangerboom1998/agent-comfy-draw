@@ -4,11 +4,38 @@
 根据 cname + source 匹配
 """
 import json
+import os
 import pandas as pd
 from datetime import datetime
+from pathlib import Path
 
 EXCEL_PATH = '../pre_tag_c_info.xlsx'
-DATA_PATH = 'data/pretags.json'
+
+def _resolve_data_path() -> str:
+    """解析 pretags.json 路径：PRETAGS_DATA_PATH 环境变量 > 向上搜索 pretags/ 目录。"""
+    env_path = os.getenv('PRETAGS_DATA_PATH')
+    if env_path:
+        p = Path(env_path)
+        if p.is_file():
+            return env_path
+        elif p.is_dir():
+            json_files = sorted(p.glob('*.json'))
+            if json_files:
+                return str(json_files[0])
+    # 向上搜索 pretags/ 目录
+    start = Path(__file__).resolve().parent
+    for p in [start, *start.parents]:
+        pretags_dir = p / 'pretags'
+        if pretags_dir.is_dir():
+            json_files = sorted(pretags_dir.glob('*.json'))
+            if json_files:
+                return str(json_files[0])
+    raise RuntimeError(
+        "未找到 pretags 数据文件。请设置 PRETAGS_DATA_PATH 环境变量，"
+        "或将数据文件放在项目根目录的 pretags/ 文件夹中。"
+    )
+
+DATA_PATH = _resolve_data_path()
 
 def main():
     print("=" * 60)
@@ -36,7 +63,7 @@ def main():
         return
     
     # 创建备份
-    backup_path = f'data/pretags_backup_before_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+    backup_path = str(Path(DATA_PATH).parent / f'pretags_backup_before_restore_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json')
     print(f"\n创建备份: {backup_path}")
     try:
         with open(backup_path, 'w', encoding='utf-8') as f:

@@ -2,6 +2,32 @@
 """测试卡片ID生成功能"""
 import json
 import hashlib
+import os
+from pathlib import Path
+
+def _resolve_data_path() -> str:
+    """解析 pretags.json 路径：PRETAGS_DATA_PATH 环境变量 > 向上搜索 pretags/ 目录。"""
+    env_path = os.getenv('PRETAGS_DATA_PATH')
+    if env_path:
+        p = Path(env_path)
+        if p.is_file():
+            return env_path
+        elif p.is_dir():
+            json_files = sorted(p.glob('*.json'))
+            if json_files:
+                return str(json_files[0])
+    # 向上搜索 pretags/ 目录
+    start = Path(__file__).resolve().parent
+    for p in [start, *start.parents]:
+        pretags_dir = p / 'pretags'
+        if pretags_dir.is_dir():
+            json_files = sorted(pretags_dir.glob('*.json'))
+            if json_files:
+                return str(json_files[0])
+    raise RuntimeError(
+        "未找到 pretags 数据文件。请设置 PRETAGS_DATA_PATH 环境变量，"
+        "或将数据文件放在项目根目录的 pretags/ 文件夹中。"
+    )
 
 def generate_card_id(card_type, **fields):
     """生成卡片ID（8位hash）"""
@@ -47,7 +73,9 @@ print(f"  相同字段 -> 相同ID: {tag1_id == tag3_id}")
 # 读取实际数据文件，检查现有卡片
 print("\n=== 检查现有数据文件 ===")
 try:
-    with open('data/pretags.json', 'r', encoding='utf-8') as f:
+    DATA_PATH = _resolve_data_path()
+    print(f"数据路径: {DATA_PATH}")
+    with open(DATA_PATH, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
     # 检查人物卡片
@@ -98,7 +126,7 @@ try:
                 print(f"  {i+1}. {tag_name}: 无ID (应为 {expected_id})")
 
 except FileNotFoundError:
-    print("数据文件不存在: data/pretags.json")
+    print(f"数据文件不存在: {DATA_PATH}")
 except Exception as e:
     print(f"读取数据文件出错: {e}")
 

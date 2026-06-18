@@ -6,10 +6,36 @@
 """
 import json
 import hashlib
+import os
 import sys
 from datetime import datetime
+from pathlib import Path
 
-DATA_PATH = 'data/pretags.json'
+def _resolve_data_path() -> str:
+    """解析 pretags.json 路径：PRETAGS_DATA_PATH 环境变量 > 向上搜索 pretags/ 目录。"""
+    env_path = os.getenv('PRETAGS_DATA_PATH')
+    if env_path:
+        p = Path(env_path)
+        if p.is_file():
+            return env_path
+        elif p.is_dir():
+            json_files = sorted(p.glob('*.json'))
+            if json_files:
+                return str(json_files[0])
+    # 向上搜索 pretags/ 目录
+    start = Path(__file__).resolve().parent
+    for p in [start, *start.parents]:
+        pretags_dir = p / 'pretags'
+        if pretags_dir.is_dir():
+            json_files = sorted(pretags_dir.glob('*.json'))
+            if json_files:
+                return str(json_files[0])
+    raise RuntimeError(
+        "未找到 pretags 数据文件。请设置 PRETAGS_DATA_PATH 环境变量，"
+        "或将数据文件放在项目根目录的 pretags/ 文件夹中。"
+    )
+
+DATA_PATH = _resolve_data_path()
 
 def generate_card_id(card_type, **fields):
     """生成卡片ID（8位hash）"""
@@ -168,7 +194,7 @@ def main():
     print(f"  系列索引: {len(old_series)} -> {len(new_series)}")
     print("=" * 60)
     print("✓ 迁移完成！")
-    print(f"备份文件位于: data/pretags_backup_before_id_migration_*.json")
+    print(f"备份文件位于: {Path(DATA_PATH).parent} 目录")
 
 if __name__ == '__main__':
     main()

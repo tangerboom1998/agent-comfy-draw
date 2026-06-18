@@ -4,10 +4,36 @@
 这样前端可以继续使用name，同时数据中保留ID为未来做准备
 """
 import json
+import os
 import sys
+from pathlib import Path
 
-DATA_PATH = 'data/pretags.json'
-BACKUP_PATH = 'data/pretags_backup_before_rollback.json'
+def _resolve_data_path() -> str:
+    """解析 pretags.json 路径：PRETAGS_DATA_PATH 环境变量 > 向上搜索 pretags/ 目录。"""
+    env_path = os.getenv('PRETAGS_DATA_PATH')
+    if env_path:
+        p = Path(env_path)
+        if p.is_file():
+            return env_path
+        elif p.is_dir():
+            json_files = sorted(p.glob('*.json'))
+            if json_files:
+                return str(json_files[0])
+    # 向上搜索 pretags/ 目录
+    start = Path(__file__).resolve().parent
+    for p in [start, *start.parents]:
+        pretags_dir = p / 'pretags'
+        if pretags_dir.is_dir():
+            json_files = sorted(pretags_dir.glob('*.json'))
+            if json_files:
+                return str(json_files[0])
+    raise RuntimeError(
+        "未找到 pretags 数据文件。请设置 PRETAGS_DATA_PATH 环境变量，"
+        "或将数据文件放在项目根目录的 pretags/ 文件夹中。"
+    )
+
+DATA_PATH = _resolve_data_path()
+BACKUP_PATH = str(Path(DATA_PATH).parent / 'pretags_backup_before_rollback.json')
 
 def rollback_characters(id_key_characters):
     """将人物卡片从 id-key 回滚到 name-key（保留ID字段）"""

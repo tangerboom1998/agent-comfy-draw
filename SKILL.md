@@ -335,9 +335,9 @@ python civitai.py download <model_id>
 
 数据文件通过智能路径解析自动加载：
 
-1. 环境变量 `PRETAGS_DATA_PATH`（优先）
-2. 项目根目录 `pretags/` 目录
-3. `modules/Tanger-Presets-Show/data/` 符号链接
+1. CLI 参数 `--pretags-path`（最高优先级）
+2. 环境变量 `PRETAGS_DATA_PATH`（推荐配置）
+3. 项目根目录 `pretags/` 目录（自动发现）
 
 详见：[数据文件管理指南](references/data-management.md)
 

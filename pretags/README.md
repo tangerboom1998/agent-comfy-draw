@@ -58,9 +58,9 @@ git diff HEAD~1 example-pretags-anima.json
 
 系统会按以下顺序查找 pretags 数据：
 
-1. `$PRETAGS_DATA_PATH` 环境变量
-2. `pretags/pretags-anima.json` 或 `pretags/pretags-ill-noob.json`
-3. `modules/Tanger-Presets-Show/data/pretags.json`（符号链接）
+1. CLI 参数 `--pretags-path`（最高优先级）
+2. `$PRETAGS_DATA_PATH` 环境变量
+3. `pretags/pretags-anima.json` 或 `pretags/pretags-ill-noob.json`（自动发现）
 
 ## 📊 数据文件说明
 
