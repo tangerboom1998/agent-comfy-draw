@@ -54,75 +54,27 @@ python danbooru.py characters --series "genshin_impact" --limit 20
 
 ### 场景 1: 按类别爬取标签
 
-```python
-import urllib.request
-import json
-import time
-import os
-
-# 配置代理
-PROXY = os.environ.get('HTTPS_PROXY', 'http://127.0.0.1:7890')
-proxy_handler = urllib.request.ProxyHandler({'http': PROXY, 'https': PROXY})
-opener = urllib.request.build_opener(proxy_handler)
-
-# 爬取发色标签
-def fetch_tags(pattern, min_posts=100):
-    url = f'https://danbooru.donmai.us/tags.json?search[name_matches]={pattern}&search[order]=count&limit=100'
-    resp = opener.open(url, timeout=15)
-    data = json.loads(resp.read())
-    return [t for t in data if t['post_count'] >= min_posts]
-
-# 示例：获取所有发色标签
-tags = fetch_tags('*_hair', min_posts=500)
-for t in sorted(tags, key=lambda x: -x['post_count'])[:10]:
-    print(f"{t['name']}: {t['post_count']}")
+```bash
+# 爬取发色标签（post_count ≥ 500）
+python danbooru.py tags --pattern "*_hair" --category 0 --min-posts 500
 ```
 
 ### 场景 2: 从系列提取角色
 
-```python
-# 从系列帖子中提取角色标签
-def extract_characters(series_tag, max_posts=200):
-    from collections import Counter
-    char_counter = Counter()
-    
-    url = f'https://danbooru.donmai.us/posts.json?tags={series_tag}&limit=100'
-    resp = opener.open(url, timeout=15)
-    posts = json.loads(resp.read())
-    
-    for post in posts:
-        chars = post.get('tag_string_character', '').split()
-        char_counter.update(chars)
-    
-    return char_counter
-
-# 示例：提取原神角色
-chars = extract_characters('genshin_impact', max_posts=200)
-for char, count in chars.most_common(10):
-    print(f"{char}: {count}")
+```bash
+# 提取原神角色标签
+python danbooru.py chars-from-series --series "genshin_impact" --max-posts 200
 ```
 
 ### 场景 3: 构建标签词典
 
-```python
-def build_tag_dict():
-    """构建分类标签词典"""
-    categories = {
-        'hair_color': '*_hair',
-        'eye_color': '*_eyes',
-        'clothing_dress': '*_dress',
-        'clothing_footwear': '*_boots OR *_shoes',
-        'expression': '*smile* OR *blush*',
-    }
-    
-    result = {}
-    for cat_name, pattern in categories.items():
-        tags = fetch_tags(pattern, min_posts=200)
-        result[cat_name] = [{'name': t['name'], 'count': t['post_count']} for t in tags]
-        print(f"[{cat_name}] {len(tags)} tags")
-        time.sleep(2)
-    
-    return result
+按类别循环调用 `tags` 子命令，配合 `--min-posts` 过滤，间隔 ≥1 秒避免限流：
+
+```bash
+for p in "*_hair" "*_eyes" "*_dress"; do
+  python danbooru.py tags --pattern "$p" --category 0 --min-posts 200
+  sleep 2
+done
 ```
 
 ## 🔧 标签类别

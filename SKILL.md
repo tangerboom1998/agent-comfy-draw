@@ -28,83 +28,42 @@ agent_constraints:
 
 ## 🤖 Agent 使用规范
 
-**使用本项目时，Agent 必须遵守以下约束**：
+使用本项目时，Agent 必须遵守 frontmatter 中的 `agent_constraints`，并遵循以下核心原则。
 
-### 禁止操作（未经用户明确允许）
-- ❌ 修改任何 SKILL.md 文档
-- ❌ 修改项目代码文件
-- ❌ 删除或重命名现有文件
-- ❌ 修改 Git 配置
+### 核心原则：必须使用 CLI，禁止自己写代码
 
-### 允许操作
-- ✅ 向 [WARNINGS.md](references/warnings.md) 添加新的警告或提醒
-- ✅ 在 [user-references/](user-references/README.md) 中记录用户个性化设置和经验
-- ✅ 回答问题和提供建议
+优先使用项目提供的 CLI 脚本和模块，禁止自行编写生图、查询或数据处理代码：
 
-### ⚠️ 核心原则：必须使用 CLI，禁止自己写代码
+1. **生图用 `comfyui_draw.py`** — 禁止自己写 requests/aiohttp 调 ComfyUI API
+2. **查询用 `pretags_manager.py`** — 禁止自己解析 pretags JSON 文件
+3. **标签处理用 `tag_producer.py`** — 禁止自己拼装英文 tag
+4. **必须用 `--workflow` 指定工作流** — `anima`/`noob`/`zimage`，由 Agent 根据用户需求决定，不要依赖默认值
+5. **先扫描技能模块再行动** — 使用任何功能前先查看对应模块的 `SKILL.md`、`scripts/`、`assets/`，确认已有 CLI/API
 
-**Agent 使用本项目时，必须优先使用项目提供的 CLI 脚本和模块，禁止自行编写生图、查询或数据处理代码。**
-
-具体要求：
-
-1. **生图必须用 `comfyui_draw.py`** — 禁止自己写 requests/aiohttp 调 ComfyUI API，禁止复制 `test_anima.py` 的硬编码写法
-2. **查询必须用 `pretags_manager.py`** — 禁止自己解析 pretags JSON 文件
-3. **标签处理必须用 `tag_producer.py`** — 禁止自己拼装英文 tag
-4. **必须根据模型类型选择工作流** — 生图时必须通过 `--workflow` 参数指定工作流（`anima`/`noob`/`zimage`），由 Agent 根据用户需求决定使用哪个工作流，不要依赖默认值
-5. **先完整扫描技能模块再行动** — 使用任何功能前，必须先查看对应模块的 `SKILL.md`、`scripts/` 目录和 `assets/` 目录，确认已有的 CLI 和 API，不要跳过发现步骤直接动手
-
-> 如果发现现有 CLI 不满足需求，应先告知用户并讨论方案，而非自行编写代码。
+> 若现有 CLI 不满足需求，应先告知用户并讨论方案，而非自行编写代码。
 
 ### 绘图工作流约束
 
-**当用户要求生图时，必须遵循 pretags-draw 工作流**：
+生图必须遵循 pretags-draw 工作流：用户需求 → 中文指令 → `tag_producer` → `comfyui_draw.py`。
 
-1. **必须使用 tag_producer** - 不要跳过 tag_producer 直接构建英文 prompt
-2. **从 pretags 获取数据** - 角色信息、LoRA、画风等必须从 pretags 数据库查询
-3. **遵循标准流程** - 用户需求 → 中文指令 → tag_producer → comfyui_draw.py
-4. **根据模型调整提示词** - 必须根据使用的模型类型（Anima/SDXL/z-image）调整提示词格式
-
-> ⚠️ **tag_producer 完整调用规则（严格遵守）**
->
-> tag_producer 是一个**不可拆分的统一管线**：它同时完成 pretags 数据查询（角色/画风/LoRA 信息检索）和提示词生成（英文 tag + LoRA 格式拼接）。使用 pretags 相关功能获取提示词时，**必须走 tag_producer 的完整调用流程**，禁止以下两种行为：
->
-> - ❌ **只查询 pretags 数据不走 tag_producer 生成提示词** — 不要单独调用 pretags_manager.py search 获取角色信息后，自行拼接英文 prompt；必须将中文指令交给 tag_producer 一次性处理
-> - ❌ **只拼接提示词不经过 pretags 查询** — 不要跳过 tag_producer 直接用记忆或手动查询结果构建英文 prompt；tag_producer 会从 pretags 数据库实时检索最新数据
->
-> 正确做法：将完整中文指令传给 `python tag_producer.py "<中文指令>"`，由它统一完成数据查询 + 提示词生成，输出可直接传给 comfyui_draw.py 的完整 prompt。
+- **tag_producer 是不可拆分的统一管线**：同时完成 pretags 数据查询（角色/画风/LoRA）和提示词生成（英文 tag + LoRA 拼接）。将完整中文指令传给 `python tag_producer.py "<中文指令>"`，由它一次性输出可直接传给 `comfyui_draw.py` 的完整 prompt。
+- **禁止拆分调用**：不要单独 `pretags_manager.py search` 后自行拼英文 prompt，也不要跳过 pretags 查询凭记忆构建。
+- **根据模型调整提示词**：Anima/SDXL/z-image 格式不同，详见 [Pretags Draw 工作流](modules/pretags-draw/SKILL.md#根据模型类型调整提示词)。
 
 ### 角色和标签查询约束
 
-**当用户查询角色信息或标签时，必须使用两级查询系统**：
+使用两级查询系统，禁止凭记忆回答：
 
-#### 查询优先级（严格遵守）
-
-1. **Level 1: Pretags（优先）**
-   - 本地查询，极快
-   - 完整信息：LoRA、权重、中文名、外观、服装
-   - 工具：`pretags_manager.py search <角色名>`
-
-2. **Level 2: Danbooru（备选）**
-   - 仅当 Pretags 未找到时使用
-   - 基础信息：英文标签、分类
-   - 需要代理：`HTTPS_PROXY=http://127.0.0.1:7890`
-   - 工具：`danbooru.py character <角色名>`
-
-#### 禁止操作
-- ❌ 跳过 Pretags 直接查 Danbooru
-- ❌ 隐藏数据来源
-- ❌ 混淆信息完整度
-- ❌ 凭记忆回答
-
-详见：[Agent 使用指南](references/agent-guide.md)
+1. **Level 1: Pretags（优先）** — `pretags_manager.py search <角色名>`，本地查询，完整信息（LoRA、中文名、外观、服装）
+2. **Level 2: Danbooru（备选）** — 仅当 Pretags 未找到时使用，`danbooru.py character <角色名>`，需 `HTTPS_PROXY`
 
 #### 模型提示词格式差异
-
-根据模型类型选择提示词格式。详细规则和示例见：[Pretags Draw 工作流](modules/pretags-draw/SKILL.md#根据模型类型调整提示词)
 
 - **Anima (Flux)**: tag + 短句，画师加 `@`
 - **SDXL (Illustrious/Noob)**: 纯 Danbooru tag，画师不加 `@`
 - **z-image Turbo**: 自然语言，支持中文
+
+详见：[Agent 使用指南](references/agent-guide.md)
 
 ## 🎯 功能唤醒：意图 → 模块映射
 
@@ -158,60 +117,17 @@ python comfyui_draw.py "masterpiece, best quality, 1girl, smile" --workflow anim
 
 ## 📦 模块说明
 
-### 核心模块 (`modules/`)
-
-#### ComfyUI API
-ComfyUI 官方 API 封装，负责工作流执行和生命周期管理。
-
-**文档**: [comfyui-api/SKILL.md](modules/comfyui-api/SKILL.md)
-**环境变量**: `COMFYUI_HOST` (必需)
-
-#### Pretags Draw
-主绘图工作流，整合中文提示词引擎和 ComfyUI 生图。
-
-**文档**: [pretags-draw/SKILL.md](modules/pretags-draw/SKILL.md)
-**环境变量**: `COMFYUI_HOST` (必需)
-
-#### Tanger-Presets-Show
-Pretags 数据的 Web 可视化管理界面，支持卡片浏览、搜索、编辑。
-
-**文档**: [Tanger-Presets-Show/README.md](modules/Tanger-Presets-Show/README.md)
-**启动**: `cd modules/Tanger-Presets-Show && python3 server.py`
-
-#### Civitai API
-Civitai 模型搜索、下载、hash 查询和 Vault 管理。
-
-**文档**: [civitai-api/SKILL.md](modules/civitai-api/SKILL.md)
-**环境变量**: `CIVITAI_API_KEY` (可选)
-
-#### Danbooru Tag Scraper
-Danbooru 标签爬取工具，按类别批量获取标签构建词典。
-
-**文档**: [danbooru-tag-scraper/SKILL.md](modules/danbooru-tag-scraper/SKILL.md)
-**环境变量**: `HTTPS_PROXY` (必需)
-
-#### Prompt Inspiration
-打标数据灵感检索 + 图片自动打标工具，支持语义搜索和 VLM/WD 双引擎打标。
-
-**文档**: [prompt_inspiration/SKILL.md](modules/prompt_inspiration/SKILL.md)
-**环境变量**: `HTTPS_PROXY` (VLM/模型下载), `VLM_API_KEY` (VLM 调用)
-
-### 辅助工具 (`tools/`)
-
-#### 画风测试
-批量测试画风 LoRA 效果。
-
-**文档**: [artstyle-test/SKILL.md](tools/artstyle-test/SKILL.md)
-
-#### 批量导入
-Pretags 数据批量导入和修复工具。
-
-**文档**: [pretags-batch-import/SKILL.md](tools/pretags-batch-import/SKILL.md)
-
-#### ComfyUI 启动
-ComfyUI 启动脚本和环境管理。
-
-**文档**: [comfyui-startup/SKILL.md](tools/comfyui-startup/SKILL.md)
+| 模块 | 说明 | 文档 | 必需环境变量 |
+|------|------|------|-------------|
+| ComfyUI API | 官方 API 封装，工作流执行和生命周期管理 | [comfyui-api/SKILL.md](modules/comfyui-api/SKILL.md) | `COMFYUI_HOST` |
+| Pretags Draw | 主绘图工作流，整合中文提示词引擎和生图 | [pretags-draw/SKILL.md](modules/pretags-draw/SKILL.md) | `COMFYUI_HOST` |
+| Tanger-Presets-Show | Pretags 数据 Web 可视化管理界面 | [README.md](modules/Tanger-Presets-Show/README.md) | — |
+| Civitai API | 模型搜索、下载、hash 查询和 Vault 管理 | [civitai-api/SKILL.md](modules/civitai-api/SKILL.md) | `CIVITAI_API_KEY`（可选） |
+| Danbooru Tag Scraper | 按类别批量爬取标签构建词典 | [danbooru-tag-scraper/SKILL.md](modules/danbooru-tag-scraper/SKILL.md) | `HTTPS_PROXY` |
+| Prompt Inspiration | 打标数据灵感检索 + 图片自动打标 | [prompt_inspiration/SKILL.md](modules/prompt_inspiration/SKILL.md) | `HTTPS_PROXY`、`VLM_API_KEY` |
+| 画风测试 | 批量测试画风 LoRA 效果 | [artstyle-test/SKILL.md](tools/artstyle-test/SKILL.md) | — |
+| 批量导入 | Pretags 数据批量导入和修复 | [pretags-batch-import/SKILL.md](tools/pretags-batch-import/SKILL.md) | — |
+| ComfyUI 启动 | 启动脚本和环境管理 | [comfyui-startup/SKILL.md](tools/comfyui-startup/SKILL.md) | — |
 
 ## ⚙️ 环境配置
 
@@ -336,19 +252,6 @@ python civitai.py download <model_id>
 详见：[数据文件管理指南](references/data-management.md)
 
 ## 📚 文档索引
-
-### 模块文档
-- [ComfyUI API](modules/comfyui-api/SKILL.md)
-- [Pretags Draw](modules/pretags-draw/SKILL.md)
-- [Civitai API](modules/civitai-api/SKILL.md)
-- [Danbooru Tag Scraper](modules/danbooru-tag-scraper/SKILL.md)
-- [Prompt Inspiration](modules/prompt_inspiration/SKILL.md)
-- [Tanger-Presets-Show](modules/Tanger-Presets-Show/README.md)
-
-### 工具文档
-- [画风测试](tools/artstyle-test/SKILL.md)
-- [批量导入](tools/pretags-batch-import/SKILL.md)
-- [ComfyUI 启动](tools/comfyui-startup/SKILL.md)
 
 ### 参考文档
 - [警告和注意事项](references/warnings.md)

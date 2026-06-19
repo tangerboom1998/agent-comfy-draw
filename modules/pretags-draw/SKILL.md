@@ -94,47 +94,33 @@ white_dress, standing, moonlight, castle
 
 ### 模型识别方法
 
-Agent 应通过以下方式识别模型类型：
+通过工作流文件名、pretags 数据文件名或用户明确指定识别模型类型：
 
-1. **查看工作流文件名**：
-   - `anima-*.json` → Anima (Flux)
-   - `*noob*.json` 或 `*ill*.json` → SDXL
-   - `z_image*.json` → z-image Turbo
-
-2. **查看 pretags 数据文件**：
-   - `pretags-anima.json` → Anima
-   - `pretags-ill-noob.json` → SDXL
-
-3. **用户明确指定**：
-   - 用户说"用 Anima 画" → Anima
-   - 用户说"用 Noob 画" → SDXL
+| 识别信号 | 模型类型 |
+|---------|---------|
+| `anima-*.json` / `pretags-anima.json` / 用户说"Anima" | Anima (Flux) |
+| `*noob*.json` 或 `*ill*.json` / `pretags-ill-noob.json` / 用户说"Noob" | SDXL |
+| `z_image*.json` / 用户说"z-image" | z-image Turbo |
 
 ### 禁止的操作
 
 - ❌ **跳过 tag_producer** - 不要直接构建英文 prompt，必须通过 tag_producer 查询 pretags
-- ❌ **手动编写 LoRA** - 不要手动写 `<lora:xxx>`，必须从 pretags 数据获取。LoRA 格式见下方规范
+- ❌ **手动编写 LoRA** - 不要手动写 `<lora:xxx>`，必须从 pretags 数据获取。格式见下方规范
 - ❌ **忽略用户需求** - 不要省略用户指定的画风、动作、场景
 - ❌ **猜测角色信息** - 角色不在 pretags 中时，应提示用户而非猜测
 - ❌ **忽略模型特性** - 不要对所有模型使用相同格式的提示词
-- ❌ **凭记忆回答查询** - 查询角色信息时必须调用查询工具，不要凭记忆
+- ❌ **凭记忆回答查询** - 查询角色信息时必须调用查询工具
 
-### ⚠️ tag_producer 完整调用规则（严格遵守）
+### ⚠️ tag_producer 完整调用规则
 
-tag_producer 是一个**不可拆分的统一管线**：它同时完成 pretags 数据查询（角色/画风/LoRA 信息检索）和提示词生成（英文 tag + LoRA 格式拼接）。
-
-**使用 pretags 相关功能获取提示词时，必须走 tag_producer 的完整调用流程**，即：
+tag_producer 是**不可拆分的统一管线**，同时完成 pretags 数据查询（角色/画风/LoRA）和提示词生成（英文 tag + LoRA 拼接）：
 
 ```bash
 python modules/pretags-draw/scripts/tag_producer.py "<完整中文指令>"
 # → 输出可直接传给 comfyui_draw.py 的完整 prompt（含 LoRA）
 ```
 
-**禁止拆分调用，以下两种行为都是错误的**：
-
-- ❌ **只查询 pretags 不生成提示词** — 单独调用 `pretags_manager.py search` 获取角色信息后自行拼英文 prompt。角色信息、LoRA、画风 tag 必须由 tag_producer 从 pretags 数据库统一检索并拼接
-- ❌ **只拼接提示词不经过 pretags 查询** — 跳过 tag_producer，凭记忆或手动查询结果直接构建英文 prompt。tag_producer 会实时查询最新 pretags 数据，手动构建容易遗漏或过时
-
-**正确流程**：Agent 构建完整中文指令 → 传给 tag_producer → tag_producer 一次性完成数据查询 + 提示词生成 → 输出完整 prompt → 传给 comfyui_draw.py 生图
+禁止拆分调用：不要单独 `pretags_manager.py search` 后自行拼英文 prompt，也不要跳过 pretags 查询凭记忆构建。正确流程：构建完整中文指令 → 传给 tag_producer → 一次性完成数据查询 + 提示词生成 → 传给 comfyui_draw.py 生图。
 
 ### 📌 LoRA 格式规范
 
@@ -161,35 +147,18 @@ python modules/pretags-draw/scripts/tag_producer.py "<完整中文指令>"
 
 ### 角色和标签查询
 
-**当用户查询角色或标签信息时，使用两级查询系统**：
+使用两级查询系统，先 Pretags（本地，完整信息）后 Danbooru（备选，需代理）：
 
-#### 查询流程
+```bash
+# Level 1: Pretags（优先）
+python modules/pretags-draw/scripts/pretags_manager.py search "折枝"
 
-1. **Level 1: 查询 Pretags（优先）**：
-   ```bash
-   python modules/pretags-draw/scripts/pretags_manager.py search "折枝"
-   ```
-   - 找到 → 返回完整信息（LoRA、权重、外观、服装）
-   - 未找到 → 继续 Level 2
+# Level 2: Danbooru（仅当 Pretags 未找到）
+export HTTPS_PROXY=http://127.0.0.1:7890
+python modules/danbooru-tag-scraper/scripts/danbooru.py character "zhezhi"
+```
 
-2. **Level 2: 查询 Danbooru（备选）**：
-   ```bash
-   export HTTPS_PROXY=http://127.0.0.1:7890
-   python modules/danbooru-tag-scraper/scripts/danbooru.py character "zhezhi"
-   ```
-   - 找到 → 返回基础信息（英文标签，无 LoRA）
-   - 未找到 → 告知用户并提供建议
-
-#### 处理规则
-
-- ✅ **严格按优先级** - 先 Pretags，后 Danbooru
-- ✅ **标注数据源** - 明确来自哪个数据源
-- ✅ **区分完整度** - Pretags 完整，Danbooru 基础
-- ✅ **提供建议** - Danbooru 数据建议添加到 Pretags
-
-详见：
-- [Agent 使用指南](../../references/agent-guide.md)
-- [Danbooru Tag Scraper](../danbooru-tag-scraper/SKILL.md)
+处理规则：严格按优先级、标注数据源、区分完整度（Pretags 完整 / Danbooru 基础）。详见 [Agent 使用指南](../../references/agent-guide.md) 和 [Danbooru Tag Scraper](../danbooru-tag-scraper/SKILL.md)。
 
 ## 🚀 快速开始
 

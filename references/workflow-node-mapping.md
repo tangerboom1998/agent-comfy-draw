@@ -152,9 +152,9 @@ cat workflow.json | jq '.[] | select(.class_type=="CLIPTextEncode")'
 
 ## 📚 相关文档
 
-- [工作流架构详解](workflow-architecture.md)
 - [ComfyUI API 参考](../modules/comfyui-api/references/rest-api.md)
 - [故障排除](comfyui-pitfalls.md)
+- [模型提示词对比](model-prompt-comparison.md)
 
 ---
 

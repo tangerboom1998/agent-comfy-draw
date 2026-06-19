@@ -101,26 +101,20 @@ python modules/danbooru-tag-scraper/scripts/danbooru.py tags --pattern "*_hair" 
 
 ## 二、绘图工作流
 
-### 执行路径
+绘图工作流完整规则见 [Pretags Draw](../modules/pretags-draw/SKILL.md)。核心路径：
 
 ```
-用户需求 → Agent 识别意图 → 构建中文指令 → tag_producer → 生成英文 prompt + LoRA
-→ comfyui_draw.py 生图 → 返回图片
+用户需求 → 构建中文指令 → tag_producer → 生成英文 prompt + LoRA → comfyui_draw.py 生图
 ```
 
-### Step 1: 构建中文指令
-
-格式：`<角色名> [服装] [外貌] [权重] [动作/类别/画师...]`
-
-示例：`"折枝 服装 外貌 0.9 动作 坐着 画风 2d润彩 0.7 撸串 4"`
-
-### Step 2: 调用 tag_producer
+中文指令格式：`<角色名> [服装] [外貌] [权重] [动作/类别/画师...]`，示例 `"折枝 服装 外貌 0.9 动作 坐着 画风 2d润彩 0.7 撸串 4"`。
 
 ```bash
 python modules/pretags-draw/scripts/tag_producer.py "折枝 服装 外貌 0.9 动作 坐着 画风 2d润彩 0.7 撸串 4"
+# → 输出含 LoRA 的完整 prompt，直接传给 comfyui_draw.py
 ```
 
-输出示例：
+tag_producer 输出示例：
 ```
 masterpiece, best quality, solo,
 <lora:zhezhi-anima:0.9:0.9>,
@@ -130,21 +124,7 @@ sitting, on chair,
 wlop, ask, fu_mi, sakimichan
 ```
 
-### Step 3: Agent 优化（如有中文残留）
-
-- 翻译中文为英文
-- 按层级重组标签
-- 执行质量检查：零中文、画质前缀、主体明确、服装/表情/姿势描述、权重合理
-
-### Step 4: 生图
-
-```bash
-python modules/pretags-draw/scripts/comfyui_draw.py \
-  "masterpiece, best quality, solo, <lora:zhezhi-anima:0.9:0.9>, zhezhi, 1girl, ..." \
-  --canvas 竖图 --steps 28 --cfg 5.5
-```
-
-输出：`output/CCUI_YYYYMMDD_HHMMSS.png`
+如有中文残留，Agent 翻译为英文并按层级重组，执行质量检查（零中文、画质前缀、主体/服装/表情/姿势描述、权重合理）。
 
 ### 模型提示词差异
 
@@ -154,24 +134,14 @@ python modules/pretags-draw/scripts/comfyui_draw.py \
 | **SDXL (Illustrious/Noob)** | 纯 tag 最佳 | 不加 @：`wlop` | 仅英文 |
 | **z-image Turbo** | 自然语言 | — | 中英文均可 |
 
-### LoRA 格式
-
-`<lora:LoRA文件名:unet权重:text权重(可选)>` — 文件名不带 `.safetensors` 扩展名
+LoRA 格式：`<lora:LoRA文件名:unet权重:text权重(可选)>`，文件名不带 `.safetensors`。详见 [模型提示词对比](model-prompt-comparison.md)。
 
 ---
 
 ## 三、Agent 约束总结
 
-### 必须遵守
-- 使用查询工具获取实时数据，不凭记忆回答
-- 查询优先级：Pretags → Danbooru，不得跳过
-- 标注数据来源和信息完整度
-- 生图必须使用 tag_producer，不得跳过直接构建 prompt
-- 根据模型类型（Anima/SDXL/z-image）调整提示词格式
+Agent 行为约束见根 [SKILL.md](../SKILL.md) 的 frontmatter `agent_constraints`。本指南聚焦查询与绘图的关键纪律：
 
-### 禁止操作
-- ❌ 跳过 Pretags 直接查 Danbooru
-- ❌ 隐藏数据来源或混淆信息完整度
-- ❌ 凭记忆回答 / 编造信息
-- ❌ 跳过 tag_producer 直接构建英文 prompt
-- ❌ **拆分 tag_producer 调用** — tag_producer 是不可拆分的统一管线，同时完成 pretags 数据查询和提示词生成。禁止只查询 pretags 数据（如单独调用 pretags_manager.py search）后自行拼接英文 prompt，也禁止只拼接提示词而不经过 pretags 查询。必须将完整中文指令交给 tag_producer 一次性处理
+- 查询优先级：Pretags → Danbooru，不得跳过，必须标注数据来源和信息完整度
+- 不得凭记忆回答，必须调用工具
+- 生图必须使用 tag_producer 统一管线，不得跳过或拆分调用（不单独 `pretags_manager.py search` 后自行拼 prompt，也不跳过 pretags 查询凭记忆构建）

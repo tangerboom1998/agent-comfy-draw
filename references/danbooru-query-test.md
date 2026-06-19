@@ -161,12 +161,9 @@ python danbooru.py tag-info --tag "blonde_hair"
 
 ## 🔗 相关文档
 
-- [两级查询方案](agent-guide.md)
+- [Agent 使用指南（两级查询方案）](agent-guide.md)
 - [Danbooru Tag Scraper SKILL](../modules/danbooru-tag-scraper/SKILL.md)
-- [Agent 使用指南](agent-guide.md)
 
 ---
 
-**测试人员**: Claude Code
 **测试状态**: ✅ 通过
-**下一步**: 在 Agent 工作流中实现两级查询

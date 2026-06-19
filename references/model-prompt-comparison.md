@@ -406,7 +406,7 @@ white_dress, standing, moonlight, night, castle
 - [z-image 工作流](./z-image-guide.md)
 - [工作流节点映射](./workflow-node-mapping.md)
 - [Pretags Draw](../modules/pretags-draw/SKILL.md)
-- [Agent 工作流指南](../AGENT_WORKFLOW_GUIDE.md)
+- [Agent 使用指南](./agent-guide.md)
 
 ---
 

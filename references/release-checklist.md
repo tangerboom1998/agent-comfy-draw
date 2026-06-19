@@ -24,14 +24,14 @@ python --version  # 需要 3.8+
 - [ ] 验证 `PRETAGS_DATA_PATH` 配置正确，pretags 数据文件可访问
 - [ ] 确认数据使用 ID-key 结构（2026-05-20 后）
 - [ ] 检查预览图目录：
-  - `Tanger-Presets-Show/imgs/characters/`
-  - `Tanger-Presets-Show/imgs/tags/`
+  - `modules/Tanger-Presets-Show/imgs/characters/`
+  - `modules/Tanger-Presets-Show/imgs/tags/`
 
 ### 4. 服务启动测试
 
 ```bash
 # 启动 Tanger-Presets-Show 管理界面
-cd Tanger-Presets-Show
+cd modules/Tanger-Presets-Show
 python server.py
 
 # 访问 http://localhost:8765
@@ -55,7 +55,7 @@ python server.py
 
 #### ComfyUI API
 ```bash
-cd comfyui-api
+cd modules/comfyui-api
 # 测试连接
 curl http://127.0.0.1:8188/system_stats
 ```
@@ -249,12 +249,12 @@ cd comfyui-draw
 
 ## 🔗 相关资源
 
-- **项目文档**：[`README.md`](README.md)
-- **技能文档**：[`SKILL.md`](SKILL.md)
-- **环境配置**：[`.env.example`](.env.example)
-- **ComfyUI 文档**：[`comfyui-api/SKILL.md`](modules/comfyui-api/SKILL.md)
-- **Civitai 文档**：[`civitai-api/SKILL.md`](modules/civitai-api/SKILL.md)
-- **绘图工作流**：[`pretags-draw/SKILL.md`](modules/pretags-draw/SKILL.md)
+- **项目文档**：[`README.md`](../README.md)
+- **技能文档**：[`SKILL.md`](../SKILL.md)
+- **环境配置**：[`.env.example`](../.env.example)
+- **ComfyUI 文档**：[`comfyui-api/SKILL.md`](../modules/comfyui-api/SKILL.md)
+- **Civitai 文档**：[`civitai-api/SKILL.md`](../modules/civitai-api/SKILL.md)
+- **绘图工作流**：[`pretags-draw/SKILL.md`](../modules/pretags-draw/SKILL.md)
 
 ## ✅ 发布确认
 
