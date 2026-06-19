@@ -115,6 +115,9 @@ docs/_build/
 # VSCode 工作区文件
 *.code-workspace
 
+# 用户个性化参考目录（存放个人偏好、模板、经验，不受版本控制）
+user-references/
+
 # pytest 缓存
 .pytest_cache/
 scripts/upload_modelscope.py

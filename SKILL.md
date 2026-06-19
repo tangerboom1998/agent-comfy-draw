@@ -152,6 +152,29 @@ agent_constraints:
 - [模型提示词对比](references/model-prompt-comparison.md)
 - **LoRA 格式规范**：`<lora:LoRA文件名:unet权重:text权重(可选)>`，如 `<lora:jijia-anima-Tanger:0.8>` 或 `<lora:jijia-anima-Tanger:0.8:0.8>`。文件名不带 `.safetensors` 扩展名和目录路径
 
+## 🎯 功能唤醒：意图 → 模块映射
+
+**当用户表达以下意图时，Agent 必须按"模块"列路由到对应模块执行，禁止自行实现。**
+
+| 用户意图 | 模块 | 入口 CLI / 工具 | 说明 |
+|---------|------|----------------|------|
+| 画图 / 生图 / 生成图片 | `modules/pretags-draw` | `comfyui_draw.py --workflow <类型>` | 必须通过 `--workflow` 指定工作流 |
+| roll 提示词 / 随机画师 / 撸串 | `modules/pretags-draw` | `tag_producer.py "撸串 4"` | 画师随机抽取 + pretags 预设标签组合 |
+| 用中文描述生图 / 角色+动作+画风 | `modules/pretags-draw` | `tag_producer.py "角色 服装 外貌 动作 画风 撸串 N"` | 中文指令 → 英文 tag + LoRA 完整 prompt |
+| 查角色信息 / 查标签 | `modules/pretags-draw` | `pretags_manager.py search "关键词"` | 优先 Pretags，未命中转 Danbooru |
+| 找某个角色的提示词 | `modules/pretags-draw` → `modules/danbooru-tag-scraper` | `pretags_manager.py search` → `danbooru.py character` | 两级查询：先 Pretags，未找到转 Danbooru |
+| 画图找找灵感 / 参考图打标 | `modules/prompt_inspiration` | `prompt_inspiration search` / `prompt_inspiration tag` | 语义搜索打标库 / 图片自动打标 |
+| 解析图像提取提示词 | `modules/prompt_inspiration` | `prompt_inspiration inspect <图片>` | 优先从元数据提取，无元数据回退视觉分析 |
+| 管理 Pretags 数据 / 编辑角色标签 | `modules/pretags-draw` + Tanger-Presets-Show | `pretags_manager.py` + `server.py` | CLI 增删改查 + Web 可视化编辑 |
+| 构筑 / 编辑 ComfyUI 工作流 | `modules/comfyui-api` | `extract_schema.py` / `run_workflow.py` | 工作流 Schema 提取和执行 |
+| 下载模型 / 从 Civitai 获取 | `modules/civitai-api` | `civitai.py search` / `civitai.py download` | 模型搜索、下载、hash 查询 |
+| 搜索模型 / 找模型 | `modules/civitai-api` | `civitai.py search "关键词"` | 按名称/类型搜索 Civitai 模型 |
+| 画风测试 / 批量测试画风 | `tools/artstyle-test` | `artstyle_test.py [画风名]` | 多维测试 + 视觉分析 + 描述生成 |
+| 批量导入 / 导入 Pretags 数据 | `tools/pretags-batch-import` | 批量导入脚本 | Excel/JSON 数据批量导入 |
+| 启动 ComfyUI | `tools/comfyui-startup` | 启动脚本 | ComfyUI 服务启动和环境管理 |
+
+> **路由原则**：Agent 识别到上述意图后，先读取对应模块的 `SKILL.md`，再按其 CLI 规范执行。禁止跳过模块直接自行编码。
+
 ## 🚀 快速开始
 
 ```bash
@@ -388,6 +411,30 @@ python civitai.py download <model_id>
 - [ComfyUI 常见问题](references/comfyui-pitfalls.md)
 - [环境配置](references/environment-setup.md)
 - [发布检查清单](references/release-checklist.md)
+
+### 用户个性化参考 (`user-references/`)
+
+**该目录用于存放用户个性化的设置、模板和经验记录，不受 Git 版本控制。**
+
+Agent 在处理用户请求时，应优先检查此目录中的个性化配置。
+
+**结构**：
+```
+user-references/
+├── README.md                # 索引文件（列出所有用户文档）
+├── user-preferences.md      # 用户偏好设置（常用画风、默认参数等）
+├── prompt-templates.md      # 用户自定义提示词模板
+├── workflow-notes.md        # 工作流调优经验
+└── character-favorites.md   # 常用角色速查
+```
+
+**使用规则**：
+- ✅ Agent 可读取并遵循用户的个性化配置
+- ✅ Agent 可根据用户要求新增或修改此目录中的文档
+- ✅ 此目录已在 `.gitignore` 中排除，不会影响仓库
+- ❌ Agent 不应主动删除用户的个性化文档
+
+详见：[user-references/README.md](user-references/README.md)
 
 ## 📄 许可证
 
