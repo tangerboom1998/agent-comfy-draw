@@ -55,11 +55,12 @@ def safe_str(v):
         return ""
     return str(v)
 
-def main():
-    out_path = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_OUT
+def main(out_path=None, pretags_path=None):
+    out_path = out_path or DEFAULT_OUT
+    pretags_path = pretags_path or PRETAGS
     os.makedirs(os.path.dirname(out_path) or ".", exist_ok=True)
 
-    with open(PRETAGS, "r", encoding="utf-8") as f:
+    with open(pretags_path, "r", encoding="utf-8") as f:
         data = json.load(f)
 
     wb = openpyxl.Workbook()
@@ -223,4 +224,9 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    _p = argparse.ArgumentParser(description="Export pretags.json to multi-sheet Excel (current schema).")
+    _p.add_argument("output", nargs="?", default=None, help="输出 xlsx 路径（默认 tmp/pretags_full_export.xlsx）")
+    _p.add_argument("--pretags", "-p", default=None, help="pretags JSON 路径（默认项目根 pretags.json）")
+    _a = _p.parse_args()
+    main(out_path=_a.output, pretags_path=_a.pretags)

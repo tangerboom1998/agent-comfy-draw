@@ -20,12 +20,17 @@ Pretags 数据批量导入工具，从 Civitai 下载模型元数据并规范化
 export CIVITAI_API_KEY=your_api_key
 export LORA_MODEL_DIR=/path/to/loras
 
-# 批量导入角色数据
-cd tools/pretags-batch-import/scripts
-python batch_import.py --type character --start 0 --limit 10
+# 从 Excel 合并导入角色/标签到 pretags（真实 CLI）
+cd modules/pretags-draw/scripts
+python pretags_merge_excel.py path/to/characters.xlsx --pretags ./pretags/pretags-anima.json
 
-# 修复 LoRA 字段格式
-python fix_pretags_lora.py
+# 先试运行查看变更，不写盘
+python pretags_merge_excel.py characters.xlsx --dry-run
+
+# 修复 LoRA 字段格式（扫描磁盘文件对齐 model file name）
+cd tools/pretags-batch-import/scripts
+python fix_pretags_lora.py            # 直接修复并自动备份
+python fix_pretags_lora.py --check    # 仅检查不写盘
 ```
 
 ## 🎯 核心功能
@@ -54,32 +59,37 @@ python fix_pretags_lora.py
 
 ## 📖 使用示例
 
-### 场景 1: 批量导入角色
+### 场景 1: 从 Excel 导入角色
 
 ```bash
-cd tools/pretags-batch-import/scripts
+cd modules/pretags-draw/scripts
+# 准备 Excel 文件（包含角色名、来源、LoRA 信息），合并到 pretags
+python pretags_merge_excel.py characters.xlsx --pretags ./pretags/pretags-anima.json
 
-# 导入前 10 个角色
-python batch_import.py --type character --start 0 --limit 10
-
-# 导入指定范围
-python batch_import.py --type character --start 10 --limit 20
+# 先试运行
+python pretags_merge_excel.py characters.xlsx --dry-run
 ```
 
-### 场景 2: 从 Excel 导入
+### 场景 2: 从 Civitai 发现并下载模型
+
+批量发现 → 下载 → 标签拆分 → 写入 pretags 的完整管线见 [Civitai API](../../modules/civitai-api/SKILL.md#batch-model-import-pipeline)。
 
 ```bash
-# 准备 Excel 文件（包含角色名、来源、LoRA 信息）
-# 运行导入脚本
-python import_from_excel.py --file characters.xlsx
+cd modules/civitai-api/scripts
+# 扫描作者最新模型
+python civitai.py models --username <creator> --sort "Newest" --nsfw true --limit 15
+# 下载到对应分类目录
+python civitai.py download-model <id> -o "$LORA_MODEL_DIR/人物/<name>.safetensors"
 ```
 
 ### 场景 3: 修复 LoRA 格式
 
 ```bash
-# 检查并修复所有 LoRA 字段格式
+cd tools/pretags-batch-import/scripts
+# 仅检查，列出磁盘缺失/不一致的条目
 python fix_pretags_lora.py --check
-python fix_pretags_lora.py --fix
+# 检查并修复（自动备份原文件）
+python fix_pretags_lora.py
 ```
 
 ## 🔧 处理流程

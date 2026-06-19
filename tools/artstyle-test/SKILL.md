@@ -23,13 +23,16 @@ metadata:
 # 设置环境变量
 export COMFYUI_HOST=http://127.0.0.1:8188
 
-# 测试单个画风
-cd tools/artstyle-test/scripts
-python artstyle_test.py --name "2d润彩" --lora "jijia-gnoobv-000014"
+# 测试单个画风（画风名作为位置参数）
+cd modules/pretags-draw/scripts
+python artstyle_test.py "2d润彩"
 
-# 批量测试多个画风
+# 批量测试前 15 个未描述的画风
+cd tools/artstyle-test/scripts
 python artstyle_rerun.py --start 0 --limit 15
 ```
+
+> `artstyle_test.py` 位于 `modules/pretags-draw/scripts/`（生图依赖 pretags-draw）。`artstyle_rerun.py` 位于 `tools/artstyle-test/scripts/`，负责批量调度。
 
 ## 🎯 核心功能
 
@@ -60,16 +63,15 @@ python artstyle_rerun.py --start 0 --limit 15
 ### 场景 1: 测试单个画风
 
 ```bash
-# 生成测试图
-BASE_PROMPT="1girl, solo, long hair, blue eyes, white dress"
-LORA="<lora:jijia-gnoobv-000014:0.8:0.8>"
+cd modules/pretags-draw/scripts
+# 直接指定画风名，脚本自动生成测试图并分析
+python artstyle_test.py "2d润彩"
 
-python modules/pretags-draw/scripts/comfyui_draw.py \
-  "${BASE_PROMPT}, ${LORA}" \
-  --canvas 竖图 --steps 28 --cfg 5.5
+# 限制测试数量
+python artstyle_test.py --limit 3
 ```
 
-生成后，使用 Vision 分析画风特征并更新描述。
+`artstyle_test.py` 内部用固定 base prompt + 画风 LoRA 生成测试图，再调用 Vision 分析画风特征并写入 pretags.json。
 
 ### 场景 2: 批量测试画风
 

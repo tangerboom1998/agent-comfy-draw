@@ -28,12 +28,13 @@ Agent 使用本项目时的查询、绘图和响应规范。
 
 **pretags_manager.py**（主查询工具）：
 ```bash
-# 搜索角色
+# 列出所有类别
+python modules/pretags-draw/scripts/pretags_manager.py list
+# 搜索角色/标签（可选指定类别）
 python modules/pretags-draw/scripts/pretags_manager.py search "折枝"
-# 角色详情
-python modules/pretags-draw/scripts/pretags_manager.py info "折枝"
-# 搜索标签
-python modules/pretags-draw/scripts/pretags_manager.py search "坐着"
+python modules/pretags-draw/scripts/pretags_manager.py search "坐着" 服装
+# 查看条目详情（需 <类别> <条目名>）
+python modules/pretags-draw/scripts/pretags_manager.py info 人物 "折枝"
 # 统计信息
 python modules/pretags-draw/scripts/pretags_manager.py stats
 ```

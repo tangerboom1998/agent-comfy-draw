@@ -37,9 +37,9 @@
 cd modules/Tanger-Presets-Show
 python3 server.py
 
-# 或使用批量导入工具
-cd tools/pretags-batch-import
-python import_from_excel.py
+# 或使用 Excel 合并导入工具
+cd modules/pretags-draw/scripts
+python pretags_merge_excel.py ../../pretags/your_chars.xlsx --pretags ../../pretags/pretags-anima.json
 ```
 
 **从示例同步新数据**：

@@ -20,13 +20,12 @@
 
 **示例**:
 ```bash
-# 生成测试图
-python comfyui_draw.py "1girl, solo, white dress, standing" \
-  --lora "<lora:style_name:0.8:0.8>" --canvas 竖图
+cd modules/pretags-draw/scripts
+# 指定画风名，脚本自动生成测试图 + Vision 分析 + 写入 pretags 描述
+python artstyle_test.py "style_name"
 
-# 分析后写入描述
-python update_style_description.py "style_name" \
-  "厚涂赛璐璐混合风，线条粗犷有力，色彩饱和度高"
+# 限制本次测试数量
+python artstyle_test.py --limit 5
 ```
 
 ### 场景 2: 批量测试

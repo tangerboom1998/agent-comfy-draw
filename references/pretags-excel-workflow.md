@@ -19,9 +19,11 @@ Pretags 数据与 Excel 文件之间的转换流程。
 
 **示例**:
 ```bash
-python export_to_excel.py \
-  --input pretags/pretags-anima.json \
-  --output pretags_anima.xlsx
+cd modules/pretags-draw/scripts
+# 导出全部类别到多 sheet Excel（默认输出 tmp/pretags_full_export.xlsx）
+python pretags_export_all.py
+# 指定输出路径
+python pretags_export_all.py /tmp/pretags_anima.xlsx
 ```
 
 ### 场景 2: 从 Excel 导入
@@ -34,9 +36,11 @@ python export_to_excel.py \
 
 **示例**:
 ```bash
-python import_from_excel.py \
-  --input pretags_anima.xlsx \
-  --output pretags/pretags-anima.json
+cd modules/pretags-draw/scripts
+python pretags_merge_excel.py pretags_anima.xlsx \
+  --pretags ../../pretags/pretags-anima.json
+# 先试运行查看变更，不写盘
+python pretags_merge_excel.py pretags_anima.xlsx --dry-run
 ```
 
 ### 场景 3: 批量修改
