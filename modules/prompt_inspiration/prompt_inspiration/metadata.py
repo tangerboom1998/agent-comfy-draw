@@ -190,6 +190,118 @@ def _parse_lora_strings(text: str) -> List[str]:
     return loras
 
 
+# ComfyUI 节点类型丰富，正向/负向提示词可能存在于多种节点。
+# 除标准 CLIPTextEncode 外，fexli-util-node-comfyui 的 FETextInput 用 input 字段存文本，
+# 且常作为正向词源头被 CLIPTextEncode 引用。下面是常见的文本承载节点候选集。
+_TEXT_NODE_TYPES = {
+    "CLIPTextEncode",
+    "CLIPTextEncodeSDXL",
+    "CLIPTextEncodeSDXLRefiner",
+    "T5TextEncode",
+    "CLIPEncodeForDit",
+    "FETextInput",          # fexli-util: 正向词常存于此节点的 input 字段
+    "SeedablePromptNode",   # rgthree / 其他插件
+    "PromptAlert",
+    "TextEncodeTokenizer",
+}
+
+# 文本字段候选名（不同节点把提示词放在不同字段）
+_TEXT_FIELDS = ("text", "input", "string", "value", "prompt_text", "positive", "negative")
+
+# 可能承载提示词的采样器节点（含 Advanced 变体）
+_SAMPLER_NODE_TYPES = {"KSampler", "KSamplerAdvanced", "KSamplerSelect"}
+
+
+def _is_node_ref(value) -> bool:
+    """ComfyUI 节点引用形如 ["node_id", output_index]。"""
+    return (
+        isinstance(value, list)
+        and len(value) == 2
+        and isinstance(value[0], str)
+        and str(value[0]).isdigit()
+        and isinstance(value[1], int)
+    )
+
+
+def _resolve_text(value, data: dict, _seen: set, _depth: int = 0) -> str:
+    """把节点输入字段值解析为实际文本字符串。
+
+    - 字符串直接返回
+    - 节点引用 ["id", idx] 递归追溯到被引用节点的文本字段
+    - 列表/字典等无法解析的值返回空串（绝不抛错，避免 join 崩溃）
+
+    设有递归深度与已访问集合保护，防止循环引用。
+    """
+    if _depth > 8 or not value:
+        return ""
+    if isinstance(value, str):
+        return value
+    if _is_node_ref(value):
+        node_id = value[0]
+        if node_id in _seen:
+            return ""
+        _seen.add(node_id)
+        node = data.get(node_id)
+        if not isinstance(node, dict):
+            return ""
+        cls = node.get("class_type", "")
+        inputs = node.get("inputs", {}) if isinstance(node.get("inputs"), dict) else {}
+        # 文本节点：取文本字段
+        if cls in _TEXT_NODE_TYPES:
+            for fld in _TEXT_FIELDS:
+                if fld in inputs:
+                    resolved = _resolve_text(inputs[fld], data, _seen, _depth + 1)
+                    if resolved:
+                        return resolved
+        # 非文本节点（如 FEEncLoraAutoLoader）：尝试其 prompt/text/input 等引用字段继续追溯
+        for fld in ("prompt", "text", "input", "string", "value"):
+            if fld in inputs:
+                resolved = _resolve_text(inputs[fld], data, _seen, _depth + 1)
+                if resolved:
+                    return resolved
+        return ""
+    # 其它类型（int/float/dict/非引用 list）一律视为非文本
+    return ""
+
+
+def _collect_text_nodes(data: dict) -> list:
+    """收集承载文本的节点：(node_id_str, cls, resolved_text, is_native)。
+
+    - is_native=True：节点文本字段是原生字符串（如 CLIPTextEncode 直接写 text、
+      FETextInput 直接写 input）
+    - is_native=False：节点文本字段是节点引用，文本是追溯得到的（如 CLIPTextEncode
+      的 text=["39",2] 指向 FETextInput）
+
+    归类时优先用原生节点；引用节点若其解析文本与某原生节点重复则后续去重。
+    统一使用字符串 node_id 作为 key，与 KSampler 引用 ref[0]（字符串）保持一致。
+    """
+    results = []
+    for node_id, node in data.items():
+        if not isinstance(node, dict):
+            continue
+        cls = node.get("class_type", "")
+        if cls not in _TEXT_NODE_TYPES:
+            continue
+        inputs = node.get("inputs", {})
+        if not isinstance(inputs, dict):
+            continue
+        for fld in _TEXT_FIELDS:
+            if fld not in inputs:
+                continue
+            raw = inputs[fld]
+            is_native = isinstance(raw, str)
+            if is_native:
+                if raw:
+                    results.append((str(node_id), cls, raw, True))
+                    break
+            else:
+                resolved = _resolve_text(raw, data, {str(node_id)})
+                if resolved:
+                    results.append((str(node_id), cls, resolved, False))
+                    break
+    return results
+
+
 def _parse_comfyui_prompt(prompt_json: str) -> ImageMetadata:
     """Parse ComfyUI prompt JSON (tEXt 'prompt' chunk)."""
     meta = ImageMetadata(source="comfyui")
@@ -201,50 +313,72 @@ def _parse_comfyui_prompt(prompt_json: str) -> ImageMetadata:
 
     k_sampler_nodes = []
     model_names = []
-    clip_texts = []
 
     for node_id, node in data.items():
         cls = node.get("class_type", "")
         inputs = node.get("inputs", {})
 
-        if cls == "KSampler":
+        if cls in _SAMPLER_NODE_TYPES:
             k_sampler_nodes.append(node)
-            meta.steps = inputs.get("steps", meta.steps)
-            meta.cfg = inputs.get("cfg", meta.cfg)
-            meta.seed = inputs.get("seed", meta.seed)
-            meta.sampler = inputs.get("sampler_name", meta.sampler)
-            meta.scheduler = inputs.get("scheduler", meta.scheduler)
-            meta.denoise = inputs.get("denoise", meta.denoise)
+            if cls == "KSampler":
+                meta.steps = inputs.get("steps", meta.steps)
+                meta.cfg = inputs.get("cfg", meta.cfg)
+                meta.seed = inputs.get("seed", meta.seed)
+                meta.sampler = inputs.get("sampler_name", meta.sampler)
+                meta.scheduler = inputs.get("scheduler", meta.scheduler)
+                meta.denoise = inputs.get("denoise", meta.denoise)
 
         if cls in ("CheckpointLoaderSimple", "UNETLoader"):
             for k, v in inputs.items():
                 if isinstance(v, str) and k not in ("weight_dtype",):
                     model_names.append(v)
 
-        if cls == "CLIPTextEncode":
-            text = inputs.get("text", "")
-            if text:
-                clip_texts.append((int(node_id), text))
-
     if model_names:
         meta.model = model_names[0]
 
-    # Determine positive vs negative from KSampler references
+    # 收集所有文本节点（含 FETextInput 等扩展类型，引用已递归解析为字符串）
+    text_nodes = _collect_text_nodes(data)
+    # node_id(str) -> (text, is_native)，用于按引用判定正负向与去重
+    text_by_id = {nid: (txt, native) for nid, _, txt, native in text_nodes}
+    # 原生文本集合，用于剔除引用节点的重复文本
+    native_texts = {txt for _, _, txt, native in text_nodes if native}
+
+    # Determine positive vs negative from KSampler references.
+    # KSampler 的 positive/negative 指向 CLIPTextEncode（或其它编码节点），
+    # 该节点的 text 可能是节点引用（如 Anima 工作流正向词经 FETextInput 传入），
+    # 因此判定时需沿引用链找到最终承载文本的节点 id。
     positive_ids = set()
     negative_ids = set()
     for ks in k_sampler_nodes:
-        ref_pos = ks.get("inputs", {}).get("positive", [None])
-        ref_neg = ks.get("inputs", {}).get("negative", [None])
-        if ref_pos and ref_pos[0] is not None:
-            positive_ids.add(ref_pos[0])
-        if ref_neg and ref_neg[0] is not None:
-            negative_ids.add(ref_neg[0])
+        for side, ref in (("positive", ks.get("inputs", {}).get("positive")),
+                          ("negative", ks.get("inputs", {}).get("negative"))):
+            if not _is_node_ref(ref):
+                continue
+            target_id = ref[0]
+            target_set = positive_ids if side == "positive" else negative_ids
+            # 若引用节点本身有文本，直接归类
+            if target_id in text_by_id:
+                target_set.add(target_id)
+            # 再沿该节点的 text/prompt 等字段继续追溯到有文本的节点
+            resolved_ids = _trace_to_text_node(target_id, data, text_by_id)
+            target_set.update(resolved_ids)
 
-    for node_id, text in clip_texts:
-        if node_id in negative_ids:
-            meta.negative_prompts.append(text)
+    seen_texts = set()
+    for node_id, cls, txt, is_native in text_nodes:
+        # 去重：引用节点若文本与某原生节点相同，则跳过（避免正向词重复 + LoRA 翻倍）
+        if not is_native and txt in native_texts:
+            continue
+        if txt in seen_texts:
+            continue
+        seen_texts.add(txt)
+
+        if node_id in negative_ids and node_id not in positive_ids:
+            meta.negative_prompts.append(txt)
+        elif node_id in positive_ids:
+            meta.positive_prompts.append(txt)
         else:
-            meta.positive_prompts.append(text)
+            # 无法判定正负向时默认归正向
+            meta.positive_prompts.append(txt)
 
     if meta.positive_prompts:
         meta.positive_prompt = max(meta.positive_prompts, key=len)
@@ -254,6 +388,35 @@ def _parse_comfyui_prompt(prompt_json: str) -> ImageMetadata:
         meta.negative_prompt = max(meta.negative_prompts, key=len)
 
     return meta
+
+
+def _trace_to_text_node(node_id: str, data: dict, text_by_id: dict, _seen: set = None) -> set:
+    """沿节点的文本/引用字段追溯到承载文本的节点 id 集合。
+
+    用于 KSampler positive/negative 指向的中间节点（如 FEEncLoraAutoLoader）
+    本身不含文本、但其 prompt 字段引用了 FETextInput 的情况。
+    """
+    if _seen is None:
+        _seen = set()
+    if node_id in _seen:
+        return set()
+    _seen.add(node_id)
+    result = set()
+    node = data.get(node_id)
+    if not isinstance(node, dict):
+        return result
+    inputs = node.get("inputs", {})
+    if not isinstance(inputs, dict):
+        return result
+    for fld in ("prompt", "text", "input", "string", "value", "positive", "negative"):
+        val = inputs.get(fld)
+        if _is_node_ref(val):
+            target = val[0]
+            if target in text_by_id:
+                result.add(target)
+            else:
+                result.update(_trace_to_text_node(target, data, text_by_id, _seen))
+    return result
 
 
 def _parse_webui_params(params: str) -> ImageMetadata:
