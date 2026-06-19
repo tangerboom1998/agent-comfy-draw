@@ -217,11 +217,15 @@ class ComfyUIDrawTool(Tool):
             timeout: 生图超时秒数。
         """
         host = comfyui_host or os.environ.get("COMFYUI_HOST", "http://127.0.0.1:8188")
-        wf_path = workflow_path or os.environ.get("COMFYUI_WORKFLOW_PATH")
+        if not workflow_path:
+            raise ValueError(
+                "workflow_path 是必传参数。请通过 --workflow 参数指定工作流。\n"
+                "可用快捷名: noob / anima / zimage，或传入工作流 JSON 文件完整路径。"
+            )
         out_dir = output_dir or os.environ.get("COMFYUI_OUTPUT_DIR", "output")
         self._client = ComfyUIClient(
             host=host,
-            workflow_path=wf_path,
+            workflow_path=workflow_path,
             output_dir=out_dir,
             timeout=timeout,
         )
@@ -383,6 +387,8 @@ async def _main():
     parser = argparse.ArgumentParser(description="ComfyUI Draw 独立测试")
     parser.add_argument("prompt", help="提示词")
     parser.add_argument("--host", default=None, help="ComfyUI 地址")
+    parser.add_argument("--workflow", "-w", default=None, required=True,
+                        help="工作流 JSON 文件路径（必传）。可用工作流: noob / anima / zimage，或直接传文件路径")
     parser.add_argument("--canvas", default="竖图", choices=list(CANVAS_PRESETS.keys()))
     parser.add_argument("--steps", type=int, default=28)
     parser.add_argument("--seed", type=int, default=-1)
@@ -405,7 +411,11 @@ async def _main():
                         help="ControlNet 预处理类型 (默认 auto=线稿)")
     args = parser.parse_args()
 
-    tool = ComfyUIDrawTool(comfyui_host=args.host)
+    # 解析 workflow: 支持快捷名(noob/anima/zimage)或完整路径
+    from comfyui_client import AVAILABLE_WORKFLOWS
+    wf = AVAILABLE_WORKFLOWS.get(args.workflow, args.workflow)
+
+    tool = ComfyUIDrawTool(comfyui_host=args.host, workflow_path=wf)
     result = await tool.execute(
         prompt=args.prompt,
         negative_prompt=args.negative,

@@ -17,11 +17,14 @@ agent_workflow:
     - "构建中文指令字符串传给 tag_producer.py"
     - "调用 tag_producer.py 查询 pretags 数据库"
     - "使用 tag_producer 输出的完整 prompt（含 LoRA）调用 comfyui_draw.py"
+    - "生图时必须通过 --workflow 参数指定工作流（anima/noob/zimage），由 Agent 根据用户需求决定"
   forbidden:
     - "不要跳过 tag_producer，直接构建英文 prompt"
     - "不要手动编写 LoRA 格式，必须从 pretags 获取"
     - "不要忽略用户指定的画风、动作、场景要求"
     - "不要拆分 tag_producer 调用：不要只查询 pretags 数据不走 tag_producer 生成提示词，也不要只拼接提示词不经过 pretags 查询"
+    - "不要自己写 requests/aiohttp 等代码调用 ComfyUI API，必须使用 comfyui_draw.py CLI"
+    - "不要自行解析 pretags JSON 文件，必须使用 pretags_manager.py / tag_producer.py CLI"
 ---
 
 # Pretags Draw
@@ -218,10 +221,10 @@ python modules/pretags-draw/scripts/tag_producer.py "<完整中文指令>"
 # 设置环境变量
 export COMFYUI_HOST=http://127.0.0.1:8188
 
-# 生成图片
+# 生成图片（必须指定工作流）
 cd modules/pretags-draw/scripts
 python comfyui_draw.py "masterpiece, best quality, 1girl, long hair, smile" \
-  --canvas 竖图 --steps 28
+  --workflow noob --canvas 竖图 --steps 28
 ```
 
 生成的图片保存在项目根目录的 `output/` 文件夹。
@@ -243,8 +246,6 @@ python comfyui_draw.py "masterpiece, best quality, 1girl, long hair, smile" \
   - 示例: `http://127.0.0.1:8188`
 
 **可选环境变量**:
-- `COMFYUI_WORKFLOW_PATH` - 自定义工作流文件路径
-  - 默认: `./assets/noob_api_fix_upscale_face_detailer.json`
 - `COMFYUI_OUTPUT_DIR` - 输出目录
   - 默认: `./output`
 
@@ -259,7 +260,7 @@ python comfyui_draw.py "masterpiece, best quality, 1girl, long hair, smile" \
 
 ```bash
 python comfyui_draw.py "masterpiece, best quality, 1girl, blue eyes, long hair, smile, dress" \
-  --canvas 竖图 --steps 28 --cfg 7.0
+  --workflow noob --canvas 竖图 --steps 28 --cfg 7.0
 ```
 
 ### 场景 2: 使用 tag_producer 中文指令

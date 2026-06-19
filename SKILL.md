@@ -43,6 +43,20 @@ agent_constraints:
 - ✅ 创建临时分析报告（`*_REPORT.md`, `*_AUDIT.md`）
 - ✅ 回答问题和提供建议
 
+### ⚠️ 核心原则：必须使用 CLI，禁止自己写代码
+
+**Agent 使用本项目时，必须优先使用项目提供的 CLI 脚本和模块，禁止自行编写生图、查询或数据处理代码。**
+
+具体要求：
+
+1. **生图必须用 `comfyui_draw.py`** — 禁止自己写 requests/aiohttp 调 ComfyUI API，禁止复制 `test_anima.py` 的硬编码写法
+2. **查询必须用 `pretags_manager.py`** — 禁止自己解析 pretags JSON 文件
+3. **标签处理必须用 `tag_producer.py`** — 禁止自己拼装英文 tag
+4. **必须根据模型类型选择工作流** — 生图时必须通过 `--workflow` 参数指定工作流（`anima`/`noob`/`zimage`），由 Agent 根据用户需求决定使用哪个工作流，不要依赖默认值
+5. **先完整扫描技能模块再行动** — 使用任何功能前，必须先查看对应模块的 `SKILL.md`、`scripts/` 目录和 `assets/` 目录，确认已有的 CLI 和 API，不要跳过发现步骤直接动手
+
+> 如果发现现有 CLI 不满足需求，应先告知用户并讨论方案，而非自行编写代码。
+
 ### 绘图工作流约束
 
 **当用户要求生图时，必须遵循 pretags-draw 工作流**：
@@ -151,14 +165,14 @@ export COMFYUI_HOST=http://127.0.0.1:8188
 cd modules/Tanger-Presets-Show && python3 server.py
 # 访问 http://localhost:8765
 
-# 4. 生成图片
+# 4. 生成图片（必须指定工作流）
 cd modules/pretags-draw/scripts
-python comfyui_draw.py "masterpiece, best quality, 1girl, smile" --canvas 竖图
+python comfyui_draw.py "masterpiece, best quality, 1girl, smile" --workflow anima --canvas 竖图
 ```
 
 ## 🎯 核心功能
 
-- **AI 绘图工作流** - 支持 Noob/Anima/z-image 三种工作流，自动识别
+- **AI 绘图工作流** - 支持 Noob/Anima/z-image 三种工作流，Agent 根据需求选择
 - **Pretags 标签管理** - 19,000+ 角色和 10,000+ 标签的结构化数据库
 - **中文提示词引擎** - 自动将中文关键词转换为 SDXL 英文标签
 - **Web 可视化界面** - Tanger-Presets-Show 提供可视化标签管理
@@ -271,7 +285,7 @@ pip install websocket-client requests python-dotenv pillow openpyxl pandas aioht
 ```bash
 cd modules/pretags-draw/scripts
 python comfyui_draw.py "masterpiece, best quality, 1girl, blue eyes, long hair, smile" \
-  --canvas 竖图 --steps 28 --cfg 7.0
+  --workflow noob --canvas 竖图 --steps 28 --cfg 7.0
 ```
 
 ### 场景 2: 使用中文提示词

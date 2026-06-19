@@ -18,7 +18,12 @@ import aiohttp
 _SKILL_ROOT = Path(__file__).resolve().parent.parent  # skill 根目录
 _ASSETS_DIR = _SKILL_ROOT / "assets"
 
-DEFAULT_WORKFLOW_PATH = str(_ASSETS_DIR / "noob_api_fix_upscale_face_detailer.json")
+# 可用工作流（供 Agent 根据需求选择）
+AVAILABLE_WORKFLOWS = {
+    "noob": str(_ASSETS_DIR / "noob_api_fix_upscale_face_detailer.json"),
+    "anima": str(_ASSETS_DIR / "anima_api_workflow.json"),
+    "zimage": str(_ASSETS_DIR / "z_image_turbo_api_workflow.json"),
+}
 
 
 # ── 采样器映射表 ──────────────────────────────────────────────────────────
@@ -80,7 +85,13 @@ class ComfyUIClient:
         timeout: int = 300,
     ) -> None:
         self.host = host.rstrip("/")
-        self.workflow_path = Path(workflow_path) if workflow_path else Path(DEFAULT_WORKFLOW_PATH)
+        if workflow_path:
+            self.workflow_path = Path(workflow_path)
+        else:
+            raise ValueError(
+                "workflow_path 是必传参数。请根据模型类型选择工作流：\n"
+                + "\n".join(f"  {k}: {v}" for k, v in AVAILABLE_WORKFLOWS.items())
+            )
         self.output_dir = Path(output_dir)
         self.timeout = timeout
         self._workflow_template: dict[str, Any] | None = None

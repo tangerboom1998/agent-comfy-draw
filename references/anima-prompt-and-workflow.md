@@ -118,14 +118,13 @@ python comfyui_draw.py \
 **工作流文件**: `anima-new-Latent.json`
 
 **环境要求**:
-- `COMFYUI_WORKFLOW_PATH=./anima-new-Latent.json`
-- 必须从 skill 根目录运行
+- 生图时使用 `--workflow anima` 指定工作流
 - 需要 `aiohttp` 包
 
 **参数配置**:
 ```bash
 python comfyui_draw.py "prompt" \
-  --canvas 竖图 --steps 28 --cfg 5.5
+  --workflow anima --canvas 竖图 --steps 28 --cfg 5.5
 ```
 
 ## 注意事项

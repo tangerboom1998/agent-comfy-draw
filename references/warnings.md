@@ -11,8 +11,8 @@
 - 不要使用简写（如 `localhost:8188`）
 
 ### 工作流文件
-- Anima 工作流必须从 skill 根目录运行
-- 设置 `COMFYUI_WORKFLOW_PATH=./anima-new-Latent.json`
+- 生图时必须通过 `--workflow` 参数指定工作流（`anima`/`noob`/`zimage`）
+- 由 Agent 根据用户需求选择合适的工作流，不要依赖默认值
 
 ### FaceDetailer
 - 放大路径的 FaceDetailer 必须连接 UltralyticsDetectorProvider
