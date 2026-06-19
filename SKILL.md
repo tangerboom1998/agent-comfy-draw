@@ -17,9 +17,8 @@ agent_constraints:
     - "修改项目代码文件（未经用户明确允许）"
     - "删除或重命名现有文件"
   allowed:
-    - "根据用户习惯新增 reference 文档（需遵循 REFERENCE_TEMPLATE.md，保持简洁 ≤150 行）"
     - "向 [WARNINGS.md](references/warnings.md) 添加新的警告或提醒"
-    - "创建临时分析报告（*_REPORT.md, *_AUDIT.md）"
+    - "在 [user-references/](user-references/README.md) 中记录用户个性化设置和经验"
     - "回答问题和提供建议"
 ---
 
@@ -38,9 +37,8 @@ agent_constraints:
 - ❌ 修改 Git 配置
 
 ### 允许操作
-- ✅ 根据用户习惯新增 reference 文档（需遵循 [REFERENCE_TEMPLATE.md](REFERENCE_TEMPLATE.md)，保持简洁 ≤150 行）
 - ✅ 向 [WARNINGS.md](references/warnings.md) 添加新的警告或提醒
-- ✅ 创建临时分析报告（`*_REPORT.md`, `*_AUDIT.md`）
+- ✅ 在 [user-references/](user-references/README.md) 中记录用户个性化设置和经验
 - ✅ 回答问题和提供建议
 
 ### ⚠️ 核心原则：必须使用 CLI，禁止自己写代码
@@ -92,32 +90,6 @@ agent_constraints:
    - 需要代理：`HTTPS_PROXY=http://127.0.0.1:7890`
    - 工具：`danbooru.py character <角色名>`
 
-#### 响应格式要求
-
-**从 Pretags 获取时**：
-```
-✅ 找到角色：XXX
-📍 数据来源：Pretags（本地数据库）
-[显示完整信息：LoRA、权重、标签]
-```
-
-**从 Danbooru 获取时**：
-```
-⚠️ Pretags 中未找到，从 Danbooru 获取基础信息
-📍 数据来源：Danbooru API
-[显示基础信息]
-⚠️ 注意：无 LoRA、无中文、无本地化数据
-建议：添加到 Pretags 以获取完整功能
-```
-
-**都未找到时**：
-```
-❌ 未找到角色
-- Pretags：❌ 未找到
-- Danbooru：❌ 未找到
-建议：检查拼写或手动添加
-```
-
 #### 禁止操作
 - ❌ 跳过 Pretags 直接查 Danbooru
 - ❌ 隐藏数据来源
@@ -126,31 +98,13 @@ agent_constraints:
 
 详见：[Agent 使用指南](references/agent-guide.md)
 
-#### 模型特性差异（必须遵守）
+#### 模型提示词格式差异
 
-**Anima (Flux)**:
-- ✅ 可用 tag + 短句：`a girl with long hair, 1girl, solo`
-- ✅ 画师加 @：`@wlop`, `@big chungus`
-- ✅ 添加：`newest, latest, safe`
-- ✅ 仅英文，有语义理解
+根据模型类型选择提示词格式。详细规则和示例见：[Pretags Draw 工作流](modules/pretags-draw/SKILL.md#根据模型类型调整提示词)
 
-**SDXL (Illustrious/Noob)**:
-- ✅ 纯 tag 最佳：`1girl, solo, long_hair, silver_hair`
-- ✅ 画师不加 @：`wlop`, `big_chungus`
-- ✅ 支持 LoRA：`<lora:xxx:0.8:0.8>`（格式见下方规范）
-- ✅ 仅英文，弱语义
-
-**z-image Turbo**:
-- ✅ 自然语言：`一个银发红瞳的女孩穿着白裙子`
-- ✅ 支持中英文
-- ✅ 强语义理解
-- ✅ 参数：Steps=4, CFG=1.0
-
-详见：
-- [Pretags Draw 工作流](modules/pretags-draw/SKILL.md#-agent-工作流约束)
-- [Agent 使用指南](references/agent-guide.md)
-- [模型提示词对比](references/model-prompt-comparison.md)
-- **LoRA 格式规范**：`<lora:LoRA文件名:unet权重:text权重(可选)>`，如 `<lora:jijia-anima-Tanger:0.8>` 或 `<lora:jijia-anima-Tanger:0.8:0.8>`。文件名不带 `.safetensors` 扩展名和目录路径
+- **Anima (Flux)**: tag + 短句，画师加 `@`
+- **SDXL (Illustrious/Noob)**: 纯 Danbooru tag，画师不加 `@`
+- **z-image Turbo**: 自然语言，支持中文
 
 ## 🎯 功能唤醒：意图 → 模块映射
 

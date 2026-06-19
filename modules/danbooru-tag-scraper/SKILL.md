@@ -151,7 +151,6 @@ def build_tag_dict():
 
 - [Danbooru API 官方文档](https://danbooru.donmai.us/wiki_pages/help:api)
 - [Pretags 数据管理](../../references/pretags-data-management.md)
-- [标签分类规则](../../references/tag-classification-rules.md)
 
 ## 📄 许可证
 

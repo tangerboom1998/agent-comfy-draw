@@ -138,7 +138,6 @@ LoRA 权重: 0.8:0.8 (unet:clip)
 
 - [画风管理与测试](../../references/artstyle-curation.md) - 画风整理流程和测试规范
 - [Pretags Draw](../../modules/pretags-draw/SKILL.md) - 生图工具
-- [LoRA 格式规范](../../references/lora-format-guide.md) - LoRA 使用规范
 
 ## 📄 许可证
 
